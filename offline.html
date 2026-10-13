@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hors ligne | My Beauty Aura</title>
+  <meta name="description" content="Page affichée lorsque la connexion est indisponible.">
+  <meta name="robots" content="noindex">
+
+  <meta name="theme-color" content="#1F1A24">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Beauty Aura">
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/bodoni-moda-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/figtree-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/custom.css">
+
+  <script type="importmap">{"imports":{"vue":"/assets/js/vendor/vue.esm-browser.prod.js","v-calendar":"/assets/js/vendor/v-calendar-3.1.2.esm.js","@popperjs/core":"/assets/js/vendor/popperjs-core-2.11.8.esm.js"}}</script>
+</head>
+<body>
+  <a class="lb-skip" href="#contenu">Aller au contenu</a>
+  <header class="lb-header">
+    <nav class="navbar navbar-expand-lg container" aria-label="Navigation principale">
+      <a class="lb-logo" href="/"><svg class="" aria-hidden="true" focusable="false"><use href="/assets/icons/sprite.svg#logo"/></svg><span>My Beauty Aura</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse lb-nav" id="menu">
+        <ul class="navbar-nav ms-lg-auto me-lg-3"><li class="nav-item"><a class="nav-link" href="/prestations/">Prestations</a></li><li class="nav-item"><a class="nav-link" href="/galerie.html">Galerie</a></li><li class="nav-item"><a class="nav-link" href="/tarifs.html">Tarifs</a></li><li class="nav-item"><a class="nav-link" href="/a-propos.html">À propos</a></li><li class="nav-item"><a class="nav-link" href="/faq.html">FAQ</a></li><li class="nav-item"><a class="nav-link" href="/contact.html">Contact</a></li></ul>
+        <a class="btn lb-btn lb-btn--primaire lb-header__cta" href="/reservation.html">Réserver</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="contenu">
+
+    <section class="lb-section"><div class="container"><div class="row"><div class="col-lg-7">
+      <h1>Vous êtes hors ligne</h1>
+      <p class="lb-intro">Cette page n'est pas disponible sans connexion. Les pages déjà visitées restent consultables.</p>
+      <p>La demande de rendez-vous demande une connexion : réessayez dès que votre réseau est revenu.</p>
+      <p><a class="btn lb-btn lb-btn--primaire" href="/">Retour à l'accueil</a></p>
+    </div></div></div></section>
+  </main>
+
+  <footer class="lb-footer">
+    <div class="container">
+      <div class="row gx-3 gx-lg-5 gy-5">
+        <div class="col-lg-5">
+          <p class="lb-titre fs-3 mb-2">My Beauty Aura</p>
+          <p>Studio de soins esthétiques des cils et des sourcils.</p>
+          <p>Lyon, France <span class="lb-todo">[À COMPLÉTER] rue et code postal</span><br><span class="lb-todo">[À COMPLÉTER] téléphone</span><br><span class="lb-todo">[À COMPLÉTER] e-mail</span></p>
+        </div>
+        <div class="col-6 col-lg-3 offset-lg-1">
+          <h2>Le studio</h2>
+          <ul>
+            <li><a href="/prestations/">Prestations</a></li>
+            <li><a href="/galerie.html">Galerie</a></li>
+            <li><a href="/tarifs.html">Tarifs</a></li>
+            <li><a href="/a-propos.html">À propos</a></li>
+            <li><a href="/conseils-apres-soin.html">Conseils après-soin</a></li>
+            <li><a href="/faq.html">FAQ</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-3">
+          <h2>Informations</h2>
+          <ul>
+            <li><a href="/mentions-legales.html">Mentions légales</a></li>
+            <li><button type="button" class="lb-lien-bouton" data-lb-consentement>Gérer mes choix</button></li>
+            <li><button type="button" class="lb-lien-bouton" data-lb-installer hidden>Installer l'application</button></li>
+            <li><a href="/politique-confidentialite.html">Confidentialité</a></li>
+            <li><a href="/cgv-annulation.html">CGV et annulation</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="lb-footer__legal mb-0">© My Beauty Aura. Les soins proposés sont des soins esthétiques.</p>
+    </div>
+  </footer>
+
+  <section class="lb-sticky" aria-label="Réserver">
+    <a class="btn lb-btn lb-btn--primaire" href="/reservation.html">Réserver</a>
+    <a class="btn lb-btn lb-btn--contour" href="/contact.html">Contact</a>
+  </section>
+
+  <div class="offcanvas offcanvas-end lb-offcanvas" tabindex="-1" id="lb-offcanvas-reserver" aria-labelledby="lb-offcanvas-titre">
+    <div class="offcanvas-header">
+      <p class="offcanvas-title lb-titre fs-3 mb-0" id="lb-offcanvas-titre">Réserver un soin</p>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer la réservation"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="lb-squelette lb-squelette--page" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div id="booking-app" v-cloak></div>
+    </div>
+  </div>
+  <script src="/assets/js/vendor/bootstrap.bundle.min.js" defer></script>
+  <script type="module" src="/assets/js/app/booking-loader.js"></script>
+  <script type="module" src="/assets/js/app/consentement.js"></script>
+  <script type="module" src="/assets/js/app/mesure.js"></script>
+  <script type="module" src="/assets/js/app/pwa.js"></script>
+</body>
+</html>

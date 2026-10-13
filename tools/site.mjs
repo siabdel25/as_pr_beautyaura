@@ -27,6 +27,8 @@ export function csp() {
     `connect-src 'self' ${mesure} ${envoi}`.trim(),
     `frame-src ${carte || "'none'"}`,
     "object-src 'none'",
+    "manifest-src 'self'",
+    "worker-src 'self'",
     "base-uri 'self'",
     `form-action 'self' ${envoi}`.trim(),
     "frame-ancestors 'none'"
