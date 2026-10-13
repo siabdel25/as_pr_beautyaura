@@ -11,6 +11,8 @@ Site vitrine et prise de rendez-vous en ligne pour un studio de soins des cils e
 - Design responsive mobile-first, accessible, optimisé pour la performance
 - SEO local : données structurées schema.org, une page par prestation
 - Conforme RGPD : bandeau cookies, mesure d'audience sans cookie
+- **Application installable (PWA)** : manifeste, service worker (pages réseau d'abord, ressources en cache, page hors ligne), bouton « Installer l'application » dans le pied de page
+- **Version démo Docker** : nginx et fausses données générées en Python (voir « Démo Docker »)
 
 ## Stack
 
@@ -51,6 +53,11 @@ lash-brow-studio/
 ├── contact.html
 ├── assets/             # css, js, img, fonts
 ├── data/               # services, horaires, indisponibilités, avis
+├── tools/              # build des pages, service worker (sw.template.js), sprite, vérifications
+├── tests/              # tests Node (créneaux, validation, build, démo)
+├── demo/               # démo Docker : Dockerfile, nginx, générateur de fausses données, tests
+├── manifest.webmanifest, sw.js, offline.html   # PWA (sw.js est généré par le build)
+├── .htaccess           # Apache/LiteSpeed (Hostinger), généré par le build
 ├── CAHIER_DES_CHARGES.md
 ├── CLAUDE.md
 └── TODO.md
@@ -91,8 +98,10 @@ La phase 2 ajoute une API pour bloquer les créneaux automatiquement et envoyer 
 npx lighthouse http://localhost:3000 --view    # performance, SEO, accessibilité
 npx pa11y http://localhost:3000                # accessibilité
 npx html-validate "**/*.html"                  # validation HTML
-node --test "tests/*.test.mjs"                   # tests unitaires (créneaux, validation, .ics, envoi)
-node tools/build-pages.mjs                      # régénère les pages HTML depuis tools/pages/
+node --test "tests/*.test.mjs"                   # tests unitaires (créneaux, validation, .ics, envoi, créneaux sur données de démo)
+python3 -m unittest discover -s demo/tests -v   # cohérence des fausses données de démo
+bash demo/tests/test_container.sh               # image Docker : pages, en-têtes, données (nécessite docker)
+node tools/build-pages.mjs                      # régénère les pages HTML, sw.js, .htaccess, sitemap et en-têtes
 node tools/build-sprite.mjs                     # régénère assets/icons/sprite.svg
 node tools/verifier-mise-en-ligne.mjs --liste   # ce qui reste à fournir avant la mise en ligne
 ```
@@ -101,13 +110,26 @@ Objectifs : Lighthouse mobile Performance ≥ 90, Accessibilité ≥ 95, SEO ≥
 
 ## Déploiement
 
-Le site est statique. Il se déploie sur Netlify, Cloudflare Pages ou un hébergement mutualisé :
+Le site est statique. Hébergement prévu : Hostinger (mutualisé, `.htaccess` généré par le build : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués). Netlify et Cloudflare Pages restent possibles avec `_headers`. Relancer `node tools/build-pages.mjs` avant chaque déploiement : il renouvelle la version du cache du service worker. Marche à suivre complète : `docs/DEPLOIEMENT.md`.
+
+Étapes générales :
 
 1. Connecter le dépôt Git à l'hébergeur.
 2. Dossier de publication : la racine (`/`).
 3. Activer HTTPS et la compression Brotli.
 4. En-têtes de sécurité : `_headers` (Netlify, Cloudflare Pages) est généré par le build. Sur un autre hébergeur, reprendre les mêmes en-têtes. La CSP autorise `'unsafe-eval'` parce que Vue compile ses gabarits dans le navigateur ; la supprimer demanderait de précompiler les gabarits (donc un build).
 5. Mesure d'audience : renseigner `mesure.domaine` dans `data/site.json` pour activer Plausible (sans cookie). Tant que le champ est `null`, aucun script de mesure n'est chargé.
+
+## Démo Docker
+
+nginx sert le site avec de fausses données (services, indisponibilités, réservations « à confirmer »), régénérées à chaque démarrage à la date du jour. Les données de `data/` ne sont pas modifiées. Réservée à la démonstration, pas à la production.
+
+```bash
+docker build -f demo/Dockerfile -t lb-demo .
+docker run --rm -p 8080:80 lb-demo              # http://localhost:8080
+```
+
+Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
 
 ## Conformité et contenus
 
@@ -121,6 +143,7 @@ Le site est statique. Il se déploie sur Netlify, Cloudflare Pages ou un héberg
 - `CAHIER_DES_CHARGES.md` : besoins, architecture, marketing, planning, recette
 - `CLAUDE.md` : règles pour travailler avec Claude Code
 - `TODO.md` : suivi des tâches par phase
+- `ROADMAP.md` : vue d'ensemble des étapes (en cours, à venir)
 
 ## Licence
 

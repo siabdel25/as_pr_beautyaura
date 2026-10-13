@@ -4,7 +4,7 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 0 — Cadrage (bloquant, à obtenir du client)
 
-- [ ] Nom du studio, logo, adresse, téléphone, e-mail, SIRET
+- [ ] Nom du studio, logo, adresse, téléphone, e-mail, SIRET (acquis : ville Lyon, responsable indiqué dans `data/studio.json` ; reste rue, code postal, téléphone, e-mail, SIRET)
 - [ ] Liste réelle des prestations, durées et tarifs
 - [ ] Horaires d'ouverture, jours de fermeture, règles d'annulation
 - [ ] Photos : praticienne, lieu, réalisations (avec consentements écrits)
@@ -70,6 +70,10 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [x] Audit accessibilité (pa11y + test clavier + lecteur d'écran)
 - [x] En-têtes de sécurité (CSP, Referrer-Policy, X-Content-Type-Options)
 - [x] Test d'affichage de 360 px à 1920 px
+- [x] PWA : manifeste, icônes, service worker généré par le build (version = empreinte du contenu), page hors ligne, bouton « Installer l'application »
+- [x] `.htaccess` généré (Hostinger) : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués
+- [x] Démo Docker : nginx, fausses données Python régénérées au démarrage, tests (`demo/tests/`, `tests/demo-slots.test.mjs`), section dans `docs/DEPLOIEMENT.md`
+- [ ] Audit Lighthouse (PWA, installabilité) et test hors ligne sur appareil réel après mise en ligne
 
 ## Lot 5 — Recette et mise en ligne
 
@@ -101,6 +105,6 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Questions ouvertes
 
-- [ ] Hébergement retenu : Netlify, Cloudflare Pages ou mutualisé ?
+- [x] Hébergement retenu : Hostinger (mutualisé, `.htaccess`), domaine `jmgaura.com` (d'après `data/studio.json` et `data/site.json`, à confirmer avec le client)
 - [ ] Service d'e-mail et de SMS pour la phase 2 ?
 - [ ] Le studio a-t-il déjà un système de réservation à remplacer ou à garder ?
