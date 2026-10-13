@@ -44,7 +44,7 @@ console.log(`${urls.length} URL dans le sitemap`);
 const empreinte = createHash('sha256');
 (function parcourir(d) {
   for (const n of readdirSync(d).sort()) {
-    if (['node_modules', 'docs', 'tools', 'tests', 'data', '.git', 'pr_beautyaura', 'blog'].includes(n)) continue;
+    if (['node_modules', 'docs', 'tools', 'tests', 'data', 'demo', '.git', 'pr_beautyaura', 'blog'].includes(n)) continue;
     const c = join(d, n);
     if (statSync(c).isDirectory()) parcourir(c);
     else if (/\.(html|css|js|svg|woff2|webmanifest)$/.test(n) && n !== 'sw.js') empreinte.update(n).update(readFileSync(c));

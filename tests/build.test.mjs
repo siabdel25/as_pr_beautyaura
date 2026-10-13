@@ -8,7 +8,7 @@ import { racine, csp } from '../tools/site.mjs';
 const pages = [];
 (function parcourir(d) {
   for (const n of readdirSync(d)) {
-    if (['node_modules', 'docs', 'assets', 'tools', 'tests', 'data', '.git'].includes(n)) continue;
+    if (['node_modules', 'docs', 'assets', 'tools', 'tests', 'data', 'demo', '.git'].includes(n)) continue;
     const c = join(d, n);
     statSync(c).isDirectory() ? parcourir(c) : n.endsWith('.html') && pages.push(c);
   }
