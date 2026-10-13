@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Beauty Aura, cils et sourcils</title>
+<meta name="description" content="Extensions de cils, rehaussement et soins des sourcils. Découvrez les regards du studio My Beauty Aura et réservez en ligne en quelques clics.">
+<meta name="theme-color" content="#1F1A24">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<!-- Production : ajouter les attributs integrity (SRI) ou auto-héberger ces fichiers -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HealthAndBeautyBusiness","name":"My Beauty Aura","description":"Studio de cils et de sourcils : extensions, rehaussement et soins des sourcils."}
+</script>
+
+<style>
+/* ---------- Design tokens (cahier des charges, section 1.1.6) ---------- */
+:root{
+  --ink:#1F1A24;
+  --silk:#F6F1F3;
+  --paper:#FCFAFB;
+  --mauve:#7A5C74;
+  --bronze-deep:#8A5A36;   /* bronze assombri pour garder 4,5:1 avec du texte blanc */
+  --sage:#BFCABA;
+  --line:rgba(31,26,36,.16);
+  --lb-serif:'Bodoni Moda','Didot',Georgia,serif;
+  --bs-body-font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bs-body-color:var(--ink);
+  --bs-body-bg:var(--silk);
+}
+
+/* ---------- Base ---------- */
+html{scroll-behavior:smooth}
+body{font-size:1.0625rem;line-height:1.6}
+@media (max-width:991.98px){body{padding-bottom:4.75rem}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+h1,h2,h3,h4{font-family:var(--lb-serif);font-weight:400;letter-spacing:-.01em;line-height:1.12}
+h1{font-size:clamp(2.5rem,6.2vw,4.5rem);line-height:1.04}
+h2{font-size:clamp(2rem,4.4vw,3rem)}
+h3{font-size:1.4rem}
+p{max-width:38rem}
+a{color:var(--mauve)}
+:focus-visible{outline:3px solid var(--bronze-deep);outline-offset:3px}
+.lb-dark :focus-visible{outline-color:#fff}
+.lb-panel :focus-visible{outline-color:var(--bronze-deep)}
+[v-cloak]{display:none}
+
+.lb-section{padding:clamp(3.5rem,8vw,6.5rem) 0;scroll-margin-top:72px}
+.lb-section--paper{background:var(--paper)}
+.lb-lead{font-size:1.18rem;max-width:34rem}
+
+/* ---------- Boutons ---------- */
+.btn.lb-btn{border-radius:999px;padding:.8rem 1.6rem;font-weight:600;border:1.5px solid transparent;transition:background-color .2s,color .2s,border-color .2s}
+.btn.lb-btn--primary{background:var(--bronze-deep);color:#fff}
+.btn.lb-btn--primary:hover,.btn.lb-btn--primary:focus-visible{background:var(--ink);color:#fff}
+.btn.lb-btn--ghost{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn.lb-btn--ghost:hover{background:var(--ink);color:var(--silk)}
+.btn.lb-btn:disabled{opacity:.45}
+
+/* ---------- Navigation ---------- */
+.lb-nav{background:rgba(246,241,243,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.lb-nav .navbar-brand{font-family:var(--lb-serif);font-size:1.4rem;color:var(--ink);display:flex;align-items:center;gap:.6rem}
+.lb-nav .nav-link{color:var(--ink);padding:.5rem 1rem}
+.lb-nav .nav-link:hover{color:var(--mauve)}
+.lb-brandmark{width:34px;height:20px}
+
+/* ---------- Hero ---------- */
+.lb-hero{padding:clamp(2.5rem,6vw,5rem) 0 clamp(3rem,7vw,6rem)}
+.lb-hero__art{background:#EBCBB4;border-radius:999px 999px 20px 20px;aspect-ratio:4/5;max-width:420px;margin-inline:auto;overflow:hidden}
+.lb-hero__art svg{width:100%;height:100%;display:block}
+.lb-hero__note{font-size:.95rem;color:#5b5260;margin-top:1.25rem}
+
+/* Le cil du hero se dessine une seule fois : le seul mouvement d'entrée de la page */
+.lb-draw .lb-lashes path{stroke-dasharray:1;stroke-dashoffset:1;animation:lb-draw .8s ease-out forwards;animation-delay:calc(.35s + var(--i) * 55ms)}
+@keyframes lb-draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.lb-draw .lb-lashes path{animation:none;stroke-dashoffset:0}}
+
+/* ---------- Carousel des regards ---------- */
+.lb-looks__bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:2rem 0 1.25rem;flex-wrap:wrap}
+.lb-dots{display:flex}
+.lb-dot{width:24px;height:24px;border:0;background:none;position:relative;padding:0}
+.lb-dot::after{content:"";position:absolute;inset:7px;border-radius:50%;background:rgba(31,26,36,.3)}
+.lb-dot.is-on::after{background:var(--bronze-deep)}
+.lb-iconbtn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;color:var(--ink);display:inline-grid;place-items:center;padding:0}
+.lb-iconbtn:hover:not(:disabled){background:var(--ink);color:var(--silk)}
+.lb-iconbtn:disabled{opacity:.35}
+.lb-iconbtn svg{width:18px;height:18px}
+
+.lb-track{display:flex;gap:1.5rem;overflow-x:auto;scroll-snap-type:x mandatory;position:relative;padding-bottom:1rem;scrollbar-width:none}
+.lb-track::-webkit-scrollbar{display:none}
+.lb-look{flex:0 0 min(78vw,285px);scroll-snap-align:start;display:flex;flex-direction:column;gap:.9rem}
+.lb-look__art{background:var(--tint);border-radius:999px 999px 14px 14px;overflow:hidden;aspect-ratio:240/300}
+.lb-look__art svg{width:100%;height:100%;display:block}
+.lb-look h3{margin:.25rem 0 0}
+.lb-look dl{margin:0;font-size:.97rem}
+.lb-look dt{font-weight:600}
+.lb-look dd{margin:0 0 .55rem}
+.lb-look__note{font-size:.92rem;color:#5b5260;margin-top:1rem}
+
+/* ---------- Liste des prestations ---------- */
+.lb-menu{list-style:none;padding:0;margin:2rem 0 0;border-bottom:1px solid var(--line)}
+.lb-menu li{display:grid;grid-template-columns:1fr;gap:.35rem 1.5rem;padding:1.4rem 0;border-top:1px solid var(--line);align-items:center}
+.lb-menu h3{margin:0;font-size:1.5rem}
+.lb-menu p{margin:.15rem 0 0;font-size:.98rem}
+.lb-menu__meta{font-weight:600;white-space:nowrap}
+@media (min-width:768px){.lb-menu li{grid-template-columns:1fr auto auto}}
+
+/* ---------- Déroulé du rendez-vous ---------- */
+.lb-flow{list-style:none;counter-reset:flow;padding:0;margin:2rem 0 0;display:grid;gap:1.75rem}
+.lb-flow li{counter-increment:flow;padding-left:3.4rem;position:relative}
+.lb-flow li::before{content:counter(flow);position:absolute;left:0;top:-.35rem;font-family:var(--lb-serif);font-size:2.4rem;color:var(--mauve);line-height:1}
+.lb-flow h3{font-size:1.25rem;margin-bottom:.25rem}
+.lb-flow p{margin:0}
+@media (min-width:768px){.lb-flow{grid-template-columns:1fr 1fr;gap:2.25rem 3rem}}
+
+/* ---------- Réservation ---------- */
+.lb-dark{background:var(--ink);color:var(--silk)}
+.lb-dark a{color:#E3CFE0}
+.lb-dark ul{padding-left:1.1rem}
+.lb-panel{background:var(--silk);color:var(--ink);border-radius:20px;padding:clamp(1.25rem,3vw,2rem);min-height:520px}
+.lb-panel h3{font-size:1.5rem;margin-bottom:1rem}
+.lb-demo{font-size:.9rem;color:#5b5260;margin:0 0 1.25rem}
+.lb-steps{display:flex;flex-wrap:wrap;gap:.5rem;list-style:none;padding:0;margin:0 0 1rem;font-size:.9rem}
+.lb-steps li{padding:.25rem .8rem;border-radius:999px;border:1px solid var(--line);color:#5b5260}
+.lb-steps .is-active{background:var(--ink);border-color:var(--ink);color:var(--silk)}
+.lb-steps .is-done{background:var(--sage);border-color:var(--sage);color:var(--ink)}
+.lb-choices{display:grid;gap:.6rem}
+@media (min-width:576px){.lb-choices{grid-template-columns:1fr 1fr}}
+.lb-choice{display:flex;flex-direction:column;gap:.15rem;padding:.85rem 1rem;border:1.5px solid var(--line);border-radius:14px;cursor:pointer;background:transparent}
+.lb-choice:hover{border-color:var(--ink)}
+.lb-choice.is-on{border-color:var(--ink);background:#fff}
+.lb-choice:focus-within{outline:3px solid var(--bronze-deep);outline-offset:2px}
+.lb-choice__name{font-weight:600}
+.lb-choice__meta{font-size:.92rem;color:#5b5260}
+.lb-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}
+.lb-recap{margin:-.4rem 0 1rem;color:#5b5260}
+
+.lb-cal{max-width:23rem}
+.lb-cal__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.lb-cal__month{text-transform:capitalize}
+.lb-cal__dow,.lb-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.lb-cal__dow{font-size:.85rem;color:#5b5260;margin-bottom:4px}
+.lb-day{min-height:42px;border:1.5px solid transparent;border-radius:10px;background:#fff;font-weight:600;padding:0}
+.lb-day:hover:not(:disabled){border-color:var(--ink)}
+.lb-day:disabled{background:transparent;color:#8a8190;font-weight:400;opacity:.5}
+.lb-day.is-on{background:var(--ink);color:var(--silk)}
+.lb-slots h4{font-size:1.15rem;margin:1.5rem 0 .75rem;text-transform:capitalize}
+.lb-slots__list{display:flex;flex-wrap:wrap;gap:.5rem}
+.lb-slot{padding:.5rem .95rem;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-weight:600}
+.lb-slot:hover{border-color:var(--ink)}
+.lb-slot.is-on{background:var(--ink);color:var(--silk);border-color:var(--ink)}
+.lb-note{background:#E7ECE3;border-left:4px solid var(--bronze-deep);padding:.75rem 1rem;border-radius:6px;font-size:.96rem;margin-top:1rem}
+.lb-error{color:#9B1C31;font-size:.9rem;margin-top:.25rem}
+.lb-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.lb-summary{background:#fff;border-radius:14px;padding:1rem 1.25rem;margin:1rem 0}
+.lb-summary p{margin:.15rem 0}
+
+/* ---------- FAQ ---------- */
+.accordion{--bs-accordion-bg:transparent;--bs-accordion-border-color:var(--line);--bs-accordion-btn-bg:transparent;--bs-accordion-active-bg:transparent;--bs-accordion-active-color:var(--ink);--bs-accordion-btn-focus-box-shadow:none;--bs-accordion-border-radius:0;--bs-accordion-inner-border-radius:0}
+.accordion-item{border-left:0;border-right:0}
+.accordion-button{font-family:var(--lb-serif);font-size:1.25rem;padding:1.2rem 0}
+.accordion-button:not(.collapsed){box-shadow:none}
+.accordion-body{padding:0 0 1.4rem}
+.accordion-body p{margin:0}
+
+/* ---------- Pied de page ---------- */
+.lb-footer{padding:3rem 0 2.5rem;border-top:1px solid var(--line);font-size:.98rem}
+.lb-footer h2{font-size:1.5rem}
+.lb-footer ul{list-style:none;padding:0;margin:0}
+
+/* ---------- CTA mobile collant ---------- */
+.lb-sticky{position:fixed;left:1rem;right:1rem;bottom:1rem;z-index:1030;text-align:center}
+@media (min-width:992px){.lb-sticky{display:none}}
+</style>
+</head>
+
+<body>
+<a class="visually-hidden-focusable position-absolute p-2 bg-white" href="#main">Aller au contenu</a>
+
+<!-- ============ NAVIGATION ============ -->
+<nav class="navbar navbar-expand-lg sticky-top lb-nav">
+  <div class="container">
+    <a class="navbar-brand" href="#top">
+      <svg class="lb-brandmark" viewBox="0 0 34 20" fill="none" stroke="#7A5C74" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 17 Q17 22 31 17"/><path d="M6 16 Q4 9 1 6"/><path d="M12 18 Q10 8 8 2"/><path d="M19 19 Q19 9 20 1"/><path d="M26 18 Q29 9 33 5"/>
+      </svg>
+      My Beauty Aura
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Ouvrir le menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="#regards">Les regards</a></li>
+        <li class="nav-item"><a class="nav-link" href="#prestations">Prestations</a></li>
+        <li class="nav-item"><a class="nav-link" href="#deroule">Votre rendez-vous</a></li>
+        <li class="nav-item"><a class="nav-link" href="#faq">Questions</a></li>
+        <li class="nav-item ms-lg-2"><a class="btn lb-btn lb-btn--primary" href="#reservation">Réserver</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ============ HERO ============ -->
+<header class="lb-hero" id="top">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <h1>Des cils et des sourcils dessinés pour votre regard.</h1>
+        <p class="lb-lead mt-4">Extensions de cils, rehaussement et soins des sourcils, dans un studio où chaque pose commence par l'étude de votre œil.</p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <a class="btn lb-btn lb-btn--primary" href="#reservation">Réserver un rendez-vous</a>
+          <a class="btn lb-btn lb-btn--ghost" href="#regards">Voir les regards</a>
+        </div>
+        <p class="lb-hero__note">Réservation en ligne en 4 étapes, sans compte à créer.</p>
+      </div>
+      <div class="col-lg-5">
+        <div class="lb-hero__art" id="heroEye"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ CAROUSEL DES REGARDS (Vue) ============ -->
+<section class="lb-section lb-section--paper" id="regards" aria-labelledby="t-regards">
+  <div class="container">
+    <h2 id="t-regards">Un regard pour chaque visage</h2>
+    <p class="lb-lead mt-3">Chaque œil a sa forme, chaque visage son équilibre. Faites défiler les regards pour voir ce que le travail des cils et des sourcils change, puis réservez celui qui vous inspire.</p>
+
+    <div id="looks-app" v-cloak>
+      <div class="lb-looks__bar">
+        <div class="lb-dots" role="group" aria-label="Choisir un regard">
+          <button v-for="(l,i) in looks" :key="l.id" type="button" class="lb-dot" :class="{'is-on': i===index}" :aria-label="'Regard ' + (i+1) + ' sur ' + looks.length + ' : ' + l.title" :aria-current="i===index ? 'true' : null" @click="user(); go(i)"></button>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="lb-iconbtn" aria-label="Regard précédent" @click="user(); prev()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button type="button" class="lb-iconbtn" :aria-label="playing ? 'Mettre le défilement en pause' : 'Reprendre le défilement'" @click="playing = !playing">
+            <svg v-if="playing" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+            <svg v-else viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button type="button" class="lb-iconbtn" aria-label="Regard suivant" @click="user(); next()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="lb-track" ref="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Regards du studio"
+           :aria-live="playing ? 'off' : 'polite'"
+           @scroll.passive="onScroll" @mouseenter="hover = true" @mouseleave="hover = false"
+           @focusin="hover = true" @focusout="hover = false" @pointerdown="user()">
+        <article v-for="(l,i) in looks" :key="l.id" class="lb-look" :style="{'--tint': l.tint}" role="group" aria-roledescription="slide" :aria-label="(i+1) + ' sur ' + looks.length">
+          <div class="lb-look__art" v-html="l.svg"></div>
+          <h3>{{ l.title }}</h3>
+          <dl>
+            <dt>Cils</dt><dd>{{ l.cils }}</dd>
+            <dt>Sourcils</dt><dd>{{ l.sourcils }}</dd>
+          </dl>
+          <a href="#reservation" class="btn lb-btn lb-btn--ghost align-self-start" @click="pick(l)">Réserver ce regard</a>
+        </article>
+      </div>
+    </div>
+    <noscript><p>Activez JavaScript pour faire défiler les regards.</p></noscript>
+    <p class="lb-look__note">Illustrations : les photos de réalisations seront publiées avec le consentement écrit des clientes.</p>
+  </div>
+</section>
+
+<!-- ============ PRESTATIONS ============ -->
+<section class="lb-section" id="prestations" aria-labelledby="t-presta">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 id="t-presta">Les prestations</h2>
+        <p class="lb-lead mt-3">Des durées annoncées à l'avance, pour organiser votre journée sans surprise.</p>
+      </div>
+    </div>
+    <!-- Prix et durées : valeurs de démonstration, à remplacer par les tarifs réels [À COMPLÉTER] -->
+    <ul class="lb-menu">
+      <li>
+        <div><h3>Pose cil à cil</h3><p>Un cil synthétique par cil naturel, pour un regard défini et discret.</p></div>
+        <div class="lb-menu__meta">2 h 30, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="pose-cil-a-cil">Réserver</a>
+      </li>
+      <li>
+        <div><h3>Volume russe</h3><p>Des éventails de cils très fins pour une densité visible et un regard plus intense.</p></div>
+        <div class="lb-menu__meta">3 h, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="volume-russe">Réserver</a>
+      </li>
+      <li>
+        <div><h3>Rehaussement de cils</h3><p>Vos cils naturels recourbés et relevés, sans extension.</p></div>
+        <div class="lb-menu__meta">1 h, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="rehaussement">Réserver</a>
+      </li>
+      <li>
+        <div><h3>Browlift</h3><p>Lamination des sourcils : les poils sont brossés et fixés pour une ligne structurée.</p></div>
+        <div class="lb-menu__meta">45 min, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="browlift">Réserver</a>
+      </li>
+      <li>
+        <div><h3>Teinture et restructuration des sourcils</h3><p>Une forme qui suit votre arcade, avec une couleur adaptée à votre carnation.</p></div>
+        <div class="lb-menu__meta">45 min, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="teinture-sourcils">Réserver</a>
+      </li>
+      <li>
+        <div><h3>Retouche</h3><p>Pour entretenir votre pose, idéalement toutes les 3 semaines.</p></div>
+        <div class="lb-menu__meta">1 h 15, dès XX €</div>
+        <a class="btn lb-btn lb-btn--ghost" href="#reservation" data-service="retouche">Réserver</a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ DÉROULÉ ============ -->
+<section class="lb-section lb-section--paper" id="deroule" aria-labelledby="t-deroule">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 id="t-deroule">Comment se passe votre rendez-vous</h2>
+        <p class="lb-lead mt-3">Un déroulé simple, du premier échange à la retouche.</p>
+      </div>
+    </div>
+    <ol class="lb-flow">
+      <li>
+        <h3>On regarde votre œil</h3>
+        <p>Forme, longueur et densité de vos cils naturels, ligne de vos sourcils : la cartographie de votre œil guide le choix de la pose.</p>
+      </li>
+      <li>
+        <h3>On pose avec précision</h3>
+        <p>La pose se fait cil par cil, en préservant vos cils naturels. Vous pouvez fermer les yeux et vous détendre.</p>
+      </li>
+      <li>
+        <h3>On vous explique l'entretien</h3>
+        <p>Vous repartez avec des conseils clairs sur les premières 48 heures et sur les gestes du quotidien.</p>
+      </li>
+      <li>
+        <h3>On se retrouve pour la retouche</h3>
+        <p>Environ 3 semaines plus tard, pour garder un résultat net et équilibré.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ RÉSERVATION (Vue) ============ -->
+<section class="lb-section lb-dark" id="reservation" aria-labelledby="t-resa">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-5">
+        <h2 id="t-resa">Réservez en ligne en moins d'une minute</h2>
+        <p class="lb-lead mt-3">Choisissez votre prestation, un jour et une heure. Le studio confirme chaque demande par SMS ou par e-mail.</p>
+        <ul class="mt-4">
+          <li>Sans création de compte</li>
+          <li>Annulation gratuite jusqu'à 24 h avant le rendez-vous</li>
+          <li>Un questionnaire rapide pour une première visite</li>
+        </ul>
+      </div>
+
+      <div class="col-lg-7">
+        <div id="booking-app" v-cloak>
+          <div class="lb-panel" role="region" aria-label="Réservation en ligne">
+            <ol class="lb-steps" aria-label="Étapes de la réservation">
+              <li v-for="(s,i) in stepLabels" :key="s" :class="{'is-active': step === i+1, 'is-done': step > i+1}" :aria-current="step === i+1 ? 'step' : null">{{ s }}</li>
+            </ol>
+            <p class="lb-demo">Démonstration : aucune donnée n'est envoyée.</p>
+            <div class="visually-hidden" aria-live="polite">{{ live }}</div>
+
+            <!-- Étape 1 : prestation -->
+            <div v-if="step === 1">
+              <h3>Quelle prestation souhaitez-vous ?</h3>
+              <div class="lb-choices" role="radiogroup" aria-label="Prestation">
+                <label v-for="s in services" :key="s.id" class="lb-choice" :class="{'is-on': selected === s.id}">
+                  <input type="radio" name="service" class="visually-hidden" :value="s.id" v-model="selected">
+                  <span class="lb-choice__name">{{ s.nom }}</span>
+                  <span class="lb-choice__meta">{{ fmtDur(s.duree) }}, {{ fmtPrice(s.prix) }}</span>
+                </label>
+              </div>
+              <div class="lb-actions">
+                <button type="button" class="btn lb-btn lb-btn--primary" :disabled="!selected" @click="goStep(2)">Choisir le jour</button>
+              </div>
+            </div>
+
+            <!-- Étape 2 : date et créneau -->
+            <div v-else-if="step === 2">
+              <h3>Choisissez un jour et une heure</h3>
+              <p class="lb-recap">{{ current.nom }}, {{ fmtDur(current.duree) }}</p>
+              <div class="lb-cal">
+                <div class="lb-cal__head">
+                  <button type="button" class="lb-iconbtn" :disabled="!canPrev" aria-label="Mois précédent" @click="shiftMonth(-1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+                  </button>
+                  <strong class="lb-cal__month" aria-live="polite">{{ monthLabel }}</strong>
+                  <button type="button" class="lb-iconbtn" :disabled="!canNext" aria-label="Mois suivant" @click="shiftMonth(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+                <div class="lb-cal__dow" aria-hidden="true"><span v-for="(d,i) in dow" :key="i">{{ d }}</span></div>
+                <div class="lb-cal__grid">
+                  <template v-for="c in cells" :key="c.k">
+                    <span v-if="!c.day"></span>
+                    <button v-else type="button" class="lb-day" :class="{'is-on': date === c.key}" :disabled="c.off" :aria-pressed="date === c.key" :aria-label="dateLabel(c.key)" @click="pickDate(c.key)">{{ c.day }}</button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="lb-slots" v-if="date">
+                <h4>{{ dateLabel(date) }}</h4>
+                <div v-if="slots.length" class="lb-slots__list" role="group" aria-label="Créneaux disponibles">
+                  <button v-for="t in slots" :key="t" type="button" class="lb-slot" :class="{'is-on': slot === t}" :aria-pressed="slot === t" @click="slot = t">{{ t }}</button>
+                </div>
+                <p v-else class="lb-note">Aucun créneau libre ce jour-là. Essayez un autre jour.</p>
+              </div>
+
+              <div class="lb-actions">
+                <button type="button" class="btn lb-btn lb-btn--ghost" @click="goStep(1)">Retour</button>
+                <button type="button" class="btn lb-btn lb-btn--primary" :disabled="!slot" @click="goStep(3)">Mes coordonnées</button>
+              </div>
+            </div>
+
+            <!-- Étape 3 : coordonnées -->
+            <form v-else-if="step === 3" novalidate @submit.prevent="submit">
+              <h3>Vos coordonnées</h3>
+              <p class="lb-recap">{{ current.nom }}, {{ dateLabel(date) }} à {{ slot }}</p>
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <label class="form-label" for="f-prenom">Prénom</label>
+                  <input id="f-prenom" class="form-control" autocomplete="given-name" v-model.trim="form.prenom" :aria-invalid="!!errors.prenom" aria-describedby="e-prenom">
+                  <div id="e-prenom" class="lb-error" v-if="errors.prenom">{{ errors.prenom }}</div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label" for="f-tel">Téléphone</label>
+                  <input id="f-tel" type="tel" class="form-control" autocomplete="tel" v-model.trim="form.tel" :aria-invalid="!!errors.tel" aria-describedby="e-tel">
+                  <div id="e-tel" class="lb-error" v-if="errors.tel">{{ errors.tel }}</div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="f-email">E-mail</label>
+                  <input id="f-email" type="email" class="form-control" autocomplete="email" v-model.trim="form.email" :aria-invalid="!!errors.email" aria-describedby="e-email">
+                  <div id="e-email" class="lb-error" v-if="errors.email">{{ errors.email }}</div>
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input id="f-first" class="form-check-input" type="checkbox" v-model="form.first">
+                    <label class="form-check-label" for="f-first">C'est ma première visite</label>
+                  </div>
+                  <div class="form-check mt-2">
+                    <input id="f-risk" class="form-check-input" type="checkbox" v-model="form.risk">
+                    <label class="form-check-label" for="f-risk">Je suis allergique à la colle ou aux produits de pose, ou je suis un traitement oculaire</label>
+                  </div>
+                  <div class="lb-note" v-if="form.risk">Merci de contacter directement le studio avant de réserver, pour que nous vérifiions ensemble si la prestation vous convient. Téléphone : [À COMPLÉTER].</div>
+                </div>
+                <div class="lb-hp" aria-hidden="true">
+                  <label for="f-site">Ne pas remplir</label>
+                  <input id="f-site" tabindex="-1" autocomplete="off" v-model="form.website">
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input id="f-consent" class="form-check-input" type="checkbox" v-model="form.consent" :aria-invalid="!!errors.consent" aria-describedby="e-consent">
+                    <label class="form-check-label" for="f-consent">J'accepte que le studio utilise ces informations pour traiter ma demande de rendez-vous, et j'ai lu les conditions d'annulation.</label>
+                  </div>
+                  <div id="e-consent" class="lb-error" v-if="errors.consent">{{ errors.consent }}</div>
+                </div>
+              </div>
+              <div class="lb-actions">
+                <button type="button" class="btn lb-btn lb-btn--ghost" @click="goStep(2)">Retour</button>
+                <button type="submit" class="btn lb-btn lb-btn--primary">Envoyer ma demande</button>
+              </div>
+            </form>
+
+            <!-- Étape 4 : confirmation -->
+            <div v-else>
+              <h3>Demande envoyée</h3>
+              <p>Merci {{ form.prenom }}. Le studio confirme votre rendez-vous par SMS ou par e-mail.</p>
+              <div class="lb-summary">
+                <p><strong>{{ current.nom }}</strong></p>
+                <p style="text-transform:capitalize">{{ dateLabel(date) }} à {{ slot }}</p>
+                <p>Durée : {{ fmtDur(current.duree) }}</p>
+                <p>Statut : à confirmer par le studio</p>
+              </div>
+              <div class="lb-actions">
+                <a class="btn lb-btn lb-btn--ghost" :href="ics" download="rendez-vous-my-beauty-aura.ics">Ajouter à mon agenda</a>
+                <button type="button" class="btn lb-btn lb-btn--primary" @click="restart">Nouvelle demande</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <noscript><p>Activez JavaScript pour réserver en ligne, ou appelez le studio : [À COMPLÉTER].</p></noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="lb-section" id="faq" aria-labelledby="t-faq">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 id="t-faq">Questions fréquentes</h2>
+        <div class="accordion mt-4" id="faqList">
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="false" aria-controls="q1">Est-ce que la pose abîme mes cils naturels ?</button></h3>
+            <div id="q1" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>Une pose adaptée à la longueur et à la densité de vos cils naturels est faite pour les préserver. C'est pour cela que nous étudions votre œil avant de choisir la méthode, la courbure et la longueur.</p></div></div>
+          </div>
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false" aria-controls="q2">Combien de temps dure un rendez-vous ?</button></h3>
+            <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>Comptez environ 2 h 30 pour une pose complète, 1 h 15 pour une retouche, 1 h pour un rehaussement de cils et 45 minutes pour les soins des sourcils.</p></div></div>
+          </div>
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false" aria-controls="q3">Que dois-je faire après la pose ?</button></h3>
+            <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>Évitez l'eau et la vapeur pendant les 24 à 48 premières heures. Nous vous remettons des conseils d'entretien écrits à la fin du rendez-vous.</p></div></div>
+          </div>
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false" aria-controls="q4">J'ai des allergies ou je porte des lentilles, puis-je réserver ?</button></h3>
+            <div id="q4" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>Oui, mais signalez-le lors de la réservation. En cas d'allergie connue à la colle ou de traitement oculaire, nous vous demandons de nous contacter avant le rendez-vous.</p></div></div>
+          </div>
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5" aria-expanded="false" aria-controls="q5">Puis-je annuler ou déplacer mon rendez-vous ?</button></h3>
+            <div id="q5" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>L'annulation est gratuite jusqu'à 24 h avant le rendez-vous. Passé ce délai, contactez le studio.</p></div></div>
+          </div>
+          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q6" aria-expanded="false" aria-controls="q6">Les sourcils sont-ils aussi pour les hommes ?</button></h3>
+            <div id="q6" class="accordion-collapse collapse" data-bs-parent="#faqList"><div class="accordion-body"><p>Bien sûr. La teinture et le browlift s'adressent à toutes et à tous, avec une forme naturelle et discrète.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ PIED DE PAGE ============ -->
+<footer class="lb-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-5">
+        <h2>My Beauty Aura</h2>
+        <p>Studio de cils et de sourcils.</p>
+      </div>
+      <div class="col-md-4">
+        <ul>
+          <li>Adresse : [À COMPLÉTER]</li>
+          <li>Téléphone : [À COMPLÉTER]</li>
+          <li>E-mail : [À COMPLÉTER]</li>
+          <li>Instagram : [À COMPLÉTER]</li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <p class="mb-1">Horaires de démonstration</p>
+        <p class="mb-0">Du mardi au samedi, de 9 h 30 à 18 h 30 [À CONFIRMER]</p>
+      </div>
+    </div>
+    <hr class="my-4">
+    <div class="d-flex flex-wrap gap-3 justify-content-between">
+      <small>© 2026 My Beauty Aura</small>
+      <small><a href="#">Mentions légales</a> &nbsp; <a href="#">Conditions d'annulation</a> &nbsp; <a href="#">Confidentialité</a></small>
+    </div>
+  </div>
+</footer>
+
+<a class="btn lb-btn lb-btn--primary lb-sticky" href="#reservation">Réserver mon rendez-vous</a>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
+
+<!-- Générateur d'illustrations : visages, cils et sourcils dessinés en SVG à partir de paramètres -->
+<script id="lb-art">
+(function () {
+  const rad = d => d * Math.PI / 180;
+  const f = n => Math.round(n * 100) / 100;
+
+  // Cils : tracés le long de la paupière. u va de -1 (coin interne) à +1 (coin externe).
+  function lashPaths(cx, cy, side, o) {
+    const out = [];
+    for (let i = 0; i < o.n; i++) {
+      const u = -0.92 + 1.84 * i / (o.n - 1);
+      const t = (u + 1) / 2;
+      const sx = cx + side * 22 * u;
+      const sy = cy - 7 * (1 - u * u);
+      const baseA = o.a0 + (o.a1 - o.a0) * t;
+      const L = o.len * (0.62 + 0.38 * Math.pow(t, o.sweep));
+      for (let k = 0; k < o.fan; k++) {
+        const off = o.fan === 1 ? 0 : (k - (o.fan - 1) / 2) * o.fanAngle;
+        const a = rad(baseA + off);
+        const l = L * (1 - 0.05 * Math.abs(k - (o.fan - 1) / 2) * 2);
+        const dx = side * Math.sin(a), dy = -Math.cos(a);
+        const ex = sx + dx * l, ey = sy + dy * l;
+        // le point de contrôle décalé vers l'extérieur donne la courbure du cil (C, CC, D)
+        const px = sx + dx * l * 0.5 + side * Math.cos(a) * o.curl * l;
+        const py = sy + dy * l * 0.5 + Math.sin(a) * o.curl * l;
+        out.push(`M${f(sx)} ${f(sy)} Q${f(px)} ${f(py)} ${f(ex)} ${f(ey)}`);
+      }
+    }
+    return out;
+  }
+
+  function eye(id, cx, cy, side, p) {
+    const x0 = cx - 22, x1 = cx + 22;
+    const lid = `M${x0} ${cy} Q${cx} ${cy - 14} ${x1} ${cy}`;
+    const shape = `${lid} Q${cx} ${cy + 9} ${x0} ${cy}Z`;
+    const ls = lashPaths(cx, cy, side, p.lash)
+      .map((d, i) => `<path d="${d}" pathLength="1" style="--i:${i}"/>`).join('');
+    return `<g>
+      <clipPath id="${id}"><path d="${shape}"/></clipPath>
+      <path d="${shape}" fill="#FBF8F6"/>
+      <g clip-path="url(#${id})">
+        <circle cx="${cx}" cy="${cy - 1}" r="8.5" fill="${p.iris}"/>
+        <circle cx="${cx}" cy="${cy - 1}" r="3.8" fill="#120E10"/>
+        <circle cx="${cx + 3}" cy="${cy - 4.5}" r="1.6" fill="#fff"/>
+      </g>
+      <path d="M${x0 + 3} ${cy - 6} Q${cx} ${cy - 22} ${x1 - 3} ${cy - 6}" fill="none" stroke="${p.shade}" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>
+      <path d="M${x0} ${cy + 1} Q${cx} ${cy + 10} ${x1} ${cy + 1}" fill="none" stroke="${p.shade}" stroke-width=".9" opacity=".55"/>
+      <g class="lb-lashes" fill="none" stroke="#1F1A24" stroke-width="${p.lash.w}" stroke-linecap="round">${ls}</g>
+      <path d="${lid}" fill="none" stroke="#1F1A24" stroke-width="${p.lash.line}" stroke-linecap="round"/>
+    </g>`;
+  }
+
+  function brow(cx, cy, side, b) {
+    const by = cy - 34;
+    const xi = cx - side * 26, xo = cx + side * 30;
+    const yi = by + 5, yo = by + 9 + (b.tail || 0);
+    const px = cx + side * (b.px || 6), py = by - b.arch * 2;
+    const N = 14, pts = [];
+    for (let k = 0; k <= N; k++) {
+      const t = k / N, m = 1 - t;
+      const x = m * m * xi + 2 * m * t * px + t * t * xo;
+      const y = m * m * yi + 2 * m * t * py + t * t * yo;
+      const w = b.w * (0.95 - 0.72 * Math.pow(t, 1.8));
+      pts.push([x, y, w]);
+    }
+    const up = pts.map(p => `${f(p[0])} ${f(p[1] - p[2] / 2)}`);
+    const lo = pts.slice().reverse().map(p => `${f(p[0])} ${f(p[1] + p[2] / 2)}`);
+    let s = `<path d="M${up.join(' L')} L${lo.join(' L')}Z" fill="${b.color}" stroke="${b.color}" stroke-width=".8" stroke-linejoin="round"/>`;
+    if (b.strokes) {
+      // poils brossés vers le haut : effet lamination
+      for (let k = 1; k < N; k++) {
+        const p = pts[k];
+        s += `<path d="M${f(p[0] - side)} ${f(p[1] + p[2] * .35)} L${f(p[0] + side * 2.4)} ${f(p[1] - p[2] * .45)}" stroke="#fff" stroke-width=".7" opacity=".24" stroke-linecap="round"/>`;
+      }
+    }
+    return s;
+  }
+
+  function hairBack(p) {
+    const c = p.hair;
+    switch (p.style) {
+      case 'long': return `<path d="M34 130 C28 30 212 30 206 130 L216 300 L24 300Z" fill="${c}"/>`;
+      case 'bob':  return `<path d="M34 130 C28 30 212 30 206 130 L210 226 Q120 244 30 226Z" fill="${c}"/>`;
+      case 'bun':  return `<circle cx="120" cy="34" r="27" fill="${c}"/><path d="M40 130 C34 40 206 40 200 130Z" fill="${c}"/>`;
+      case 'curly': return [[120,80,64],[56,114,36],[184,114,36],[76,60,34],[164,60,34],[120,40,38]]
+        .map(a => `<circle cx="${a[0]}" cy="${a[1]}" r="${a[2]}" fill="${c}"/>`).join('');
+      default: return '';
+    }
+  }
+
+  function faceSvg(p, id) {
+    const L = eye(id + 'l', 82, 148, -1, p), R = eye(id + 'r', 158, 148, 1, p);
+    const cap = p.style === 'short'
+      ? 'M44 116 C40 16 200 16 196 116 C176 80 64 80 44 116Z'
+      : 'M42 122 C34 20 206 20 198 122 C172 72 68 72 42 122Z';
+    return `<svg viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${p.alt}">
+      ${hairBack(p)}
+      <ellipse cx="43" cy="156" rx="7" ry="14" fill="${p.skin}"/><ellipse cx="197" cy="156" rx="7" ry="14" fill="${p.skin}"/>
+      <rect x="102" y="214" width="36" height="76" fill="${p.skin}"/>
+      <path d="M14 300 Q34 262 100 254 L140 254 Q206 262 226 300Z" fill="${p.top}"/>
+      <ellipse cx="120" cy="150" rx="78" ry="105" fill="${p.skin}"/>
+      <path d="${cap}" fill="${p.hair}"/>
+      <ellipse cx="80" cy="176" rx="17" ry="9" fill="${p.lip}" opacity=".16"/><ellipse cx="160" cy="176" rx="17" ry="9" fill="${p.lip}" opacity=".16"/>
+      <path d="M118 162 Q113 188 108 195 Q120 201 132 195" fill="none" stroke="${p.shade}" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>
+      <path d="M98 218 Q110 209 120 213 Q130 209 142 218 Q120 234 98 218Z" fill="${p.lip}"/>
+      <path d="M100 218 Q120 223 140 218" fill="none" stroke="${p.shade}" stroke-width="1" opacity=".5"/>
+      ${brow(82, 148, -1, p.brow)}${brow(158, 148, 1, p.brow)}
+      ${L}${R}
+    </svg>`;
+  }
+
+  // Grand œil du hero : même générateur, à l'échelle, avec l'animation de tracé
+  function heroSvg() {
+    const hp = { iris: '#6B4F34', shade: '#B98A6D',
+      lash: { n: 15, len: 17, curl: .17, a0: -14, a1: 58, sweep: 1.8, fan: 1, fanAngle: 0, w: 1.15, line: 2.2 } };
+    const hb = { w: 7, arch: 5, color: '#4A2F26', px: 6 };
+    return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg" class="lb-draw" role="img" aria-label="Illustration d'un œil aux cils longs et recourbés, sous un sourcil structuré">
+      <ellipse cx="60" cy="205" rx="70" ry="38" fill="#fff" opacity=".12"/>
+      <g transform="translate(100 130) scale(2.1) translate(-100 -130)">
+        ${eye('he', 100, 130, 1, hp)}${brow(100, 130, 1, hb)}
+      </g></svg>`;
+  }
+
+  window.LBArt = { faceSvg, heroSvg, lashPaths, brow };
+})();
+</script>
+
+<!-- Application Vue : carousel + réservation, deux îlots qui partagent un petit store -->
+<script id="lb-app">
+(function () {
+  const { createApp, reactive, ref, computed, watch, onMounted, onBeforeUnmount, nextTick } = Vue;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Store partagé : un clic « Réserver » ailleurs sur la page présélectionne la prestation
+  const store = reactive({ service: null });
+
+  // ---------- Données ----------
+  // [À COMPLÉTER] prix: valeurs null = « dès XX € ». Durées de démonstration (cahier des charges 1.1.4).
+  const SERVICES = [
+    { id: 'pose-cil-a-cil',    nom: 'Pose cil à cil',                          duree: 150, prix: null },
+    { id: 'volume-russe',      nom: 'Volume russe',                            duree: 180, prix: null },
+    { id: 'rehaussement',      nom: 'Rehaussement de cils',                    duree: 60,  prix: null },
+    { id: 'browlift',          nom: 'Browlift',                                duree: 45,  prix: null },
+    { id: 'teinture-sourcils', nom: 'Teinture et restructuration des sourcils', duree: 45,  prix: null },
+    { id: 'retouche',          nom: 'Retouche',                                duree: 75,  prix: null }
+  ];
+
+  // Réglages de démonstration de la réservation : à remplacer par data/horaires.json
+  const OPEN_DAYS = [2, 3, 4, 5, 6];      // mardi à samedi (0 = dimanche)
+  const OPEN = 570, CLOSE = 1110;         // 9 h 30 à 18 h 30, en minutes
+  const STEP = 30, BUFFER = 15, MIN_LEAD_H = 12, HORIZON_DAYS = 60;
+
+  const base = { fan: 1, fanAngle: 0 };
+  const LOOKS = [
+    { id: 'natural', service: 'pose-cil-a-cil', tint: '#E8EDE3', title: 'Naturel, cil à cil',
+      cils: 'Un cil par cil naturel, courbure C. Un regard défini, discret, longueur adaptée à votre œil.',
+      sourcils: 'Restructuration douce, une forme qui suit votre arcade.',
+      alt: 'Visage aux cils fins et naturels et aux sourcils doux',
+      p: { style: 'long', skin: '#F0CDB3', shade: '#B98A6D', hair: '#5A3A2C', iris: '#6E5B3C', lip: '#C98684', top: '#7A5C74',
+           lash: { ...base, n: 13, len: 14, curl: .10, a0: -12, a1: 48, sweep: 1.2, w: 1.3, line: 2.2 },
+           brow: { w: 6.5, arch: 5, color: '#4E3226' } } },
+    { id: 'volume', service: 'volume-russe', tint: '#F0E1DA', title: 'Volume russe',
+      cils: 'Des éventails de cils très fins, courbure CC ou D. Une densité visible et un regard plus intense.',
+      sourcils: 'Teinture et restructuration, arche marquée.',
+      alt: 'Visage aux cils très denses et aux sourcils pleins et arqués',
+      p: { style: 'bob', skin: '#D6A27C', shade: '#9C6B4A', hair: '#1E1A1D', iris: '#3A2A22', lip: '#A9505A', top: '#1F1A24',
+           lash: { ...base, n: 11, fan: 3, fanAngle: 7, len: 16, curl: .16, a0: -10, a1: 52, sweep: 1.4, w: 1.15, line: 2.8 },
+           brow: { w: 8.5, arch: 7, color: '#201815' } } },
+    { id: 'wispy', service: 'pose-cil-a-cil', tint: '#F3E3E1', title: 'Wispy, regard de biche',
+      cils: 'Des cils texturés, plus longs vers l\'extérieur de l\'œil, pour un effet allongé et léger.',
+      sourcils: 'Forme plus fine, ligne légère et ouverte.',
+      alt: 'Visage aux cils texturés allongés vers l\'extérieur et aux sourcils fins',
+      p: { style: 'long', skin: '#F4D9C8', shade: '#C29A82', hair: '#8A4B33', iris: '#4F6B6A', lip: '#D08A86', top: '#BFCABA',
+           lash: { ...base, n: 12, fan: 2, fanAngle: 9, len: 15, curl: .14, a0: -6, a1: 62, sweep: 2.2, w: 1.2, line: 2.4 },
+           brow: { w: 5, arch: 6, color: '#6B3E2C' } } },
+    { id: 'lift', service: 'rehaussement', tint: '#E9E1E8', title: 'Rehaussement de cils',
+      cils: 'Vos cils naturels recourbés et relevés, sans extension. Le regard paraît plus ouvert.',
+      sourcils: 'Lamination : poils brossés vers le haut, ligne structurée.',
+      alt: 'Visage aux cils naturels recourbés et aux sourcils brossés vers le haut',
+      p: { style: 'curly', skin: '#8F5E42', shade: '#5E3A27', hair: '#14100F', iris: '#2B1D17', lip: '#8E4A4A', top: '#C9A27E',
+           lash: { ...base, n: 12, len: 12, curl: .26, a0: -8, a1: 40, sweep: 1, w: 1.5, line: 2 },
+           brow: { w: 7.5, arch: 4, color: '#17110F', strokes: true } } },
+    { id: 'brow', service: 'browlift', tint: '#E2E6E0', title: 'Browlift et teinture',
+      cils: 'Teinture des cils pour un regard défini, sans maquillage.',
+      sourcils: 'Browlift et teinture : une ligne nette et naturelle, pour toutes et tous.',
+      alt: 'Visage d\'homme aux sourcils bien dessinés et aux cils naturels',
+      p: { style: 'short', skin: '#C99874', shade: '#8C6444', hair: '#2A1E1A', iris: '#4B3A2A', lip: '#A8665F', top: '#3B3342',
+           lash: { ...base, n: 10, len: 10, curl: .08, a0: -10, a1: 40, sweep: 1, w: 1.2, line: 1.7 },
+           brow: { w: 9.5, arch: 3, color: '#2A1E1A', strokes: true } } },
+    { id: 'mega', service: 'volume-russe', tint: '#F0E4D8', title: 'Mega volume, regard intense',
+      cils: 'Des éventails multiples, courbure D, pour un regard très dense et expressif.',
+      sourcils: 'Forme pleine et arche nette, teinture profonde.',
+      alt: 'Visage aux cils très volumineux et aux sourcils pleins',
+      p: { style: 'bun', skin: '#5E3B2B', shade: '#3C2318', hair: '#0F0C0D', iris: '#1E1512', lip: '#7B3144', top: '#C9B1A0',
+           lash: { ...base, n: 10, fan: 4, fanAngle: 6, len: 18, curl: .20, a0: -8, a1: 55, sweep: 1.5, w: 1.05, line: 3 },
+           brow: { w: 8, arch: 6, color: '#0F0C0D' } } }
+  ].map(l => ({ ...l, svg: LBArt.faceSvg({ ...l.p, alt: l.alt }, 'f-' + l.id) }));
+
+  // ---------- Îlot 1 : carousel des regards ----------
+  createApp({
+    setup() {
+      const track = ref(null);
+      const index = ref(0);
+      const playing = ref(!reduce);
+      const hover = ref(false);
+      let timer = null;
+
+      const behavior = () => (reduce ? 'auto' : 'smooth');
+      const stepWidth = () => {
+        const c = track.value.children;
+        return c.length > 1 ? c[1].offsetLeft - c[0].offsetLeft : c[0].offsetWidth;
+      };
+      const atEnd = () => track.value.scrollLeft + track.value.clientWidth >= track.value.scrollWidth - 4;
+
+      function go(i) {
+        const el = track.value; if (!el) return;
+        index.value = i;
+        el.scrollTo({ left: el.children[i].offsetLeft - el.children[0].offsetLeft, behavior: behavior() });
+      }
+      function next() {
+        const el = track.value; if (!el) return;
+        if (atEnd()) el.scrollTo({ left: 0, behavior: behavior() });
+        else el.scrollBy({ left: stepWidth(), behavior: behavior() });
+      }
+      function prev() {
+        const el = track.value; if (!el) return;
+        if (el.scrollLeft <= 4) el.scrollTo({ left: el.scrollWidth, behavior: behavior() });
+        else el.scrollBy({ left: -stepWidth(), behavior: behavior() });
+      }
+      function onScroll() {
+        const el = track.value; if (!el) return;
+        if (el.scrollLeft <= 4) { index.value = 0; return; }
+        if (atEnd()) { index.value = LOOKS.length - 1; return; }
+        const x = el.scrollLeft + el.children[0].offsetLeft;
+        let best = 0, bd = Infinity;
+        Array.from(el.children).forEach((c, i) => {
+          const d = Math.abs(c.offsetLeft - x);
+          if (d < bd) { bd = d; best = i; }
+        });
+        index.value = best;
+      }
+      // dès que la personne prend la main, le défilement automatique s'arrête
+      function user() { playing.value = false; }
+      function pick(look) { store.service = look.service; }
+
+      onMounted(() => {
+        timer = setInterval(() => { if (playing.value && !hover.value && !document.hidden) next(); }, 4200);
+      });
+      onBeforeUnmount(() => clearInterval(timer));
+
+      return { looks: LOOKS, track, index, playing, hover, go, next, prev, onScroll, user, pick };
+    }
+  }).mount('#looks-app');
+
+  // ---------- Îlot 2 : réservation ----------
+  const pad = n => String(n).padStart(2, '0');
+  const keyOf = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;          // m : 0 à 11
+  const parseKey = k => k.split('-').map(Number);                       // [y, m (1 à 12), d]
+  const fmtTime = min => `${pad(Math.floor(min / 60))}:${pad(min % 60)}`;
+
+  // créneaux déjà pris, simulés de façon stable à partir de la date (démonstration)
+  function busyBlocks(key) {
+    let h = 0; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const a = 570 + (h % 5) * 60;
+    const out = [[a, a + 150]];
+    if (h % 3 === 0) out.push([a + 210, a + 300]);
+    return out;
+  }
+
+  createApp({
+    setup() {
+      const now = new Date();
+      const step = ref(1);
+      const selected = ref(null);
+      const viewY = ref(now.getFullYear()), viewM = ref(now.getMonth());
+      const date = ref(null), slot = ref(null);
+      const sent = ref(false), ics = ref('#'), live = ref('');
+      const form = reactive({ prenom: '', tel: '', email: '', first: true, risk: false, consent: false, website: '' });
+      const errors = reactive({});
+
+      const stepLabels = ['Prestation', 'Date et heure', 'Coordonnées', 'Confirmation'];
+      const dow = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+      const current = computed(() => SERVICES.find(s => s.id === selected.value) || SERVICES[0]);
+
+      const fmtDur = m => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ' ' + pad(m % 60) : ''}`);
+      const fmtPrice = p => (p == null ? 'dès XX €' : `dès ${p} €`);
+      const dateLabel = k => { const [y, m, d] = parseKey(k); return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); };
+      const monthLabel = computed(() => new Date(viewY.value, viewM.value, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }));
+
+      const minTime = () => Date.now() + MIN_LEAD_H * 3600e3;
+      function dayOff(y, m, d) {
+        if (!OPEN_DAYS.includes(new Date(y, m, d).getDay())) return true;
+        if (new Date(y, m, d, 23, 59).getTime() < minTime()) return true;
+        if (new Date(y, m, d).getTime() > Date.now() + HORIZON_DAYS * 864e5) return true;
+        return false;
+      }
+      const cells = computed(() => {
+        const y = viewY.value, m = viewM.value;
+        const lead = (new Date(y, m, 1).getDay() + 6) % 7;           // semaine qui commence le lundi
+        const count = new Date(y, m + 1, 0).getDate();
+        const out = [];
+        for (let i = 0; i < lead; i++) out.push({ k: 'p' + i });
+        for (let d = 1; d <= count; d++) out.push({ k: 'd' + d, day: d, key: keyOf(y, m, d), off: dayOff(y, m, d) });
+        return out;
+      });
+      const canPrev = computed(() => viewY.value * 12 + viewM.value > now.getFullYear() * 12 + now.getMonth());
+      const canNext = computed(() => {
+        const last = new Date(Date.now() + HORIZON_DAYS * 864e5);
+        return viewY.value * 12 + viewM.value < last.getFullYear() * 12 + last.getMonth();
+      });
+      function shiftMonth(n) {
+        const t = new Date(viewY.value, viewM.value + n, 1);
+        viewY.value = t.getFullYear(); viewM.value = t.getMonth();
+      }
+
+      const slots = computed(() => {
+        if (!date.value) return [];
+        const d = current.value.duree, [y, m, dd] = parseKey(date.value);
+        const blocks = busyBlocks(date.value), out = [];
+        for (let s = OPEN; s + d <= CLOSE; s += STEP) {
+          if (new Date(y, m - 1, dd, Math.floor(s / 60), s % 60).getTime() < minTime()) continue;
+          if (blocks.some(([a, b]) => s < b + BUFFER && s + d + BUFFER > a)) continue;
+          out.push(fmtTime(s));
+        }
+        return out;
+      });
+
+      function pickDate(k) { date.value = k; slot.value = null; }
+      function goStep(n) {
+        step.value = n;
+        live.value = `Étape ${n} sur 4 : ${stepLabels[n - 1]}`;
+      }
+
+      function submit() {
+        Object.keys(errors).forEach(k => delete errors[k]);
+        if (!form.prenom) errors.prenom = 'Indiquez votre prénom.';
+        if (!/^[0-9+ ().-]{8,}$/.test(form.tel)) errors.tel = 'Indiquez un numéro de téléphone valide.';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) errors.email = 'Indiquez une adresse e-mail valide.';
+        if (!form.consent) errors.consent = 'Ce consentement est nécessaire pour envoyer la demande.';
+        if (Object.keys(errors).length) { live.value = 'Certains champs sont à corriger.'; return; }
+        // En production : envoi à la fonction serverless. Si le champ piège est rempli, on ignore silencieusement.
+        if (!form.website) ics.value = buildIcs();
+        sent.value = true;
+        goStep(4);
+      }
+      function buildIcs() {
+        const [y, m, d] = parseKey(date.value), [h, mi] = slot.value.split(':').map(Number);
+        const st = new Date(y, m - 1, d, h, mi), en = new Date(st.getTime() + current.value.duree * 60000);
+        const z = t => `${t.getFullYear()}${pad(t.getMonth() + 1)}${pad(t.getDate())}T${pad(t.getHours())}${pad(t.getMinutes())}00`;
+        const txt = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//My Beauty Aura//FR', 'BEGIN:VEVENT',
+          `UID:${Date.now()}@mybeautyaura`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(st)}`, `DTEND:${z(en)}`,
+          `SUMMARY:My Beauty Aura - ${current.value.nom} (à confirmer)`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+        return URL.createObjectURL(new Blob([txt], { type: 'text/calendar' }));
+      }
+      function restart() {
+        if (ics.value !== '#') URL.revokeObjectURL(ics.value);
+        ics.value = '#'; sent.value = false; selected.value = null; date.value = null; slot.value = null;
+        Object.assign(form, { prenom: '', tel: '', email: '', first: true, risk: false, consent: false, website: '' });
+        goStep(1);
+      }
+
+      // un clic « Réserver » ailleurs sur la page présélectionne la prestation et passe au choix du jour
+      watch(() => store.service, v => {
+        if (!v) return;
+        selected.value = v; date.value = null; slot.value = null;
+        goStep(2);
+        store.service = null;
+      });
+
+      return { step, stepLabels, services: SERVICES, selected, current, fmtDur, fmtPrice, dateLabel, monthLabel,
+        dow, cells, canPrev, canNext, shiftMonth, date, slot, slots, pickDate, goStep, form, errors, submit, sent, ics, restart, live };
+    }
+  }).mount('#booking-app');
+
+  // ---------- Éléments hors Vue ----------
+  document.querySelectorAll('[data-service]').forEach(a =>
+    a.addEventListener('click', () => { store.service = a.dataset.service; }));
+})();
+
+document.getElementById('heroEye').innerHTML = LBArt.heroSvg();
+</script>
+</body>
+</html>
