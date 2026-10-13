@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .lighthouseci/
+
+# Prototype de page d'accueil, hors périmètre du site
+demo/landing-my-beauty-aura.html
