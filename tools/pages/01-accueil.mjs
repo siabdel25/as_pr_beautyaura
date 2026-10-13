@@ -1,35 +1,35 @@
 import { sprite, todo, remplacer, confirmer } from '../layout.mjs';
 
 const photoHero = (lcp) => `<picture>
-              <source type="image/avif" srcset="/assets/img/hero-sourcils-400.avif 400w, /assets/img/hero-sourcils-800.avif 800w, /assets/img/hero-sourcils-1600.avif 1600w" sizes="(min-width: 992px) 45vw, 100vw">
-              <source type="image/webp" srcset="/assets/img/hero-sourcils-400.webp 400w, /assets/img/hero-sourcils-800.webp 800w, /assets/img/hero-sourcils-1600.webp 1600w" sizes="(min-width: 992px) 45vw, 100vw">
+              <source type="image/avif" srcset="/assets/img/hero-sourcils-400.avif 400w, /assets/img/hero-sourcils-800.avif 800w, /assets/img/hero-sourcils-1600.avif 1600w" sizes="(min-width: 1200px) 1140px, 100vw">
+              <source type="image/webp" srcset="/assets/img/hero-sourcils-400.webp 400w, /assets/img/hero-sourcils-800.webp 800w, /assets/img/hero-sourcils-1600.webp 1600w" sizes="(min-width: 1200px) 1140px, 100vw">
               <img src="/assets/img/hero-sourcils-800.webp" width="1600" height="900" alt="Gros plan sur un regard : sourcils restructurés et lissés, cils recourbés" ${lcp ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
             </picture>`;
 
 const corps = `
     <section class="lb-hero">
-      <div class="container">
-        <div class="row align-items-center g-5">
-          <div class="col-lg-6 lb-hero__texte">
+      <svg class="lb-hero__cil" viewBox="0 0 300 720" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="lb-cil-trace" pathLength="1" d="M8 716 C 20 520, 120 300, 292 6"/>
+        <path d="M44 716 C 60 560, 140 380, 262 150" opacity=".5"/>
+        <path d="M84 716 C 100 600, 160 470, 236 330" opacity=".3"/>
+      </svg>
+      <div class="container position-relative">
+        <div class="row g-4 g-lg-5">
+          <div class="col-lg-7 lb-hero__texte">
             <h1 class="lb-hero__titre">Un regard soigné, <em>tracé au trait fin</em>.</h1>
-            <p class="lb-intro">${'My Beauty Aura'} est un studio de soins esthétiques des cils et des sourcils : extensions, rehaussement et soins des sourcils, sur rendez-vous. ${remplacer('texte de présentation à valider avec la praticienne')}</p>
+          </div>
+          <div class="col-lg-5 lb-hero__corps">
+            <p class="lb-intro">My Beauty Aura est un studio de soins esthétiques des cils et des sourcils : extensions, rehaussement et soins des sourcils, sur rendez-vous. ${remplacer('texte de présentation à valider avec la praticienne')}</p>
             <p class="d-flex flex-wrap gap-3 mt-4">
               <a class="btn lb-btn lb-btn--primaire" href="/reservation.html">Réserver un soin</a>
               <a class="btn lb-btn lb-btn--contour" href="/prestations/">Découvrir les prestations</a>
             </p>
           </div>
-          <div class="col-lg-6">
-            <figure class="lb-hero__photo">
-              ${photoHero(true)}
-              <svg class="lb-hero__cil" viewBox="0 0 220 110" aria-hidden="true" focusable="false">
-                <path class="lb-cil-trace" pathLength="1" d="M6 98 C60 100 150 86 212 8"/>
-                <path d="M30 100 C74 98 134 82 176 34" opacity=".55"/>
-                <path d="M58 100 C90 96 128 80 150 52" opacity=".35"/>
-              </svg>
-              <figcaption class="visually-hidden">Photo d'illustration ${'[À REMPLACER]'}</figcaption>
-            </figure>
-          </div>
         </div>
+        <figure class="lb-hero__photo">
+          ${photoHero(true)}
+          <figcaption class="visually-hidden">Photo d'illustration ${'[À REMPLACER]'}</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -53,7 +53,7 @@ const corps = `
       </div>
     </section>
 
-    <section class="lb-section lb-section--sauge" aria-labelledby="t-courbure">
+    <section class="lb-section lb-section--sauge lb-section--courbes" aria-labelledby="t-courbure">
       <div class="container">
         <div class="row g-5 align-items-end">
           <div class="col-lg-5">
@@ -62,7 +62,7 @@ const corps = `
             <a class="btn lb-btn lb-btn--contour" href="/prestations/extensions-de-cils.html#courbure">Comparer les courbures</a>
           </div>
           <div class="col-lg-7">
-            <ul class="lb-profils lb-profils--asym" aria-label="Les quatre courbures">
+            <ul class="lb-profils lb-profils--asym lb-profils--courbes" aria-label="Les quatre courbures">
               <li class="lb-profil">${sprite('curve-c')}<h3>C</h3><p>Relevé doux.</p></li>
               <li class="lb-profil">${sprite('curve-cc')}<h3>CC</h3><p>Relevé marqué.</p></li>
               <li class="lb-profil">${sprite('curve-d')}<h3>D</h3><p>Relevé prononcé.</p></li>
@@ -73,7 +73,7 @@ const corps = `
       </div>
     </section>
 
-    <section class="lb-section" aria-labelledby="t-avis">
+    <section class="lb-section lb-section--compact" aria-labelledby="t-avis">
       <div class="container">
         <div class="row g-5">
           <div class="col-lg-5">
@@ -86,7 +86,7 @@ const corps = `
       </div>
     </section>
 
-    <section class="lb-section lb-section--sombre" aria-labelledby="t-infos">
+    <section class="lb-section lb-section--sombre lb-section--compact" aria-labelledby="t-infos">
       <div class="container">
         <div class="row g-5">
           <div class="col-lg-5">

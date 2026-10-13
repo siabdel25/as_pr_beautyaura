@@ -107,19 +107,26 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 .lb-section--sombre .lb-trait { color: var(--lb-bronze); }
 
 /* ---------- Hero ---------- */
-.lb-hero { padding-block: var(--lb-space-5) var(--lb-space-6); overflow: hidden; }
+.lb-hero { position: relative; padding-block: var(--lb-space-5) var(--lb-space-6); overflow: hidden; }
 .lb-hero__texte { position: relative; z-index: 2; }
+.lb-hero__titre { font-size: clamp(2.5rem, 7vw + 0.5rem, 6rem); line-height: 1.02; }
 .lb-hero__titre em { font-style: italic; color: var(--lb-mauve-profond); }
-.lb-hero__photo { position: relative; margin: 0; }
+.lb-hero__corps { position: relative; z-index: 2; align-self: end; }
+.lb-hero__photo { position: relative; z-index: 1; margin: var(--lb-space-5) 0 0; }
 .lb-hero__photo picture, .lb-hero__photo img { display: block; width: 100%; height: auto; }
-.lb-hero__photo img { aspect-ratio: 16 / 9; object-fit: cover; object-position: 55% 40%; }
+/* Recadrage 3/2 : garde les deux yeux et les deux sourcils dans le champ */
+.lb-hero__photo img { aspect-ratio: 3 / 2; object-fit: cover; object-position: 50% 55%; }
 @media (min-width: 992px) {
-  .lb-hero__photo { margin-right: calc(-1 * var(--lb-space-6)); }
-  .lb-hero__photo img { aspect-ratio: 4 / 5; object-position: 62% 45%; }
+  .lb-hero__photo { margin-left: 18%; margin-right: calc(-1 * var(--lb-space-6)); }
 }
-.lb-hero__cil { position: absolute; left: -1rem; bottom: -1.5rem; width: min(70%, 22rem); color: var(--lb-bronze-profond); pointer-events: none; }
-.lb-hero__cil path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
-.lb-hero__cil .lb-cil-trace { stroke-dasharray: 1; stroke-dashoffset: 0; animation: lb-trace 1.8s ease-out 0.2s both; }
+/* Grand cil tracé en fond : il longe la photo, du bas du hero vers le haut à droite */
+.lb-hero__cil { position: absolute; z-index: 0; inset: 0 auto 0 0; width: 34%; height: 100%; color: var(--lb-bronze-profond); pointer-events: none; }
+.lb-hero__cil path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.lb-hero__cil .lb-cil-trace { stroke-dasharray: 1; stroke-dashoffset: 0; animation: lb-trace 2.2s ease-out 0.2s both; }
+/* Sur grand écran le cil démarre sous le titre pour ne pas le traverser */
+@media (min-width: 992px) { .lb-hero__cil { inset: 16rem auto 0 0; height: auto; width: 24%; } }
+/* Sur mobile le cil s'étire en balayage sous la photo, loin du texte */
+@media (max-width: 991.98px) { .lb-hero__cil { inset: auto 0 0 0; width: 100%; height: 5rem; } }
 @keyframes lb-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 
 /* ---------- Prestations phares : liste éditoriale, pas de cartes identiques ---------- */
@@ -138,8 +145,8 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 /* ---------- Profils illustrés (courbures, effets, formes de sourcils) ---------- */
 .lb-profils { display: grid; gap: var(--lb-space-4); grid-template-columns: repeat(2, 1fr); list-style: none; padding: 0; margin: 0; }
 @media (min-width: 768px) { .lb-profils { grid-template-columns: repeat(4, 1fr); } }
-.lb-profil { border-top: 2px solid var(--lb-encre); padding-top: var(--lb-space-3); }
-.lb-profil svg { width: 100%; height: auto; max-height: 7rem; color: var(--lb-mauve-profond); display: block; }
+.lb-profil { padding-top: var(--lb-space-2); }
+.lb-profil svg { width: 100%; height: auto; max-height: 8rem; color: var(--lb-mauve-profond); display: block; }
 .lb-profil h3 { font-size: 1.35rem; margin: var(--lb-space-2) 0; }
 .lb-profil p { font-size: 0.97rem; margin: 0; }
 .lb-profils--asym .lb-profil:nth-child(2) { margin-top: var(--lb-space-4); }
@@ -216,8 +223,6 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 
 /* Réserve la hauteur de l'îlot Vue avant son montage (évite le décalage de mise en page) */
 /* v-cloak passe l'îlot en display:none : la hauteur est donc réservée sur son conteneur */
-.lb-ilot-courbure { min-height: 24rem; }
-@media (min-width: 768px) { .lb-ilot-courbure { min-height: 15rem; } }
 
 /* Texte et bouton « contour » lisibles sur fond sombre */
 .lb-section--sombre .lb-btn--contour {
@@ -227,3 +232,33 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 }
 /* La photo d'œil source ne fait que 168 px : on ne l'agrandit pas */
 .lb-photo--vignette { max-width: 168px; }
+
+/* ---------- Passe de design : rythme, grands formats ---------- */
+.lb-section--compact { padding-block: var(--lb-space-5); }
+
+/* Profils en grand : planche de deux colonnes, l'illustration est le contenu */
+.lb-profils--grand { gap: var(--lb-space-5) var(--lb-space-6); }
+@media (min-width: 768px) { .lb-profils--grand { grid-template-columns: repeat(2, 1fr); } }
+.lb-profils--grand .lb-profil svg { max-height: 12rem; }
+.lb-profils--grand .lb-profil h3 { font-size: 1.9rem; margin-top: var(--lb-space-3); }
+.lb-profils--grand .lb-profil:nth-child(even) { margin-top: var(--lb-space-5); }
+@media (max-width: 767.98px) { .lb-profils--grand .lb-profil:nth-child(even) { margin-top: 0; } }
+.lb-profils--grand .lb-profil p { font-size: 1.05rem; }
+
+/* Courbures de l'accueil : grands traits qui débordent */
+.lb-profils--courbes .lb-profil svg { max-height: 10rem; color: var(--lb-encre); }
+.lb-profils--courbes .lb-profil h3 { font-size: 2.2rem; }
+
+/* Sélecteur de courbure sur fond Encre : l'œil est le moment fort de la page */
+.lb-section--sombre .lb-courbure__choix button { border-color: var(--lb-soie); color: var(--lb-soie); font-size: 1.7rem; min-width: 4.25rem; min-height: 3.5rem; }
+.lb-section--sombre .lb-courbure__choix button[aria-pressed="true"] { background: var(--lb-soie); color: var(--lb-encre); }
+.lb-section--sombre .lb-courbure__oeil .lb-oeil-lid { stroke: var(--lb-sauge); }
+.lb-section--sombre .lb-courbure__oeil .lb-oeil-iris { fill: var(--lb-bronze); stroke: var(--lb-sauge); }
+.lb-section--sombre .lb-courbure__oeil .lb-oeil-lash { stroke: var(--lb-soie); stroke-width: 1.7; }
+.lb-courbure__oeil { max-width: 40rem; justify-self: end; }
+.lb-section--sombre .lb-courbure { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .lb-section--sombre .lb-courbure { grid-template-columns: 4fr 8fr; } }
+.lb-ilot-courbure { min-height: 24rem; }
+@media (min-width: 768px) { .lb-ilot-courbure { min-height: 21rem; } }
+
+.lb-photo--vignette figcaption { width: max-content; max-width: min(20rem, 90vw); }

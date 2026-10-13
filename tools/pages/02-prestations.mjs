@@ -53,7 +53,7 @@ ${cta('Réserver')}`;
 
 const extensions = `
 ${entete('Extensions de cils', 'Des cils posés un par un sur vos cils naturels, pour allonger et densifier le regard. Le rendu se choisit : courbure, longueur et effet.')}
-    <section class="lb-section pt-3" id="courbure" aria-labelledby="t-courbure">
+    <section class="lb-section lb-section--sombre" id="courbure" aria-labelledby="t-courbure">
       <div class="container">
         <h2 id="t-courbure">Essayez les quatre courbures</h2>
         <p>La courbure change l'ouverture du regard. Cette illustration est indicative : la praticienne vous conseille lors du rendez-vous.</p>
@@ -78,7 +78,7 @@ ${entete('Extensions de cils', 'Des cils posés un par un sur vos cils naturels,
     <section class="lb-section lb-section--sauge" aria-labelledby="t-effets">
       <div class="container">
         <h2 id="t-effets">Quel effet recherchez-vous ?</h2>
-        <ul class="lb-profils lb-profils--asym mt-4">
+        <ul class="lb-profils lb-profils--grand mt-4">
           <li class="lb-profil">${sprite('eye-naturel', 'lb-ratio-oeil')}<h3>Naturel</h3><p>Un cil posé sur chaque cil naturel. Discret, régulier.</p></li>
           <li class="lb-profil">${sprite('eye-hybride', 'lb-ratio-oeil')}<h3>Hybride</h3><p>Longueurs et densités mêlées pour un relief léger.</p></li>
           <li class="lb-profil">${sprite('eye-volume', 'lb-ratio-oeil')}<h3>Volume</h3><p>Plusieurs fins cils par cil naturel. Un regard plus dense.</p></li>
@@ -140,7 +140,7 @@ ${entete('Soins des sourcils', 'Restructuration, teinture, lissage : une ligne d
       <div class="container">
         <h2 id="t-formes">Quelle forme vous ressemble ?</h2>
         <p>Quatre profils pour amorcer la discussion. La forme finale s'ajuste à vos traits.</p>
-        <ul class="lb-profils lb-profils--asym mt-4">
+        <ul class="lb-profils lb-profils--grand mt-4">
           <li class="lb-profil">${sprite('brow-droit', 'lb-ratio-sourcil')}<h3>Droit</h3><p>Une ligne horizontale, graphique et moderne.</p></li>
           <li class="lb-profil">${sprite('brow-doux', 'lb-ratio-sourcil')}<h3>Doux</h3><p>Légèrement courbé, il adoucit les traits.</p></li>
           <li class="lb-profil">${sprite('brow-arque', 'lb-ratio-sourcil')}<h3>Arqué</h3><p>Un arc net qui structure le regard.</p></li>

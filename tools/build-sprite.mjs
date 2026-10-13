@@ -7,7 +7,7 @@ const trait = 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-l
 
 const oeil = (id, titre, courbure, opts) => {
   const cils = cilsPaths(courbure, opts).map((d) => `<path d="${d}"/>`).join('');
-  return `<symbol id="${id}" viewBox="0 0 200 100"><title>${titre}</title><g ${trait} stroke-width="2.2"><path d="${PAUPIERE}" stroke-width="2" opacity=".55"/><path d="M20 70 Q100 100 180 70" stroke-width="1.6" opacity=".35"/>${cils}</g></symbol>`;
+  return `<symbol id="${id}" viewBox="0 0 200 100"><title>${titre}</title><g ${trait} stroke-width="2.8"><path d="${PAUPIERE}" stroke-width="2.4" opacity=".55"/><path d="M20 70 Q100 100 180 70" stroke-width="1.6" opacity=".35"/>${cils}</g></symbol>`;
 };
 
 

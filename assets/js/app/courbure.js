@@ -11,7 +11,7 @@ const DESCRIPTIONS = {
 createApp({
   setup() {
     const etat = reactive({ choix: 'CC' });
-    const chemins = computed(() => cilsPaths(etat.choix, { n: 13, longueur: 30, eventail: 1 }));
+    const chemins = computed(() => cilsPaths(etat.choix, { n: 15, longueur: 32, eventail: 1.05 }));
     const description = computed(() => DESCRIPTIONS[etat.choix]);
     const choisir = (nom) => { etat.choix = nom; };
     return { ...toRefs(etat), courbures: Object.values(COURBURES), chemins, description, choisir, paupiere: PAUPIERE };
