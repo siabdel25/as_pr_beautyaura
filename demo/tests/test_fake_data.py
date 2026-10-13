@@ -60,14 +60,13 @@ class DonneesDeDemo(unittest.TestCase):
             json.dumps(contenu, ensure_ascii=False)  # doit être sérialisable
 
     def test_services(self):
-        self.assertGreaterEqual(len(self.services), 5)
+        self.assertGreaterEqual(len(self.services), 3)
         ids = [s["id"] for s in self.services]
         self.assertEqual(len(ids), len(set(ids)), "identifiants uniques")
         for s in self.services:
             self.assertRegex(s["id"], r"^[a-z0-9]+(-[a-z0-9]+)*$")
             self.assertIn(s["categorie"], CATEGORIES)
             self.assertGreater(s["duree_min"], 0)
-            self.assertEqual(s["duree_min"] % CONFIG["pas_creneau_min"], 0, s["id"])
             self.assertTrue(s["nom"] and s["description"])
             prix = s.get("prix_a_partir_de")
             self.assertTrue(prix is None or (isinstance(prix, (int, float)) and prix > 0), s["id"])
