@@ -1,4 +1,4 @@
-import { todo, remplacer, confirmer } from '../layout.mjs';
+import { coord, studioDonnees as st, todo, remplacer, confirmer } from '../layout.mjs';
 
 const entete = (h1) => `
     <section class="lb-section pb-4"><div class="container"><div class="row"><div class="col-lg-8"><h1>${h1}</h1>
@@ -7,11 +7,11 @@ const entete = (h1) => `
 const mentions = `${entete('Mentions légales')}
     <section class="lb-section pt-3"><div class="container"><div class="row"><div class="col-lg-8">
       <h2>Éditeur du site</h2>
-      <p>My Beauty Aura<br>Forme juridique : ${todo('forme juridique')}<br>SIRET : ${todo('numéro SIRET')}<br>Adresse : ${todo('adresse')}<br>Contact : ${todo('e-mail et téléphone')}</p>
+      <p>My Beauty Aura<br>Forme juridique : ${todo('forme juridique')}<br>SIRET : ${st.siret ? st.siret : todo('numéro SIRET (14 chiffres)')}<br>Adresse : ${coord.adresse}<br>Contact : ${coord.email}, ${coord.telephone}</p>
       <h2 class="mt-5">Responsable de la publication</h2>
-      <p>${todo('nom du responsable')}</p>
+      <p>${st.responsable}</p>
       <h2 class="mt-5">Hébergeur</h2>
-      <p>${todo('nom, adresse et contact de l’hébergeur, à renseigner une fois le choix fait')}</p>
+      <p>${st.hebergeur}. ${todo('adresse et contact de l’hébergeur (voir ses mentions légales officielles)')}</p>
       <h2 class="mt-5">Assurance</h2>
       <p>Responsabilité civile professionnelle : ${todo('assureur et numéro de contrat')}</p>
       <h2 class="mt-5">Propriété intellectuelle</h2>
@@ -21,7 +21,7 @@ const mentions = `${entete('Mentions légales')}
 const confidentialite = `${entete('Politique de confidentialité')}
     <section class="lb-section pt-3"><div class="container"><div class="row"><div class="col-lg-8">
       <h2>Responsable du traitement</h2>
-      <p>My Beauty Aura, ${todo('coordonnées du responsable')}.</p>
+      <p>My Beauty Aura, représenté par ${st.responsable}. Contact : ${coord.email}.</p>
       <h2 class="mt-5">Données collectées et finalités</h2>
       <p>Nom, e-mail, téléphone et informations utiles au soin (par exemple allergies déclarées), uniquement pour répondre à vos demandes et gérer vos rendez-vous.</p>
       <h2 class="mt-5">Durée de conservation</h2>
@@ -67,10 +67,19 @@ const reservation = `
       <noscript><p>La réservation en ligne demande JavaScript. <a href="/contact.html">Contactez le studio</a> pour fixer un rendez-vous.</p></noscript>
     </div></div></div></section>`;
 
+const horsLigne = `
+    <section class="lb-section"><div class="container"><div class="row"><div class="col-lg-7">
+      <h1>Vous êtes hors ligne</h1>
+      <p class="lb-intro">Cette page n'est pas disponible sans connexion. Les pages déjà visitées restent consultables.</p>
+      <p>La demande de rendez-vous demande une connexion : réessayez dès que votre réseau est revenu.</p>
+      <p><a class="btn lb-btn lb-btn--primaire" href="/">Retour à l'accueil</a></p>
+    </div></div></div></section>`;
+
 export default [
   { chemin: '/mentions-legales.html', titre: 'Mentions légales | My Beauty Aura', description: 'Mentions légales du site My Beauty Aura.', corps: mentions },
   { chemin: '/politique-confidentialite.html', titre: 'Politique de confidentialité | My Beauty Aura', description: 'Données collectées, finalités, durée de conservation et droits des utilisateurs.', corps: confidentialite },
   { chemin: '/cgv-annulation.html', titre: 'CGV et annulation | My Beauty Aura', description: 'Conditions générales de vente et politique d’annulation du studio.', corps: cgv },
+  { chemin: '/offline.html', titre: 'Hors ligne | My Beauty Aura', description: 'Page affichée lorsque la connexion est indisponible.', corps: horsLigne, robots: 'noindex' },
   { chemin: '/404.html', titre: 'Page introuvable | My Beauty Aura', description: 'Cette page est introuvable.', corps: erreur, robots: 'noindex' },
   { chemin: '/reservation.html', titre: 'Réserver en ligne | My Beauty Aura', description: 'Réservez votre soin des cils ou des sourcils en ligne : choisissez la prestation, la date et le créneau.', corps: reservation, reservation: true, scripts: ['/assets/js/app/booking-page.js'] }
 ];

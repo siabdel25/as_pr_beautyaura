@@ -1,6 +1,9 @@
 {
-  "adresse": null,
+  "responsable": "JMG Hajar",
+  "siret": null,
+  "adresse": { "rue": null, "code_postal": null, "ville": "Lyon", "pays": "France" },
   "telephone": null,
   "telephone_affiche": null,
-  "email": null
+  "email": null,
+  "hebergeur": "Hostinger"
 }

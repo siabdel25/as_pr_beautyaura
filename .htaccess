@@ -1,0 +1,35 @@
+# Généré par tools/build-pages.mjs
+RewriteEngine On
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://jmgaura.com%{REQUEST_URI} [L,R=301]
+
+ErrorDocument 404 /404.html
+DirectoryIndex index.html
+
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-BknYRmgXv/CCaCwMZSDQ6egDatf+LULnTqhucwL4/AE='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(woff2|avif|webp|png|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "\.(css|js|json|webmanifest)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/avif .avif
+  AddType font/woff2 .woff2
+  AddType text/javascript .js .mjs
+</IfModule>
+
+# Fichiers de développement jamais publiés
+RedirectMatch 404 ^/(tools|tests|docs|node_modules|\.git)(/|$)
+RedirectMatch 404 ^/(manage\.py|pr_beautyaura|TODO\.md|CLAUDE\.md|README\.md|package.*\.json)$

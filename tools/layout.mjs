@@ -7,9 +7,15 @@ import { readFileSync } from 'node:fs';
 const studio = JSON.parse(readFileSync(new URL('../data/studio.json', import.meta.url), 'utf8'));
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
+// Adresse partielle acceptée (ville seule) : la rue manquante reste signalée par un marqueur
+const adresseTexte = (a) => {
+  const ligne = [a.rue, [a.code_postal, a.ville].filter(Boolean).join(' '), a.pays].filter(Boolean).map(esc).join(', ');
+  return a.rue ? ligne : `${ligne} ${todo('rue et code postal')}`;
+};
+
 // Coordonnées : une seule source (data/studio.json). Valeur absente = marqueur visible, rien d'inventé.
 export const coord = {
-  adresse: studio.adresse ? `${esc(studio.adresse.rue)}, ${esc(studio.adresse.code_postal)} ${esc(studio.adresse.ville)}` : todo('adresse du studio'),
+  adresse: studio.adresse ? adresseTexte(studio.adresse) : todo('adresse du studio'),
   telephone: studio.telephone ? `<a href="tel:${esc(studio.telephone)}">${esc(studio.telephone_affiche || studio.telephone)}</a>` : todo('téléphone'),
   email: studio.email ? `<a href="mailto:${esc(studio.email)}">${esc(studio.email)}</a>` : todo('e-mail')
 };
@@ -72,7 +78,7 @@ export function page({ chemin, titre, description, corps, scripts = [], robots =
   const stylesTunnel = reservation
     ? `<link rel="stylesheet" href="/assets/css/v-calendar-3.1.2.css">\n  <link rel="stylesheet" href="/assets/css/booking.css">`
     : '';
-  const tousScripts = [...scripts, ...(reservation ? [] : ['/assets/js/app/booking-loader.js']), '/assets/js/app/consentement.js', '/assets/js/app/mesure.js'];
+  const tousScripts = [...scripts, ...(reservation ? [] : ['/assets/js/app/booking-loader.js']), '/assets/js/app/consentement.js', '/assets/js/app/mesure.js', '/assets/js/app/pwa.js'];
   const modules = tousScripts.map((s) => `<script type="module" src="${s}"></script>`).join('\n  ');
   const meta = robots ? `<meta name="robots" content="${robots}">` : '';
   return `<!DOCTYPE html>
@@ -85,6 +91,10 @@ export function page({ chemin, titre, description, corps, scripts = [], robots =
   ${meta}${og}
   ${donnees}
   <meta name="theme-color" content="#1F1A24">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Beauty Aura">
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/assets/fonts/bodoni-moda-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/figtree-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -138,6 +148,7 @@ ${corps}
           <ul>
             <li><a href="/mentions-legales.html">Mentions légales</a></li>
             <li><button type="button" class="lb-lien-bouton" data-lb-consentement>Gérer mes choix</button></li>
+            <li><button type="button" class="lb-lien-bouton" data-lb-installer hidden>Installer l'application</button></li>
             <li><a href="/politique-confidentialite.html">Confidentialité</a></li>
             <li><a href="/cgv-annulation.html">CGV et annulation</a></li>
           </ul>

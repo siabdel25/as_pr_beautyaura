@@ -122,6 +122,6 @@ export default [{
     knowsLanguage: 'fr',
     ...(studioDonnees.telephone && { telephone: studioDonnees.telephone }),
     ...(studioDonnees.email && { email: studioDonnees.email }),
-    ...(studioDonnees.adresse && { address: { '@type': 'PostalAddress', streetAddress: studioDonnees.adresse.rue, postalCode: studioDonnees.adresse.code_postal, addressLocality: studioDonnees.adresse.ville, addressCountry: 'FR' } })
+    ...(studioDonnees.adresse && { address: { '@type': 'PostalAddress', ...(studioDonnees.adresse.rue && { streetAddress: studioDonnees.adresse.rue }), ...(studioDonnees.adresse.code_postal && { postalCode: studioDonnees.adresse.code_postal }), addressLocality: studioDonnees.adresse.ville, addressCountry: 'FR' } })
   }]
 }];
