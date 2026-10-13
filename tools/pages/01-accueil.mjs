@@ -1,4 +1,4 @@
-import { sprite, todo, remplacer, confirmer } from '../layout.mjs';
+import { STUDIO, urlAbsolue, sprite, todo, remplacer, confirmer } from '../layout.mjs';
 
 const photoHero = (lcp) => `<picture>
               <source type="image/avif" srcset="/assets/img/hero-sourcils-400.avif 400w, /assets/img/hero-sourcils-800.avif 800w, /assets/img/hero-sourcils-1600.avif 1600w" sizes="(min-width: 1200px) 1140px, 100vw">
@@ -110,5 +110,15 @@ export default [{
   chemin: '/',
   titre: 'My Beauty Aura | Cils et sourcils : extensions, rehaussement',
   description: 'Studio de soins esthétiques des cils et des sourcils : extensions, rehaussement, restructuration. Réservation en ligne sur rendez-vous.',
-  corps
+  corps,
+  // Adresse, téléphone et horaires ajoutés au lot 5, quand le client les fournit : rien n'est inventé
+  jsonld: [{
+    '@type': 'HealthAndBeautyBusiness',
+    '@id': urlAbsolue('/#studio'),
+    name: STUDIO,
+    url: urlAbsolue('/'),
+    description: 'Studio de soins esthétiques des cils et des sourcils : extensions, rehaussement, restructuration.',
+    image: urlAbsolue('/assets/img/hero-sourcils-1600.webp'),
+    knowsLanguage: 'fr'
+  }]
 }];

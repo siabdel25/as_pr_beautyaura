@@ -29,7 +29,8 @@ const confidentialite = `${entete('Politique de confidentialité')}
       <h2 class="mt-5">Vos droits</h2>
       <p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données en écrivant à ${todo('e-mail de contact')}. Vous pouvez aussi saisir la CNIL.</p>
       <h2 class="mt-5">Cookies et mesure d'audience</h2>
-      <p>${todo('outil de mesure sans cookie retenu (Plausible ou Matomo) et bandeau de consentement, prévus au lot 4')}</p>
+      <p>Ce site ne dépose aucun cookie. Votre choix concernant les contenus tiers (carte) est mémorisé dans le stockage de votre navigateur, sans être transmis. Vous pouvez le modifier à tout moment avec « Gérer mes choix » en bas de page.</p>
+      <p>La fréquentation est mesurée avec un outil sans cookie (Plausible) : pages vues et provenance, sans profil individuel. ${todo('confirmer l’outil retenu et son hébergement')}</p>
       <p>Aucun contenu tiers (carte, réseaux sociaux) n'est chargé avant votre accord.</p>
     </div></div></div></section>`;
 

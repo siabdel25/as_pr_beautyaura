@@ -1,4 +1,4 @@
-import { sprite, todo, remplacer, confirmer } from '../layout.mjs';
+import { STUDIO, urlAbsolue, sprite, todo, remplacer, confirmer } from '../layout.mjs';
 
 const cta = (texte = 'Réserver ce soin') => `
     <section class="lb-section lb-section--sombre">
@@ -35,6 +35,15 @@ const entete = (h1, intro) => `
         </div>
       </div>
     </section>`;
+
+const service = (chemin, name, description) => ({
+  '@type': 'Service',
+  name,
+  description,
+  url: urlAbsolue(chemin),
+  serviceType: 'Soin esthétique',
+  provider: { '@type': 'HealthAndBeautyBusiness', '@id': urlAbsolue('/#studio'), name: STUDIO }
+});
 
 const index = `
 ${entete('Les prestations', 'Des soins esthétiques des cils et des sourcils, choisis avec vous selon la forme de votre regard et le rendu souhaité.')}
@@ -190,8 +199,8 @@ ${cta('Réserver une épilation')}`;
 
 export default [
   { chemin: '/prestations/', titre: 'Prestations cils et sourcils | My Beauty Aura', description: 'Extensions de cils, rehaussement, soins et épilation des sourcils : découvrez les soins esthétiques du studio.', corps: index },
-  { chemin: '/prestations/extensions-de-cils.html', titre: 'Extensions de cils : courbures et effets | My Beauty Aura', description: 'Extensions de cils cil à cil, hybrides ou volume. Comparez les courbures C, CC, D et L et choisissez votre effet.', corps: extensions, scripts: ['/assets/js/app/courbure.js'] },
-  { chemin: '/prestations/rehaussement-de-cils.html', titre: 'Rehaussement de cils | My Beauty Aura', description: 'Rehaussement de cils : un soin esthétique qui relève vos cils naturels sans extensions. Durée, déroulement et conseils.', corps: rehaussement },
-  { chemin: '/prestations/soins-des-sourcils.html', titre: 'Soins des sourcils et restructuration | My Beauty Aura', description: 'Restructuration, teinture et lissage des sourcils. Découvrez les formes de sourcils et réservez votre soin.', corps: sourcils },
-  { chemin: '/prestations/epilation-sourcils.html', titre: 'Épilation des sourcils | My Beauty Aura', description: 'Épilation des sourcils sur rendez-vous : une ligne nette et naturelle, adaptée à votre visage.', corps: epilation }
+  { chemin: '/prestations/extensions-de-cils.html', titre: 'Extensions de cils : courbures et effets | My Beauty Aura', description: 'Extensions de cils cil à cil, hybrides ou volume. Comparez les courbures C, CC, D et L et choisissez votre effet.', corps: extensions, scripts: ['/assets/js/app/courbure.js'], jsonld: [service('/prestations/extensions-de-cils.html', 'Extensions de cils', 'Pose d’extensions de cils cil à cil, hybrides ou volume, en courbures C, CC, D et L.')] },
+  { chemin: '/prestations/rehaussement-de-cils.html', titre: 'Rehaussement de cils | My Beauty Aura', description: 'Rehaussement de cils : un soin esthétique qui relève vos cils naturels sans extensions. Durée, déroulement et conseils.', corps: rehaussement, jsonld: [service('/prestations/rehaussement-de-cils.html', 'Rehaussement de cils', 'Soin esthétique qui donne une courbe aux cils naturels, sans extensions.')] },
+  { chemin: '/prestations/soins-des-sourcils.html', titre: 'Soins des sourcils et restructuration | My Beauty Aura', description: 'Restructuration, teinture et lissage des sourcils. Découvrez les formes de sourcils et réservez votre soin.', corps: sourcils, jsonld: [service('/prestations/soins-des-sourcils.html', 'Soins des sourcils', 'Restructuration, teinture et lissage des sourcils.')] },
+  { chemin: '/prestations/epilation-sourcils.html', titre: 'Épilation des sourcils | My Beauty Aura', description: 'Épilation des sourcils sur rendez-vous : une ligne nette et naturelle, adaptée à votre visage.', corps: epilation, jsonld: [service('/prestations/epilation-sourcils.html', 'Épilation des sourcils', 'Épilation des sourcils sur rendez-vous, dessinée selon le visage.')] }
 ];

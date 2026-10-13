@@ -66,6 +66,10 @@ Tout se modifie dans `/data`, sans toucher au code.
 | `horaires.json` | Horaires d'ouverture par jour |
 | `indisponibilites.json` | Congés, fermetures exceptionnelles |
 | `avis.json` | Avis clientes publiés avec accord |
+| `galerie.json` | Comparaisons avant/après. Une réalisation de cliente s'affiche seulement avec `"consentement": true` (accord écrit) |
+| `site.json` | URL publique du site (sitemap, balises canoniques), domaine de mesure d'audience, URL d'intégration de la carte |
+
+Après toute modification de `site.json` ou de `reservation.json` (champ `endpoint`), relancer `node tools/build-pages.mjs` : le sitemap, `robots.txt`, les balises canoniques et les en-têtes de sécurité (`_headers`, `serve.json`) en dépendent.
 
 Exemple, ajouter un jour de fermeture :
 
@@ -101,7 +105,8 @@ Le site est statique. Il se déploie sur Netlify, Cloudflare Pages ou un héberg
 1. Connecter le dépôt Git à l'hébergeur.
 2. Dossier de publication : la racine (`/`).
 3. Activer HTTPS et la compression Brotli.
-4. Ajouter les en-têtes de sécurité (CSP, Referrer-Policy, X-Content-Type-Options).
+4. En-têtes de sécurité : `_headers` (Netlify, Cloudflare Pages) est généré par le build. Sur un autre hébergeur, reprendre les mêmes en-têtes. La CSP autorise `'unsafe-eval'` parce que Vue compile ses gabarits dans le navigateur ; la supprimer demanderait de précompiler les gabarits (donc un build).
+5. Mesure d'audience : renseigner `mesure.domaine` dans `data/site.json` pour activer Plausible (sans cookie). Tant que le champ est `null`, aucun script de mesure n'est chargé.
 
 ## Conformité et contenus
 

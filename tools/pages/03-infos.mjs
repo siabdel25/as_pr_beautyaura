@@ -91,6 +91,15 @@ const QUESTIONS = [
   ['Les sourcils sont-ils accessibles aux hommes ?', 'Oui. Les soins des sourcils sont ouverts à toutes et à tous.']
 ];
 
+// Seules les réponses définitives entrent dans les données structurées : pas de marqueur [À …] indexé
+const brut = (h) => h.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const faqJsonLd = {
+  '@type': 'FAQPage',
+  mainEntity: QUESTIONS.filter(([, r]) => !r.includes('lb-todo')).map(([q, r]) => ({
+    '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: brut(r) }
+  }))
+};
+
 const faq = `
 ${entete('Questions fréquentes', 'Les réponses aux questions les plus posées avant un premier rendez-vous.')}
     <section class="lb-section pt-3">
@@ -143,7 +152,7 @@ ${entete('Contact', 'Une question avant de réserver ? Écrivez-nous ou passez a
             <p>${todo('adresse du studio')}<br>${todo('téléphone')}<br>${todo('e-mail')}</p>
             <h3 class="fs-4 mt-4">Horaires</h3>
             <p>${todo('horaires d’ouverture')}</p>
-            <div class="lb-carte-consent mt-4">
+            <div class="lb-carte-consent mt-4" data-lb-carte>
               <p class="mb-0"><strong>Carte et itinéraire</strong></p>
               <p class="mb-0">La carte ne sera affichée qu'avec votre accord, car elle fait appel à un service tiers. ${todo('adresse, puis activation de la carte au consentement')}</p>
             </div>
@@ -170,7 +179,7 @@ ${entete('Contact', 'Une question avant de réserver ? Écrivez-nous ou passez a
 export default [
   { chemin: '/tarifs.html', titre: 'Tarifs des soins cils et sourcils | My Beauty Aura', description: 'Tarifs et durées des extensions de cils, du rehaussement et des soins des sourcils. Filtrez par type de soin.', corps: tarifs, scripts: ['/assets/js/app/tarifs.js'] },
   { chemin: '/a-propos.html', titre: 'À propos du studio | My Beauty Aura', description: 'Découvrez le parcours de la praticienne, le lieu et le protocole d’hygiène du studio My Beauty Aura.', corps: aPropos },
-  { chemin: '/faq.html', titre: 'FAQ cils et sourcils | My Beauty Aura', description: 'Durée, tenue, entretien, annulation : les réponses aux questions fréquentes sur les extensions de cils et les soins des sourcils.', corps: faq },
+  { chemin: '/faq.html', titre: 'FAQ cils et sourcils | My Beauty Aura', description: 'Durée, tenue, entretien, annulation : les réponses aux questions fréquentes sur les extensions de cils et les soins des sourcils.', corps: faq, jsonld: [faqJsonLd] },
   { chemin: '/conseils-apres-soin.html', titre: 'Conseils après-soin | My Beauty Aura', description: 'Les gestes à adopter après une pose de cils, un rehaussement ou un soin des sourcils.', corps: apresSoin },
-  { chemin: '/contact.html', titre: 'Contact et accès | My Beauty Aura', description: 'Contactez le studio My Beauty Aura : coordonnées, horaires, formulaire de contact.', corps: contact }
+  { chemin: '/contact.html', titre: 'Contact et accès | My Beauty Aura', description: 'Contactez le studio My Beauty Aura : coordonnées, horaires, formulaire de contact.', corps: contact, scripts: ['/assets/js/app/carte.js'] }
 ];

@@ -262,3 +262,44 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 @media (min-width: 768px) { .lb-ilot-courbure { min-height: 21rem; } }
 
 .lb-photo--vignette figcaption { width: max-content; max-width: min(20rem, 90vw); }
+
+/* ---------- Galerie : curseur avant / après ---------- */
+.lb-galerie { display: grid; gap: var(--lb-space-5); grid-template-columns: 1fr; }
+@media (min-width: 768px) { .lb-galerie { grid-template-columns: repeat(2, 1fr); } }
+.lb-comparaison { margin: 0; }
+.lb-comparaison__visuel { position: relative; aspect-ratio: 2 / 1; overflow: hidden; background: var(--lb-blanc); border: 1px solid var(--lb-trait); color: var(--lb-encre); touch-action: pan-y; }
+.lb-comparaison__calque { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lb-comparaison__calque--apres { background: var(--lb-sauge); clip-path: inset(0 0 0 var(--lb-pos)); }
+.lb-comparaison__poignee { position: absolute; top: 0; bottom: 0; left: var(--lb-pos); width: 2px; background: var(--lb-bronze); transform: translateX(-1px); pointer-events: none; }
+.lb-comparaison__poignee::after { content: ""; position: absolute; top: 50%; left: 50%; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--lb-bronze); border: 2px solid var(--lb-encre); transform: translate(-50%, -50%); }
+.lb-comparaison__etiquette { position: absolute; top: var(--lb-space-2); padding: 0.15rem 0.6rem; background: var(--lb-encre); color: var(--lb-soie); font-size: 0.875rem; pointer-events: none; }
+.lb-comparaison__etiquette--avant { left: var(--lb-space-2); }
+.lb-comparaison__etiquette--apres { right: var(--lb-space-2); }
+.lb-comparaison__curseur { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+/* L'input est invisible mais reste l'élément focalisable : le focus s'affiche sur le conteneur */
+.lb-comparaison__visuel:has(.lb-comparaison__curseur:focus-visible) { outline: 3px solid var(--lb-mauve-profond); outline-offset: 3px; }
+.lb-comparaison figcaption { margin-top: var(--lb-space-2); }
+.lb-comparaison__mention { display: block; font-size: 0.875rem; color: var(--lb-mauve-profond); }
+.lb-galerie-vide { border: 1px dashed var(--lb-encre); padding: var(--lb-space-3); font-size: 0.875rem; line-height: 1.4; }
+
+/* ---------- Bandeau de consentement : « Refuser » et « Accepter » ont exactement le même style ---------- */
+.lb-consent { position: fixed; z-index: 1060; inset: auto 0 0 0; padding: var(--lb-space-3) var(--lb-space-4); background: var(--lb-encre); color: var(--lb-soie); border-top: 3px solid var(--lb-bronze); max-height: 80vh; overflow-y: auto; }
+.lb-consent a { color: var(--lb-soie); }
+.lb-consent p { margin: 0 0 var(--lb-space-2); max-width: 60rem; font-size: 0.875rem; line-height: 1.4; }
+.lb-consent__titre { font-family: var(--lb-font-titre); font-size: 1.25rem; }
+.lb-consent__actions { display: flex; gap: var(--lb-space-3); }
+.lb-consent .lb-btn--contour { --bs-btn-color: var(--lb-soie); --bs-btn-border-color: var(--lb-soie); --bs-btn-hover-bg: var(--lb-soie); --bs-btn-hover-color: var(--lb-encre); --bs-btn-hover-border-color: var(--lb-soie); flex: 1; max-width: 12rem; }
+.lb-lien-bouton { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
+.lb-footer .lb-lien-bouton { color: var(--lb-sauge); }
+.lb-footer .lb-lien-bouton:hover { color: var(--lb-blanc); }
+.lb-carte { width: 100%; min-height: 16rem; border: 0; }
+/* Réserve la hauteur de la galerie avant le montage de Vue (mesurée à 360–412 px, 768 px et 1280 px) */
+#gallery-app { min-height: 52rem; }
+@media (min-width: 768px) { #gallery-app { min-height: 28rem; } }
+@media (min-width: 1200px) { #gallery-app { min-height: 34rem; } }
+
+/* Gouttière horizontale de g-5 (3 rem) plus large que le padding du conteneur : elle faisait déborder la page sous 992 px */
+.row.g-5 { --bs-gutter-x: 1.5rem; }
+@media (min-width: 992px) { .row.g-5 { --bs-gutter-x: 3rem; } }
+/* .navbar remet le padding horizontal à 0 et annule celui de .container : le logo collait au bord de l'écran */
+.lb-header .navbar { padding-inline: calc(var(--bs-gutter-x) * 0.5); }

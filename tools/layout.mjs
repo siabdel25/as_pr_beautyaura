@@ -1,4 +1,5 @@
 // Gabarit commun : en-tête, navigation, pied de page, barre « Réserver » collante.
+import { site, IMPORTMAP } from './site.mjs';
 
 export const STUDIO = 'My Beauty Aura';
 export const todo = (t) => `<span class="lb-todo">[À COMPLÉTER] ${t}</span>`;
@@ -18,6 +19,7 @@ const OFFCANVAS = `<div class="offcanvas offcanvas-end lb-offcanvas" tabindex="-
 
 const NAV = [
   ['/prestations/', 'Prestations'],
+  ['/galerie.html', 'Galerie'],
   ['/tarifs.html', 'Tarifs'],
   ['/a-propos.html', 'À propos'],
   ['/faq.html', 'FAQ'],
@@ -31,17 +33,34 @@ export { sprite };
 const estActif = (href, chemin) =>
   href === '/prestations/' ? chemin.startsWith('/prestations/') : href === chemin;
 
-export function page({ chemin, titre, description, corps, scripts = [], robots = '', reservation = false }) {
+export const urlAbsolue = (chemin) => site.url + chemin;
+
+export function page({ chemin, titre, description, corps, scripts = [], robots = '', reservation = false, jsonld = [], image = '/assets/img/hero-sourcils-1600.webp' }) {
   const nav = NAV.map(([href, label]) => {
     const cur = estActif(href, chemin) ? ' aria-current="page"' : '';
     return `<li class="nav-item"><a class="nav-link" href="${href}"${cur}>${label}</a></li>`;
   }).join('');
   // Importmap sur toutes les pages : le tunnel se charge à la demande depuis n'importe où
-  const importmap = `<script type="importmap">{"imports":{"vue":"/assets/js/vendor/vue.esm-browser.prod.js","v-calendar":"/assets/js/vendor/v-calendar-3.1.2.esm.js","@popperjs/core":"/assets/js/vendor/popperjs-core-2.11.8.esm.js"}}</script>`;
+  const importmap = `<script type="importmap">${IMPORTMAP}</script>`;
+  const canonique = urlAbsolue(chemin.endsWith('index.html') ? chemin.slice(0, -10) : chemin);
+  const og = robots.includes('noindex') ? '' : `
+  <link rel="canonical" href="${canonique}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="${STUDIO}">
+  <meta property="og:title" content="${titre}">
+  <meta property="og:description" content="${description}">
+  <meta property="og:url" content="${canonique}">
+  <meta property="og:image" content="${urlAbsolue(image)}">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="Sourcils et regard d'une cliente, photo d'illustration">
+  <meta name="twitter:card" content="summary_large_image">`;
+  const donnees = jsonld.map((o) => `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', ...o })}</script>`).join('\n  ');
   const stylesTunnel = reservation
     ? `<link rel="stylesheet" href="/assets/css/v-calendar-3.1.2.css">\n  <link rel="stylesheet" href="/assets/css/booking.css">`
     : '';
-  const tousScripts = reservation ? scripts : [...scripts, '/assets/js/app/booking-loader.js'];
+  const tousScripts = [...scripts, ...(reservation ? [] : ['/assets/js/app/booking-loader.js']), '/assets/js/app/consentement.js', '/assets/js/app/mesure.js'];
   const modules = tousScripts.map((s) => `<script type="module" src="${s}"></script>`).join('\n  ');
   const meta = robots ? `<meta name="robots" content="${robots}">` : '';
   return `<!DOCTYPE html>
@@ -51,7 +70,8 @@ export function page({ chemin, titre, description, corps, scripts = [], robots =
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${titre}</title>
   <meta name="description" content="${description}">
-  ${meta}
+  ${meta}${og}
+  ${donnees}
   <meta name="theme-color" content="#1F1A24">
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/assets/fonts/bodoni-moda-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -83,7 +103,7 @@ ${corps}
 
   <footer class="lb-footer">
     <div class="container">
-      <div class="row g-5">
+      <div class="row gx-3 gx-lg-5 gy-5">
         <div class="col-lg-5">
           <p class="lb-titre fs-3 mb-2">${STUDIO}</p>
           <p>Studio de soins esthétiques des cils et des sourcils.</p>
@@ -93,6 +113,7 @@ ${corps}
           <h2>Le studio</h2>
           <ul>
             <li><a href="/prestations/">Prestations</a></li>
+            <li><a href="/galerie.html">Galerie</a></li>
             <li><a href="/tarifs.html">Tarifs</a></li>
             <li><a href="/a-propos.html">À propos</a></li>
             <li><a href="/conseils-apres-soin.html">Conseils après-soin</a></li>
@@ -104,6 +125,7 @@ ${corps}
           <h2>Informations</h2>
           <ul>
             <li><a href="/mentions-legales.html">Mentions légales</a></li>
+            <li><button type="button" class="lb-lien-bouton" data-lb-consentement>Gérer mes choix</button></li>
             <li><a href="/politique-confidentialite.html">Confidentialité</a></li>
             <li><a href="/cgv-annulation.html">CGV et annulation</a></li>
           </ul>

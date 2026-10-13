@@ -59,17 +59,17 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 4 — Galerie, SEO, accessibilité, performance
 
-- [ ] Galerie avant/après avec curseur et filtres par prestation
-- [ ] Optimisation des images (AVIF, WebP, `srcset`, dimensions explicites)
-- [ ] Données structurées : `HealthAndBeautyBusiness`, `Service`, `FAQPage`
-- [ ] Titres et meta descriptions uniques par page
-- [ ] Balises Open Graph, `sitemap.xml`, `robots.txt`
-- [ ] Bandeau cookies conforme, mesure d'audience sans cookie
-- [ ] Événements : `booking_start`, `booking_step_service`, `booking_step_date`, `booking_step_slot`, `booking_step_details`, `booking_submit`, `click_phone`, `click_directions`
-- [ ] Audit Lighthouse mobile sur accueil, prestation, réservation
-- [ ] Audit accessibilité (pa11y + test clavier + lecteur d'écran)
-- [ ] En-têtes de sécurité (CSP, Referrer-Policy, X-Content-Type-Options)
-- [ ] Test d'affichage de 360 px à 1920 px
+- [x] Galerie avant/après avec curseur et filtres par prestation
+- [x] Optimisation des images (AVIF, WebP, `srcset`, dimensions explicites)
+- [x] Données structurées : `HealthAndBeautyBusiness`, `Service`, `FAQPage`
+- [x] Titres et meta descriptions uniques par page
+- [x] Balises Open Graph, `sitemap.xml`, `robots.txt`
+- [x] Bandeau cookies conforme, mesure d'audience sans cookie
+- [x] Événements : `booking_start`, `booking_step_service`, `booking_step_date`, `booking_step_slot`, `booking_step_details`, `booking_submit`, `click_phone`, `click_directions`
+- [x] Audit Lighthouse mobile sur accueil, prestation, réservation
+- [x] Audit accessibilité (pa11y + test clavier + lecteur d'écran)
+- [x] En-têtes de sécurité (CSP, Referrer-Policy, X-Content-Type-Options)
+- [x] Test d'affichage de 360 px à 1920 px
 
 ## Lot 5 — Recette et mise en ligne
 
