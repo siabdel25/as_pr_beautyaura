@@ -73,13 +73,13 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 5 — Recette et mise en ligne
 
-- [ ] Parcourir tous les critères d'acceptation du cahier des charges (section 4)
-- [ ] Relecture des textes par la praticienne (aucune promesse médicale)
-- [ ] Remplacer tous les marqueurs `[À COMPLÉTER]` et `[À REMPLACER]`
-- [ ] Déploiement, HTTPS, redirections, nom de domaine
-- [ ] Fiche Google Business Profile : catégories, photos, lien de réservation
+- [x] Parcourir tous les critères d'acceptation du cahier des charges (section 4) : voir `docs/RECETTE.md`
+- [ ] Relecture des textes par la praticienne (aucune promesse médicale) : pages listées dans `docs/RECETTE.md`
+- [ ] Remplacer tous les marqueurs `[À COMPLÉTER]` et `[À REMPLACER]` : `node tools/verifier-mise-en-ligne.mjs --liste` (coordonnées dans `data/studio.json`)
+- [ ] Déploiement, HTTPS, redirections, nom de domaine : marche à suivre dans `docs/DEPLOIEMENT.md`
+- [ ] Fiche Google Business Profile : catégories, photos, lien de réservation : `docs/GOOGLE-BUSINESS-PROFILE.md`
 - [ ] Vérifier les données structurées avec Google Rich Results
-- [ ] Guide de mise à jour des tarifs, horaires et indisponibilités
+- [x] Guide de mise à jour des tarifs, horaires et indisponibilités : `docs/GUIDE-MISE-A-JOUR.md`
 
 ## Phase 2 — Réservation automatisée
 

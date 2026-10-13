@@ -94,6 +94,7 @@ npx html-validate "**/*.html"                  # validation HTML
 node --test "tests/*.test.mjs"                   # tests unitaires (créneaux, validation, .ics, envoi)
 node tools/build-pages.mjs                      # régénère les pages HTML depuis tools/pages/
 node tools/build-sprite.mjs                     # régénère assets/icons/sprite.svg
+node tools/verifier-mise-en-ligne.mjs --liste   # ce qui reste à fournir avant la mise en ligne
 ```
 
 Objectifs : Lighthouse mobile Performance ≥ 90, Accessibilité ≥ 95, SEO ≥ 95. LCP < 2,5 s.
@@ -116,6 +117,7 @@ Le site est statique. Il se déploie sur Netlify, Cloudflare Pages ou un héberg
 
 ## Documentation
 
+- `docs/GUIDE-MISE-A-JOUR.md`, `docs/DEPLOIEMENT.md`, `docs/GOOGLE-BUSINESS-PROFILE.md`, `docs/RECETTE.md`
 - `CAHIER_DES_CHARGES.md` : besoins, architecture, marketing, planning, recette
 - `CLAUDE.md` : règles pour travailler avec Claude Code
 - `TODO.md` : suivi des tâches par phase

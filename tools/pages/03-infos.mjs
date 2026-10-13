@@ -1,4 +1,4 @@
-import { todo, remplacer, confirmer } from '../layout.mjs';
+import { coord, todo, remplacer, confirmer } from '../layout.mjs';
 
 const entete = (h1, intro) => `
     <section class="lb-section pb-4">
@@ -149,7 +149,7 @@ ${entete('Contact', 'Une question avant de réserver ? Écrivez-nous ou passez a
         <div class="row g-5">
           <div class="col-lg-5">
             <h2>Coordonnées</h2>
-            <p>${todo('adresse du studio')}<br>${todo('téléphone')}<br>${todo('e-mail')}</p>
+            <p>${coord.adresse}<br>${coord.telephone}<br>${coord.email}</p>
             <h3 class="fs-4 mt-4">Horaires</h3>
             <p>${todo('horaires d’ouverture')}</p>
             <div class="lb-carte-consent mt-4" data-lb-carte>

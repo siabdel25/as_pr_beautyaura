@@ -1,4 +1,4 @@
-import { STUDIO, urlAbsolue, sprite, todo, remplacer, confirmer } from '../layout.mjs';
+import { studioDonnees, coord, STUDIO, urlAbsolue, sprite, todo, remplacer, confirmer } from '../layout.mjs';
 
 const photoHero = (lcp) => `<picture>
               <source type="image/avif" srcset="/assets/img/hero-sourcils-400.avif 400w, /assets/img/hero-sourcils-800.avif 800w, /assets/img/hero-sourcils-1600.avif 1600w" sizes="(min-width: 1200px) 1140px, 100vw">
@@ -92,7 +92,7 @@ const corps = `
           <div class="col-lg-5">
             <h2 id="t-infos">Venir au studio</h2>
             <svg class="lb-trait" viewBox="0 0 112 24" aria-hidden="true" focusable="false"><path d="M2 20 C30 22 70 14 110 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <p>${todo('adresse du studio')}</p>
+            <p>${coord.adresse}</p>
           </div>
           <div class="col-lg-6 offset-lg-1">
             <h3 class="fs-4">Horaires</h3>
@@ -119,6 +119,9 @@ export default [{
     url: urlAbsolue('/'),
     description: 'Studio de soins esthétiques des cils et des sourcils : extensions, rehaussement, restructuration.',
     image: urlAbsolue('/assets/img/hero-sourcils-1600.webp'),
-    knowsLanguage: 'fr'
+    knowsLanguage: 'fr',
+    ...(studioDonnees.telephone && { telephone: studioDonnees.telephone }),
+    ...(studioDonnees.email && { email: studioDonnees.email }),
+    ...(studioDonnees.adresse && { address: { '@type': 'PostalAddress', streetAddress: studioDonnees.adresse.rue, postalCode: studioDonnees.adresse.code_postal, addressLocality: studioDonnees.adresse.ville, addressCountry: 'FR' } })
   }]
 }];

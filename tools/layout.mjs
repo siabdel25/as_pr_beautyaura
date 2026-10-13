@@ -1,8 +1,20 @@
 // Gabarit commun : en-tête, navigation, pied de page, barre « Réserver » collante.
 import { site, IMPORTMAP } from './site.mjs';
+export const todo = (t) => `<span class="lb-todo">[À COMPLÉTER] ${t}</span>`;
 
 export const STUDIO = 'My Beauty Aura';
-export const todo = (t) => `<span class="lb-todo">[À COMPLÉTER] ${t}</span>`;
+import { readFileSync } from 'node:fs';
+const studio = JSON.parse(readFileSync(new URL('../data/studio.json', import.meta.url), 'utf8'));
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// Coordonnées : une seule source (data/studio.json). Valeur absente = marqueur visible, rien d'inventé.
+export const coord = {
+  adresse: studio.adresse ? `${esc(studio.adresse.rue)}, ${esc(studio.adresse.code_postal)} ${esc(studio.adresse.ville)}` : todo('adresse du studio'),
+  telephone: studio.telephone ? `<a href="tel:${esc(studio.telephone)}">${esc(studio.telephone_affiche || studio.telephone)}</a>` : todo('téléphone'),
+  email: studio.email ? `<a href="mailto:${esc(studio.email)}">${esc(studio.email)}</a>` : todo('e-mail')
+};
+export const studioDonnees = studio;
+
 export const remplacer = (t) => `<span class="lb-todo">[À REMPLACER] ${t}</span>`;
 export const confirmer = (t) => `<span class="lb-todo">[À CONFIRMER] ${t}</span>`;
 
@@ -107,7 +119,7 @@ ${corps}
         <div class="col-lg-5">
           <p class="lb-titre fs-3 mb-2">${STUDIO}</p>
           <p>Studio de soins esthétiques des cils et des sourcils.</p>
-          <p>${todo('adresse du studio')}<br>${todo('téléphone')}<br>${todo('e-mail')}</p>
+          <p>${coord.adresse}<br>${coord.telephone}<br>${coord.email}</p>
         </div>
         <div class="col-6 col-lg-3 offset-lg-1">
           <h2>Le studio</h2>
