@@ -168,7 +168,7 @@ ${entete('Contact', 'Une question avant de réserver ? Écrivez-nous ou passez a
     </section>`;
 
 export default [
-  { chemin: '/tarifs.html', titre: 'Tarifs des soins cils et sourcils | My Beauty Aura', description: 'Tarifs et durées des extensions de cils, du rehaussement et des soins des sourcils. Filtrez par type de soin.', corps: tarifs, vue: true, scripts: ['/assets/js/app/tarifs.js'] },
+  { chemin: '/tarifs.html', titre: 'Tarifs des soins cils et sourcils | My Beauty Aura', description: 'Tarifs et durées des extensions de cils, du rehaussement et des soins des sourcils. Filtrez par type de soin.', corps: tarifs, scripts: ['/assets/js/app/tarifs.js'] },
   { chemin: '/a-propos.html', titre: 'À propos du studio | My Beauty Aura', description: 'Découvrez le parcours de la praticienne, le lieu et le protocole d’hygiène du studio My Beauty Aura.', corps: aPropos },
   { chemin: '/faq.html', titre: 'FAQ cils et sourcils | My Beauty Aura', description: 'Durée, tenue, entretien, annulation : les réponses aux questions fréquentes sur les extensions de cils et les soins des sourcils.', corps: faq },
   { chemin: '/conseils-apres-soin.html', titre: 'Conseils après-soin | My Beauty Aura', description: 'Les gestes à adopter après une pose de cils, un rehaussement ou un soin des sourcils.', corps: apresSoin },

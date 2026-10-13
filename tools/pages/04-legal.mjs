@@ -58,11 +58,12 @@ const erreur = `
     </div></div></div></section>`;
 
 const reservation = `
-    <section class="lb-section"><div class="container"><div class="row"><div class="col-lg-7">
+    <section class="lb-section"><div class="container"><div class="row"><div class="col-lg-8">
       <h1>Réserver</h1>
-      <p class="lb-intro">La réservation en ligne arrive bientôt. En attendant, écrivez-nous : nous vous répondrons pour fixer un rendez-vous.</p>
-      <p>${remplacer('page remplacée par le tunnel de réservation (lot 3)')}</p>
-      <p class="mt-4"><a class="btn lb-btn lb-btn--primaire" href="/contact.html">Nous contacter</a></p>
+      <p class="lb-intro">Choisissez votre soin, une date et un créneau en moins d'une minute. Votre demande est ensuite à confirmer par la praticienne.</p>
+      <div class="lb-squelette lb-squelette--page" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div id="booking-app" v-cloak></div>
+      <noscript><p>La réservation en ligne demande JavaScript. <a href="/contact.html">Contactez le studio</a> pour fixer un rendez-vous.</p></noscript>
     </div></div></div></section>`;
 
 export default [
@@ -70,5 +71,5 @@ export default [
   { chemin: '/politique-confidentialite.html', titre: 'Politique de confidentialité | My Beauty Aura', description: 'Données collectées, finalités, durée de conservation et droits des utilisateurs.', corps: confidentialite },
   { chemin: '/cgv-annulation.html', titre: 'CGV et annulation | My Beauty Aura', description: 'Conditions générales de vente et politique d’annulation du studio.', corps: cgv },
   { chemin: '/404.html', titre: 'Page introuvable | My Beauty Aura', description: 'Cette page est introuvable.', corps: erreur, robots: 'noindex' },
-  { chemin: '/reservation.html', titre: 'Réserver | My Beauty Aura', description: 'Réservation en ligne bientôt disponible. Contactez le studio My Beauty Aura.', corps: reservation }
+  { chemin: '/reservation.html', titre: 'Réserver en ligne | My Beauty Aura', description: 'Réservez votre soin des cils ou des sourcils en ligne : choisissez la prestation, la date et le créneau.', corps: reservation, reservation: true, scripts: ['/assets/js/app/booking-page.js'] }
 ];

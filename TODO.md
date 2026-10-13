@@ -42,20 +42,20 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 3 — Réservation (phase 1)
 
-- [ ] Vérifier la version stable de V-Calendar et l'URL CDN, figer la version avec SRI
-- [ ] Importmap Vue 3, structure `assets/js/app/booking.js`
-- [ ] Fichiers `data/services.json`, `horaires.json`, `indisponibilites.json`
-- [ ] Composant `ServicePicker` (multi-sélection, total durée et prix)
-- [ ] `DatePicker` V-Calendar : locale `fr`, lundi premier jour, jours fermés et passés désactivés
-- [ ] Calcul des créneaux (durée totale, tampon 15 min, délai 12 h, horizon 60 jours)
-- [ ] Composant `SlotGrid` (accessible au clavier)
-- [ ] Composant `CustomerForm` : champs, questionnaire première visite, consentement RGPD, CGV
-- [ ] Anti-spam : honeypot
-- [ ] Envoi via fonction serverless ou Formspree, message « demande envoyée »
-- [ ] Génération du fichier `.ics`
-- [ ] Offcanvas « Réserver » ouvrable depuis toute la page
-- [ ] Tests unitaires du calcul de créneaux, dont le changement d'heure (octobre et mars)
-- [ ] `v-cloak` et squelette de chargement
+- [x] Vérifier la version stable de V-Calendar et l'URL CDN, figer la version avec SRI
+- [x] Importmap Vue 3, structure `assets/js/app/booking.js`
+- [x] Fichiers `data/services.json`, `horaires.json`, `indisponibilites.json`
+- [x] Composant `ServicePicker` (multi-sélection, total durée et prix)
+- [x] `DatePicker` V-Calendar : locale `fr`, lundi premier jour, jours fermés et passés désactivés
+- [x] Calcul des créneaux (durée totale, tampon 15 min, délai 12 h, horizon 60 jours)
+- [x] Composant `SlotGrid` (accessible au clavier)
+- [x] Composant `CustomerForm` : champs, questionnaire première visite, consentement RGPD, CGV
+- [x] Anti-spam : honeypot
+- [ ] Envoi via fonction serverless ou Formspree, message « demande envoyée » (adaptateur `submit.js` prêt et testé ; reste à renseigner `endpoint` dans `data/reservation.json`)
+- [x] Génération du fichier `.ics`
+- [x] Offcanvas « Réserver » ouvrable depuis toute la page
+- [x] Tests unitaires du calcul de créneaux, dont le changement d'heure (octobre et mars)
+- [x] `v-cloak` et squelette de chargement
 
 ## Lot 4 — Galerie, SEO, accessibilité, performance
 

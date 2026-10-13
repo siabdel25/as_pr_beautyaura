@@ -5,6 +5,17 @@ export const todo = (t) => `<span class="lb-todo">[À COMPLÉTER] ${t}</span>`;
 export const remplacer = (t) => `<span class="lb-todo">[À REMPLACER] ${t}</span>`;
 export const confirmer = (t) => `<span class="lb-todo">[À CONFIRMER] ${t}</span>`;
 
+const OFFCANVAS = `<div class="offcanvas offcanvas-end lb-offcanvas" tabindex="-1" id="lb-offcanvas-reserver" aria-labelledby="lb-offcanvas-titre">
+    <div class="offcanvas-header">
+      <p class="offcanvas-title lb-titre fs-3 mb-0" id="lb-offcanvas-titre">Réserver un soin</p>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer la réservation"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="lb-squelette lb-squelette--page" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div id="booking-app" v-cloak></div>
+    </div>
+  </div>`;
+
 const NAV = [
   ['/prestations/', 'Prestations'],
   ['/tarifs.html', 'Tarifs'],
@@ -20,15 +31,18 @@ export { sprite };
 const estActif = (href, chemin) =>
   href === '/prestations/' ? chemin.startsWith('/prestations/') : href === chemin;
 
-export function page({ chemin, titre, description, corps, vue = false, scripts = [], robots = '' }) {
+export function page({ chemin, titre, description, corps, scripts = [], robots = '', reservation = false }) {
   const nav = NAV.map(([href, label]) => {
     const cur = estActif(href, chemin) ? ' aria-current="page"' : '';
     return `<li class="nav-item"><a class="nav-link" href="${href}"${cur}>${label}</a></li>`;
   }).join('');
-  const importmap = vue
-    ? `<script type="importmap">{"imports":{"vue":"/assets/js/vendor/vue.esm-browser.prod.js"}}</script>`
+  // Importmap sur toutes les pages : le tunnel se charge à la demande depuis n'importe où
+  const importmap = `<script type="importmap">{"imports":{"vue":"/assets/js/vendor/vue.esm-browser.prod.js","v-calendar":"/assets/js/vendor/v-calendar-3.1.2.esm.js","@popperjs/core":"/assets/js/vendor/popperjs-core-2.11.8.esm.js"}}</script>`;
+  const stylesTunnel = reservation
+    ? `<link rel="stylesheet" href="/assets/css/v-calendar-3.1.2.css">\n  <link rel="stylesheet" href="/assets/css/booking.css">`
     : '';
-  const modules = scripts.map((s) => `<script type="module" src="${s}"></script>`).join('\n  ');
+  const tousScripts = reservation ? scripts : [...scripts, '/assets/js/app/booking-loader.js'];
+  const modules = tousScripts.map((s) => `<script type="module" src="${s}"></script>`).join('\n  ');
   const meta = robots ? `<meta name="robots" content="${robots}">` : '';
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -45,9 +59,10 @@ export function page({ chemin, titre, description, corps, vue = false, scripts =
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/custom.css">
+  ${stylesTunnel}
   ${importmap}
 </head>
-<body>
+<body${reservation ? ' data-page="reservation"' : ''}>
   <a class="lb-skip" href="#contenu">Aller au contenu</a>
   <header class="lb-header">
     <nav class="navbar navbar-expand-lg container" aria-label="Navigation principale">
@@ -103,6 +118,7 @@ ${corps}
     <a class="btn lb-btn lb-btn--contour" href="/contact.html">Contact</a>
   </section>
 
+  ${reservation ? '' : OFFCANVAS}
   <script src="/assets/js/vendor/bootstrap.bundle.min.js" defer></script>
   ${modules}
 </body>

@@ -87,6 +87,9 @@ La phase 2 ajoute une API pour bloquer les créneaux automatiquement et envoyer 
 npx lighthouse http://localhost:3000 --view    # performance, SEO, accessibilité
 npx pa11y http://localhost:3000                # accessibilité
 npx html-validate "**/*.html"                  # validation HTML
+node --test "tests/*.test.mjs"                   # tests unitaires (créneaux, validation, .ics, envoi)
+node tools/build-pages.mjs                      # régénère les pages HTML depuis tools/pages/
+node tools/build-sprite.mjs                     # régénère assets/icons/sprite.svg
 ```
 
 Objectifs : Lighthouse mobile Performance ≥ 90, Accessibilité ≥ 95, SEO ≥ 95. LCP < 2,5 s.

@@ -1,0 +1,80 @@
+/* Tunnel de réservation. Chargé seulement avec le tunnel (page réservation ou ouverture de l'offcanvas). */
+
+/* Palette de V-Calendar alignée sur la marque */
+.lb-booking .vc-container.vc-purple {
+  --vc-font-family: var(--lb-font-texte);
+  --vc-accent-50: #f6f1f3; --vc-accent-100: #ece2e8; --vc-accent-200: #d9c7d2; --vc-accent-300: #c1a6b3;
+  --vc-accent-400: #9d7b92; --vc-accent-500: #7a5c74; --vc-accent-600: #5e4459; --vc-accent-700: #4a3546;
+  --vc-accent-800: #382935; --vc-accent-900: #1f1a24;
+  --vc-focus-ring: 0 0 0 3px var(--lb-soie), 0 0 0 5px var(--lb-mauve-profond);
+  --vc-bg: transparent; --vc-color: var(--lb-encre); --vc-border: var(--lb-trait);
+  --vc-day-content-disabled-color: #6d6573;
+  --vc-highlight-solid-bg: var(--lb-mauve-profond);
+  --vc-highlight-solid-content-color: var(--lb-blanc);
+  --vc-header-title-color: var(--lb-encre);
+}
+.lb-booking .vc-day-content { min-height: 2.5rem; min-width: 2.5rem; font-weight: 500; }
+.lb-booking .vc-day-content.vc-disabled { text-decoration: line-through; text-decoration-thickness: 1px; }
+.lb-booking .vc-title { font-family: var(--lb-font-titre); font-size: 1.2rem; }
+
+/* Cadre */
+.lb-booking { max-width: 40rem; }
+.lb-bk-titre { font-size: clamp(1.5rem, 2vw + 1rem, 2rem); margin-block: var(--lb-space-3); }
+.lb-bk-titre:focus { outline: none; }
+.lb-bk-sous-titre { font-family: var(--lb-font-titre); font-size: 1.3rem; float: none; }
+.lb-bk-recap { font-weight: 600; margin-bottom: var(--lb-space-3); }
+.lb-bk-exemple { font-size: 0.95rem; border-left: 3px solid var(--lb-bronze); padding-left: var(--lb-space-3); }
+.lb-bk-vide { margin-block: var(--lb-space-3); }
+.lb-bk-erreur { color: #9b1c1c; font-size: 0.95rem; margin: 0.35rem 0 0; font-weight: 500; }
+.lb-bk-form [aria-invalid="true"] { border-color: #9b1c1c; }
+.lb-bk-questionnaire { border-left: 3px solid var(--lb-sauge); padding-left: var(--lb-space-3); margin-top: var(--lb-space-3); }
+.lb-bk-actions { display: flex; justify-content: space-between; gap: var(--lb-space-3); margin-top: var(--lb-space-4); flex-wrap: wrap; }
+.lb-bk-actions .lb-btn:only-child { margin-left: auto; }
+
+/* Progression : texte, pas de pastilles numérotées */
+.lb-bk-etapes { display: flex; gap: var(--lb-space-3); list-style: none; padding: 0; margin: var(--lb-space-3) 0 0; font-size: 0.9rem; flex-wrap: wrap; }
+.lb-bk-etapes li { color: var(--lb-mauve-profond); padding-bottom: 0.25rem; border-bottom: 2px solid transparent; }
+.lb-bk-etapes li[aria-current="step"] { color: var(--lb-encre); font-weight: 600; border-bottom-color: var(--lb-bronze); }
+
+/* Choix de prestations : lignes sélectionnables */
+.lb-bk-services { border: 0; padding: 0; margin: 0; }
+.lb-bk-liste { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--lb-trait); }
+.lb-bk-liste li { border-bottom: 1px solid var(--lb-trait); }
+.lb-bk-choix { display: grid; grid-template-columns: auto 1fr auto; gap: var(--lb-space-3); align-items: center; padding: var(--lb-space-3) var(--lb-space-2); cursor: pointer; min-height: 4rem; }
+.lb-bk-choix:hover { background: rgba(122, 92, 116, 0.08); }
+.lb-bk-choix--actif { background: rgba(191, 202, 186, 0.45); }
+.lb-bk-choix input { width: 1.4rem; height: 1.4rem; accent-color: var(--lb-mauve-profond); }
+.lb-bk-choix:has(input:focus-visible) { outline: 2px solid transparent; box-shadow: var(--lb-focus); }
+.lb-bk-choix__nom { display: block; font-family: var(--lb-font-titre); font-size: 1.2rem; }
+.lb-bk-choix__desc { display: block; font-size: 0.92rem; color: var(--lb-mauve-profond); }
+.lb-bk-choix__meta { font-size: 0.9rem; text-align: right; white-space: nowrap; }
+.lb-bk-total { margin-top: var(--lb-space-3); font-weight: 600; }
+
+/* Créneaux : boutons radio habillés, navigation aux flèches native */
+.lb-bk-creneaux { border: 0; padding: 0; margin: var(--lb-space-4) 0 0; }
+.lb-bk-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--lb-space-2); }
+.lb-bk-heure { position: relative; display: block; text-align: center; border: 1.5px solid var(--lb-encre); border-radius: var(--lb-radius); min-height: 2.9rem; cursor: pointer; font-weight: 500; }
+.lb-bk-heure span { display: flex; align-items: center; justify-content: center; min-height: 2.9rem; }
+.lb-bk-heure input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+.lb-bk-heure:hover { background: rgba(122, 92, 116, 0.1); }
+.lb-bk-heure--actif { background: var(--lb-encre); color: var(--lb-soie); }
+.lb-bk-heure:has(input:focus-visible) { box-shadow: var(--lb-focus); }
+.lb-bk-liste-dates { margin-top: var(--lb-space-3); }
+
+/* Squelette de chargement */
+.lb-squelette { display: grid; gap: var(--lb-space-3); min-height: 46rem; align-content: start; }
+/* Hauteur proche de l'étape 1 une fois chargée : le pied de page ne saute pas (CLS) */
+@media (min-width: 768px) { .lb-squelette { min-height: 34rem; } }
+.lb-squelette span { display: block; height: 3.5rem; background: linear-gradient(90deg, rgba(31,26,36,.08), rgba(31,26,36,.15), rgba(31,26,36,.08)); background-size: 200% 100%; animation: lb-squelette 1.4s linear infinite; border-radius: var(--lb-radius); }
+.lb-squelette span:first-child { width: 60%; height: 2rem; }
+@keyframes lb-squelette { to { background-position: -200% 0; } }
+
+/* Offcanvas */
+.lb-offcanvas { --bs-offcanvas-width: min(100vw, 36rem); --bs-offcanvas-bg: var(--lb-soie); }
+.lb-offcanvas .offcanvas-body { padding-top: 0; }
+
+@media (prefers-reduced-motion: reduce) { .lb-squelette span { animation: none; } }
+
+/* Sur la page de réservation, la barre collante « Réserver » est redondante et masquerait les boutons du tunnel */
+body[data-page="reservation"] .lb-sticky { display: none; }
+body[data-page="reservation"] { padding-bottom: 0; }

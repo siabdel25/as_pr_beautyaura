@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/assets/css/variables.css">
   <link rel="stylesheet" href="/assets/css/custom.css">
 
+  <script type="importmap">{"imports":{"vue":"/assets/js/vendor/vue.esm-browser.prod.js","v-calendar":"/assets/js/vendor/v-calendar-3.1.2.esm.js","@popperjs/core":"/assets/js/vendor/popperjs-core-2.11.8.esm.js"}}</script>
 </head>
 <body>
   <a class="lb-skip" href="#contenu">Aller au contenu</a>
@@ -85,7 +86,17 @@
     <a class="btn lb-btn lb-btn--contour" href="/contact.html">Contact</a>
   </section>
 
+  <div class="offcanvas offcanvas-end lb-offcanvas" tabindex="-1" id="lb-offcanvas-reserver" aria-labelledby="lb-offcanvas-titre">
+    <div class="offcanvas-header">
+      <p class="offcanvas-title lb-titre fs-3 mb-0" id="lb-offcanvas-titre">Réserver un soin</p>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer la réservation"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="lb-squelette lb-squelette--page" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div id="booking-app" v-cloak></div>
+    </div>
+  </div>
   <script src="/assets/js/vendor/bootstrap.bundle.min.js" defer></script>
-
+  <script type="module" src="/assets/js/app/booking-loader.js"></script>
 </body>
 </html>
