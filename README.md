@@ -148,3 +148,4 @@ Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
 ## Licence
 
 À définir par le propriétaire du projet. Les polices (Bodoni Moda, Figtree) sont sous licence SIL Open Font License.
+# as_pr_beautyaura
