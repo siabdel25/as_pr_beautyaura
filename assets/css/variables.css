@@ -1,0 +1,44 @@
+/* Variables du design system « courbe du cil ».
+   Contrastes mesurés (WCAG) :
+   encre/soie 15,3 · mauve/soie 5,2 · encre/bronze 4,8 · bronze-profond/soie 5,2 · encre/sauge 10,0
+   Le bronze #B07D55 seul ne passe pas en texte sur Soie (3,2) : il sert de fond de bouton avec texte encre,
+   et --lb-bronze-profond sert quand le bronze doit être du texte. */
+:root {
+  --lb-encre: #1F1A24;
+  --lb-soie: #F6F1F3;
+  --lb-mauve: #7A5C74;
+  --lb-mauve-profond: #5E4459;
+  --lb-bronze: #B07D55;
+  --lb-bronze-profond: #8A5A36;
+  --lb-sauge: #BFCABA;
+  --lb-blanc: #FFFFFF;
+  --lb-trait: rgba(31, 26, 36, 0.18);
+
+  --lb-font-titre: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --lb-font-texte: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --lb-space-1: 0.25rem;
+  --lb-space-2: 0.5rem;
+  --lb-space-3: 1rem;
+  --lb-space-4: 1.5rem;
+  --lb-space-5: 2.5rem;
+  --lb-space-6: 4rem;
+  --lb-space-7: 6rem;
+
+  --lb-radius: 2px;
+  --lb-header-h: 4rem;
+  --lb-sticky-h: 4.25rem;
+  --lb-focus: 0 0 0 3px var(--lb-soie), 0 0 0 5px var(--lb-mauve-profond);
+
+  /* Surcharge Bootstrap par variables */
+  --bs-body-font-family: var(--lb-font-texte);
+  --bs-body-color: var(--lb-encre);
+  --bs-body-bg: var(--lb-soie);
+  --bs-body-line-height: 1.65;
+  --bs-link-color: var(--lb-mauve-profond);
+  --bs-link-hover-color: var(--lb-encre);
+  --bs-link-color-rgb: 94, 68, 89;
+  --bs-border-color: var(--lb-trait);
+  --bs-border-radius: var(--lb-radius);
+  --bs-heading-color: var(--lb-encre);
+}
