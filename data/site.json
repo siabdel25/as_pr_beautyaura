@@ -1,0 +1,10 @@
+{
+  "statut": "exemple",
+  "url": "https://www.mybeautyaura.example",
+  "mesure": {
+    "fournisseur": "plausible",
+    "domaine": null,
+    "script": "https://plausible.io/js/script.js"
+  },
+  "carte_embed_url": null
+}

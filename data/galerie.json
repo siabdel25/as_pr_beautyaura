@@ -1,0 +1,28 @@
+{
+  "statut": "exemple",
+  "note": "Une réalisation n'est publiée qu'avec \"consentement\": true (accord écrit de la cliente). Les entrées de type \"illustration\" ne montrent aucune personne.",
+  "filtres": [
+    { "id": "tous", "nom": "Tout" },
+    { "id": "extensions", "nom": "Extensions" },
+    { "id": "rehaussement", "nom": "Rehaussement" },
+    { "id": "sourcils", "nom": "Sourcils" }
+  ],
+  "items": [
+    {
+      "id": "demo-extensions",
+      "type": "illustration",
+      "categorie": "extensions",
+      "titre": "Exemple : de l'effet naturel au volume",
+      "avant": { "symbole": "eye-naturel", "alt": "Illustration d'un œil avec des cils fins, effet naturel" },
+      "apres": { "symbole": "eye-volume", "alt": "Illustration d'un œil avec des cils plus denses, effet volume" }
+    },
+    {
+      "id": "demo-sourcils",
+      "type": "illustration",
+      "categorie": "sourcils",
+      "titre": "Exemple : de la ligne droite à l'arc",
+      "avant": { "symbole": "brow-droit", "alt": "Illustration d'un sourcil droit" },
+      "apres": { "symbole": "brow-arque", "alt": "Illustration d'un sourcil arqué" }
+    }
+  ]
+}

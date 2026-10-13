@@ -102,7 +102,8 @@ const BookingWidget = {
       await nextTick();
       titre.value?.focus();
     }
-    const continuer = (n) => { emettre(['', 'booking_step_service', 'booking_step_date', 'booking_step_details'][n - 1] ?? ''); aller(n + 1); };
+    // L'étape 2 émet déjà booking_step_date et booking_step_slot au choix : rien à émettre en la quittant
+    const continuer = (n) => { const nom = ['booking_step_service', null, 'booking_step_details'][n - 1]; if (nom) emettre(nom); aller(n + 1); };
 
     async function soumettre(client) {
       const prestations = donnees.services.filter((s) => etat.ids.includes(s.id)).map((s) => ({ id: s.id, nom: s.nom }));
