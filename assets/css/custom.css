@@ -172,6 +172,7 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 
 /* ---------- Marqueurs de contenu à remplacer ---------- */
 .lb-todo { background: rgba(176, 125, 85, 0.22); color: var(--lb-encre); padding: 0 0.3em; border-radius: var(--lb-radius); font-weight: 500; }
+.lb-footer .lb-todo,
 .lb-section--sombre .lb-todo { background: rgba(176, 125, 85, 0.35); color: var(--lb-soie); }
 
 /* ---------- Pied de page ---------- */
@@ -206,3 +207,9 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .lb-hero__cil .lb-cil-trace { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Ratios des illustrations du sprite (les <symbol> ont chacun leur viewBox) */
+.lb-profil svg { aspect-ratio: 3 / 2; }
+.lb-profil svg.lb-ratio-oeil { aspect-ratio: 2 / 1; }
+.lb-profil svg.lb-ratio-sourcil { aspect-ratio: 5 / 2; }
+.lb-courbure__vignette { width: 100%; max-width: 30rem; aspect-ratio: 2 / 1; }
