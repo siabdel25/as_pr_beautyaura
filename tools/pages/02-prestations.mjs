@@ -57,7 +57,7 @@ ${entete('Extensions de cils', 'Des cils posés un par un sur vos cils naturels,
       <div class="container">
         <h2 id="t-courbure">Essayez les quatre courbures</h2>
         <p>La courbure change l'ouverture du regard. Cette illustration est indicative : la praticienne vous conseille lors du rendez-vous.</p>
-        <div id="courbure-app" class="lb-courbure" v-cloak>
+        <div class="lb-ilot-courbure"><div id="courbure-app" class="lb-courbure" v-cloak>
           <div>
             <div class="lb-courbure__choix" role="group" aria-label="Courbure des cils">
               <button v-for="c in courbures" :key="c.nom" type="button" :aria-pressed="c.nom === choix" @click="choisir(c.nom)">{{ c.nom }}</button>
@@ -70,7 +70,7 @@ ${entete('Extensions de cils', 'Des cils posés un par un sur vos cils naturels,
             <circle class="lb-oeil-iris" cx="100" cy="68" r="12"/>
             <path v-for="(d, i) in chemins" :key="i" class="lb-oeil-lash" :d="d"/>
           </svg>
-        </div>
+        </div></div>
         <noscript><p>Courbures disponibles : C (relevé doux), CC (relevé marqué), D (relevé prononcé), L (base droite, relevé net en bout).</p></noscript>
       </div>
     </section>
@@ -94,7 +94,7 @@ ${entete('Extensions de cils', 'Des cils posés un par un sur vos cils naturels,
           <div class="col-lg-5">
             <h2 id="t-infos-ext">À savoir avant la pose</h2>
             <p>Pour une première visite, un court questionnaire (allergie à la colle, lentilles, grossesse, traitement oculaire) permet de vérifier que le soin vous convient. En cas de doute, contactez le studio avant de réserver.</p>
-            <figure class="lb-photo mt-4">
+            <figure class="lb-photo lb-photo--vignette mt-4">
               <picture>
                 <source type="image/avif" srcset="/assets/img/oeil-cils-168.avif">
                 <img src="/assets/img/oeil-cils-168.webp" width="168" height="196" alt="Œil avec des extensions de cils aux courbes marquées" loading="lazy" decoding="async">
@@ -192,6 +192,6 @@ export default [
   { chemin: '/prestations/', titre: 'Prestations cils et sourcils | My Beauty Aura', description: 'Extensions de cils, rehaussement, soins et épilation des sourcils : découvrez les soins esthétiques du studio.', corps: index },
   { chemin: '/prestations/extensions-de-cils.html', titre: 'Extensions de cils : courbures et effets | My Beauty Aura', description: 'Extensions de cils cil à cil, hybrides ou volume. Comparez les courbures C, CC, D et L et choisissez votre effet.', corps: extensions, vue: true, scripts: ['/assets/js/app/courbure.js'] },
   { chemin: '/prestations/rehaussement-de-cils.html', titre: 'Rehaussement de cils | My Beauty Aura', description: 'Rehaussement de cils : un soin esthétique qui relève vos cils naturels sans extensions. Durée, déroulement et conseils.', corps: rehaussement },
-  { chemin: '/prestations/soins-des-sourcils.html', titre: 'Soins des sourcils : restructuration et teinture | My Beauty Aura', description: 'Restructuration, teinture et lissage des sourcils. Découvrez les formes de sourcils et réservez votre soin.', corps: sourcils },
+  { chemin: '/prestations/soins-des-sourcils.html', titre: 'Soins des sourcils et restructuration | My Beauty Aura', description: 'Restructuration, teinture et lissage des sourcils. Découvrez les formes de sourcils et réservez votre soin.', corps: sourcils },
   { chemin: '/prestations/epilation-sourcils.html', titre: 'Épilation des sourcils | My Beauty Aura', description: 'Épilation des sourcils sur rendez-vous : une ligne nette et naturelle, adaptée à votre visage.', corps: epilation }
 ];

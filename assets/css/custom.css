@@ -213,3 +213,17 @@ textarea:focus-visible, summary:focus-visible, .btn:focus-visible, .accordion-bu
 .lb-profil svg.lb-ratio-oeil { aspect-ratio: 2 / 1; }
 .lb-profil svg.lb-ratio-sourcil { aspect-ratio: 5 / 2; }
 .lb-courbure__vignette { width: 100%; max-width: 30rem; aspect-ratio: 2 / 1; }
+
+/* Réserve la hauteur de l'îlot Vue avant son montage (évite le décalage de mise en page) */
+/* v-cloak passe l'îlot en display:none : la hauteur est donc réservée sur son conteneur */
+.lb-ilot-courbure { min-height: 24rem; }
+@media (min-width: 768px) { .lb-ilot-courbure { min-height: 15rem; } }
+
+/* Texte et bouton « contour » lisibles sur fond sombre */
+.lb-section--sombre .lb-btn--contour {
+  --bs-btn-color: var(--lb-soie); --bs-btn-border-color: var(--lb-soie);
+  --bs-btn-hover-color: var(--lb-encre); --bs-btn-hover-bg: var(--lb-soie); --bs-btn-hover-border-color: var(--lb-soie);
+  --bs-btn-active-color: var(--lb-encre); --bs-btn-active-bg: var(--lb-soie); --bs-btn-active-border-color: var(--lb-soie);
+}
+/* La photo d'œil source ne fait que 168 px : on ne l'agrandit pas */
+.lb-photo--vignette { max-width: 168px; }

@@ -108,7 +108,7 @@ const corps = `
 
 export default [{
   chemin: '/',
-  titre: 'My Beauty Aura | Extensions de cils, rehaussement et soins des sourcils',
+  titre: 'My Beauty Aura | Cils et sourcils : extensions, rehaussement',
   description: 'Studio de soins esthétiques des cils et des sourcils : extensions, rehaussement, restructuration. Réservation en ligne sur rendez-vous.',
   corps
 }];

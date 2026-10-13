@@ -30,7 +30,7 @@ export function page({ chemin, titre, description, corps, vue = false, scripts =
     : '';
   const modules = scripts.map((s) => `<script type="module" src="${s}"></script>`).join('\n  ');
   const meta = robots ? `<meta name="robots" content="${robots}">` : '';
-  return `<!doctype html>
+  return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
@@ -98,10 +98,10 @@ ${corps}
     </div>
   </footer>
 
-  <div class="lb-sticky" role="region" aria-label="Réserver">
+  <section class="lb-sticky" aria-label="Réserver">
     <a class="btn lb-btn lb-btn--primaire" href="/reservation.html">Réserver</a>
     <a class="btn lb-btn lb-btn--contour" href="/contact.html">Contact</a>
-  </div>
+  </section>
 
   <script src="/assets/js/vendor/bootstrap.bundle.min.js" defer></script>
   ${modules}

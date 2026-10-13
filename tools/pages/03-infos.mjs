@@ -151,10 +151,10 @@ ${entete('Contact', 'Une question avant de réserver ? Écrivez-nous ou passez a
           <div class="col-lg-6 offset-lg-1">
             <h2>Écrire au studio</h2>
             <form class="lb-form" novalidate>
-              <div class="mb-3"><label class="form-label" for="c-nom">Nom</label><input class="form-control" id="c-nom" name="nom" autocomplete="name" required></div>
+              <div class="mb-3"><label class="form-label" for="c-nom">Nom</label><input class="form-control" id="c-nom" name="nom" type="text" autocomplete="name" required></div>
               <div class="mb-3"><label class="form-label" for="c-mail">E-mail</label><input class="form-control" id="c-mail" name="email" type="email" autocomplete="email" required></div>
               <div class="mb-3"><label class="form-label" for="c-msg">Message</label><textarea class="form-control" id="c-msg" name="message" rows="5" required></textarea></div>
-              <div class="lb-hp" aria-hidden="true"><label for="c-site">Ne pas remplir</label><input id="c-site" name="site" tabindex="-1" autocomplete="off"></div>
+              <div class="lb-hp" aria-hidden="true"><label for="c-site">Ne pas remplir</label><input type="text" id="c-site" name="site" tabindex="-1" autocomplete="off"></div>
               <div class="form-check mb-4">
                 <input class="form-check-input" type="checkbox" id="c-rgpd" name="rgpd" required>
                 <label class="form-check-label" for="c-rgpd">J'accepte que mes données soient utilisées pour répondre à ma demande. <a href="/politique-confidentialite.html">Politique de confidentialité</a></label>

@@ -15,30 +15,30 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 1 — Fondations et design system
 
-- [ ] Initialiser le dépôt Git, `.gitignore`, `.editorconfig`
-- [ ] Créer l'arborescence (voir `CAHIER_DES_CHARGES.md` 1.1.2)
-- [ ] `assets/css/variables.css` : palette, typographie, espacements
-- [ ] `assets/css/custom.css` : surcharge Bootstrap, préfixe `lb-`
-- [ ] Polices Bodoni Moda et Figtree en WOFF2 auto-hébergées
-- [ ] Gabarit de page : header, navigation, footer, bouton « Réserver » collant mobile
-- [ ] Composant SVG « courbe du cil » (C, CC, D, L) réutilisable
-- [ ] Vérifier le contraste de la palette (≥ 4,5:1)
+- [x] Initialiser le dépôt Git, `.gitignore`, `.editorconfig`
+- [x] Créer l'arborescence (voir `CAHIER_DES_CHARGES.md` 1.1.2)
+- [x] `assets/css/variables.css` : palette, typographie, espacements
+- [x] `assets/css/custom.css` : surcharge Bootstrap, préfixe `lb-`
+- [x] Polices Bodoni Moda et Figtree en WOFF2 auto-hébergées
+- [x] Gabarit de page : header, navigation, footer, bouton « Réserver » collant mobile
+- [x] Composant SVG « courbe du cil » (C, CC, D, L) réutilisable
+- [x] Vérifier le contraste de la palette (≥ 4,5:1)
 
 ## Lot 2 — Pages statiques
 
-- [ ] Accueil (hero avec cil dessiné au trait, prestations phares, avis, horaires)
-- [ ] Page prestations (vue d'ensemble)
-- [ ] Extensions de cils (avec sélecteur de courbure)
-- [ ] Rehaussement de cils
-- [ ] Soins des sourcils
-- [ ] Épilation des sourcils
-- [ ] Tarifs (tableau filtrable Vue)
-- [ ] À propos (parcours, certifications, protocole d'hygiène)
-- [ ] FAQ (accordéon Bootstrap, 12 à 15 questions)
-- [ ] Conseils après-soin
-- [ ] Contact (carte chargée après consentement, itinéraire, formulaire)
-- [ ] Page 404
-- [ ] Mentions légales, politique de confidentialité, CGV et annulation
+- [x] Accueil (hero avec cil dessiné au trait, prestations phares, avis, horaires)
+- [x] Page prestations (vue d'ensemble)
+- [x] Extensions de cils (avec sélecteur de courbure)
+- [x] Rehaussement de cils
+- [x] Soins des sourcils
+- [x] Épilation des sourcils
+- [x] Tarifs (tableau filtrable Vue)
+- [x] À propos (parcours, certifications, protocole d'hygiène)
+- [x] FAQ (accordéon Bootstrap, 12 à 15 questions)
+- [x] Conseils après-soin
+- [x] Contact (carte chargée après consentement, itinéraire, formulaire)
+- [x] Page 404
+- [x] Mentions légales, politique de confidentialité, CGV et annulation
 
 ## Lot 3 — Réservation (phase 1)
 

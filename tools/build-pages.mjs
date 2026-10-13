@@ -14,7 +14,7 @@ for (const f of readdirSync(dossier).filter((n) => n.endsWith('.mjs')).sort()) {
   for (const p of pages) {
     const sortie = join(racine, p.chemin.endsWith('/') ? p.chemin + 'index.html' : p.chemin);
     mkdirSync(dirname(sortie), { recursive: true });
-    writeFileSync(sortie, page(p));
+    writeFileSync(sortie, page(p).replace(/[ \t]+$/gm, ''));
     total += 1;
   }
 }

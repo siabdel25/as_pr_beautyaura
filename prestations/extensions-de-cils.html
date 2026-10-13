@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Extensions de cils : courbures et effets | My Beauty Aura</title>
   <meta name="description" content="Extensions de cils cil à cil, hybrides ou volume. Comparez les courbures C, CC, D et L et choisissez votre effet.">
-  
+
   <meta name="theme-color" content="#1F1A24">
   <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/assets/fonts/bodoni-moda-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -47,7 +47,7 @@
       <div class="container">
         <h2 id="t-courbure">Essayez les quatre courbures</h2>
         <p>La courbure change l'ouverture du regard. Cette illustration est indicative : la praticienne vous conseille lors du rendez-vous.</p>
-        <div id="courbure-app" class="lb-courbure" v-cloak>
+        <div class="lb-ilot-courbure"><div id="courbure-app" class="lb-courbure" v-cloak>
           <div>
             <div class="lb-courbure__choix" role="group" aria-label="Courbure des cils">
               <button v-for="c in courbures" :key="c.nom" type="button" :aria-pressed="c.nom === choix" @click="choisir(c.nom)">{{ c.nom }}</button>
@@ -60,7 +60,7 @@
             <circle class="lb-oeil-iris" cx="100" cy="68" r="12"/>
             <path v-for="(d, i) in chemins" :key="i" class="lb-oeil-lash" :d="d"/>
           </svg>
-        </div>
+        </div></div>
         <noscript><p>Courbures disponibles : C (relevé doux), CC (relevé marqué), D (relevé prononcé), L (base droite, relevé net en bout).</p></noscript>
       </div>
     </section>
@@ -84,7 +84,7 @@
           <div class="col-lg-5">
             <h2 id="t-infos-ext">À savoir avant la pose</h2>
             <p>Pour une première visite, un court questionnaire (allergie à la colle, lentilles, grossesse, traitement oculaire) permet de vérifier que le soin vous convient. En cas de doute, contactez le studio avant de réserver.</p>
-            <figure class="lb-photo mt-4">
+            <figure class="lb-photo lb-photo--vignette mt-4">
               <picture>
                 <source type="image/avif" srcset="/assets/img/oeil-cils-168.avif">
                 <img src="/assets/img/oeil-cils-168.webp" width="168" height="196" alt="Œil avec des extensions de cils aux courbes marquées" loading="lazy" decoding="async">
@@ -154,10 +154,10 @@
     </div>
   </footer>
 
-  <div class="lb-sticky" role="region" aria-label="Réserver">
+  <section class="lb-sticky" aria-label="Réserver">
     <a class="btn lb-btn lb-btn--primaire" href="/reservation.html">Réserver</a>
     <a class="btn lb-btn lb-btn--contour" href="/contact.html">Contact</a>
-  </div>
+  </section>
 
   <script src="/assets/js/vendor/bootstrap.bundle.min.js" defer></script>
   <script type="module" src="/assets/js/app/courbure.js"></script>
