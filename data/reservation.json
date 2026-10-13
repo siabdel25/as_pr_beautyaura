@@ -1,0 +1,10 @@
+{
+  "statut": "exemple",
+  "fuseau": "Europe/Paris",
+  "tampon_min": 15,
+  "delai_min_heures": 12,
+  "horizon_jours": 60,
+  "pas_creneau_min": 30,
+  "endpoint": null,
+  "email_studio": null
+}

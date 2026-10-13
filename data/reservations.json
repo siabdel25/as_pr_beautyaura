@@ -1,0 +1,6 @@
+{
+  "statut": "exemple",
+  "reservations_existantes": [
+    { "date": "2026-11-03", "debut": "10:00", "fin": "12:30" }
+  ]
+}

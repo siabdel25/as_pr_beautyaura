@@ -1,0 +1,7 @@
+{
+  "statut": "exemple",
+  "indisponibilites": [
+    { "date": "2026-12-25", "motif": "Fermeture" },
+    { "date": "2026-12-31", "debut": "14:00", "fin": "18:30", "motif": "Fermeture anticipée" }
+  ]
+}

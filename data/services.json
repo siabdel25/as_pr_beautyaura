@@ -1,0 +1,9 @@
+{
+  "statut": "exemple",
+  "services": [
+    { "id": "pose-cil-a-cil", "nom": "Pose complète cil à cil", "categorie": "extensions", "duree_min": 150, "prix_a_partir_de": null, "description": "Extensions posées cil par cil." },
+    { "id": "retouche-extensions", "nom": "Retouche d'extensions", "categorie": "extensions", "duree_min": 75, "prix_a_partir_de": null, "description": "Remplissage de la pose existante." },
+    { "id": "rehaussement-cils", "nom": "Rehaussement de cils", "categorie": "rehaussement", "duree_min": 60, "prix_a_partir_de": null, "description": "Vos cils naturels relevés." },
+    { "id": "restructuration-sourcils", "nom": "Restructuration des sourcils", "categorie": "sourcils", "duree_min": 45, "prix_a_partir_de": null, "description": "Ligne des sourcils redessinée." }
+  ]
+}
