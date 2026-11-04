@@ -7,7 +7,7 @@ export default {
   emits: ['submit', 'retour'],
   setup(props, { emit }) {
     const client = reactive({
-      prenom: '', nom: '', telephone: '', email: '', premiereVisite: '', allergiesConnues: '',
+      prenom: '', nom: '', telephone: '', email: '', premiereVisite: '',
       questionnaire: {}, consentementRgpd: false, acceptationCgv: false, siteWeb: ''
     });
     const erreurs = ref({});
@@ -96,10 +96,6 @@ export default {
             <label class="form-check-label" for="bk-lentilles-non">Non</label>
           </div>
         </fieldset>
-        <div class="mb-2">
-          <label class="form-label" for="bk-allergies">Autres allergies ou précisions (facultatif)</label>
-          <textarea class="form-control" id="bk-allergies" v-model.trim="client.allergiesConnues" rows="2"></textarea>
-        </div>
         <div aria-live="polite">
           <p v-if="alertes().length" class="alert alert-warning mb-0">
             Merci de contacter le studio avant de réserver : {{ alertes().map((q) => q.libelle.toLowerCase()).join(', ') }}.

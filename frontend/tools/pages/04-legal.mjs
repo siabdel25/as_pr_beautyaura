@@ -23,7 +23,7 @@ const confidentialite = `${entete('Politique de confidentialité')}
       <h2>Responsable du traitement</h2>
       <p>My Beauty Aura, représenté par ${st.responsable}. Contact : ${coord.email}.</p>
       <h2 class="mt-5">Données collectées et finalités</h2>
-      <p>Nom, e-mail, téléphone et informations utiles au soin (par exemple allergies déclarées), uniquement pour répondre à vos demandes et gérer vos rendez-vous.</p>
+      <p>Nom, e-mail et téléphone, uniquement pour répondre à vos demandes et gérer vos rendez-vous. Si vous signalez une réponse à risque au questionnaire de première visite, seule l'existence de cette réponse est conservée, jamais son détail.</p>
       <h2 class="mt-5">Durée de conservation</h2>
       <p>${todo('durée de conservation')}</p>
       <h2 class="mt-5">Vos droits</h2>

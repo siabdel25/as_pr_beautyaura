@@ -161,7 +161,7 @@ const BookingWidget = {
             statut: 'a_confirmer',
             prestations, date: etat.date, heure: etat.heure, duree_min: selection.value.dureeMin,
             client: { prenom: client.prenom, nom: client.nom, telephone: client.telephone, email: client.email },
-            premiere_visite: client.premiereVisite, questionnaire: client.questionnaire, precisions: client.allergiesConnues,
+            premiere_visite: client.premiereVisite, questionnaire: client.questionnaire,
             consentement_rgpd: true, cgv_acceptees: true, envoye_le: new Date().toISOString()
           }, modeApi.value ? `${donnees.config.api}/reservations/` : donnees.config.endpoint);
         } catch (e) {

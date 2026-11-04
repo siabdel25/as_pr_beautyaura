@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
-from .vertical import CATEGORIES_RETOUCHE, QUESTIONS_A_RISQUE
+from .vertical import CATEGORIES_RETOUCHE
 
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,9 @@ def composer_message(resa):
         f'E-mail : {resa.email}',
         f'Première visite : {"oui" if resa.premiere_visite else "non"}',
     ]
-    risques = [QUESTIONS_A_RISQUE[q] for q, r in resa.questionnaire.items() if r == 'oui' and q in QUESTIONS_A_RISQUE]
-    if risques:
-        lignes += ['', 'ATTENTION, réponses à risque (contacter la cliente avant de confirmer) :']
-        lignes += [f'- {r}' for r in risques]
-    if resa.precisions:
-        lignes += ['', f'Précisions : {resa.precisions}']
+    if resa.reponse_a_risque:
+        lignes += ['', 'ATTENTION, réponse à risque au questionnaire de première visite :',
+                   'contactez la cliente avant de confirmer (le détail n’est pas conservé).']
     lignes += ['', 'Le créneau est réservé pour cette demande tant qu’elle n’est pas annulée ou refusée.',
                'Confirmez-la dans l’administration (action « Confirmer »).']
     return '\n'.join(lignes)

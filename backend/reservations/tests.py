@@ -187,7 +187,22 @@ class ReservationApiTests(ApiBase):
     def test_premiere_visite_avec_questionnaire(self):
         q = {'allergie_colle': 'oui', 'traitement_oculaire': 'non', 'grossesse': 'non'}
         self.assertEqual(self.post(premiere_visite='oui', questionnaire=q).status_code, 201)
-        self.assertEqual(Reservation.objects.get().questionnaire['allergie_colle'], 'oui')
+        self.assertTrue(Reservation.objects.get().reponse_a_risque)
+
+    def test_aucune_reponse_a_risque(self):
+        q = {'allergie_colle': 'non', 'traitement_oculaire': 'non', 'grossesse': 'non', 'lentilles': 'oui'}
+        self.assertEqual(self.post(premiere_visite='oui', questionnaire=q).status_code, 201)
+        self.assertFalse(Reservation.objects.get().reponse_a_risque)
+
+    def test_le_detail_de_sante_n_est_jamais_stocke(self):
+        champs = {f.name for f in Reservation._meta.get_fields()}
+        self.assertNotIn('questionnaire', champs)
+        self.assertNotIn('precisions', champs)
+        q = {'allergie_colle': 'oui', 'traitement_oculaire': 'non', 'grossesse': 'oui'}
+        r = self.post(premiere_visite='oui', questionnaire=q, precisions='Yeux sensibles')
+        self.assertEqual(r.status_code, 201)       # un ancien client qui enverrait encore `precisions` n'échoue pas
+        resa = Reservation.objects.get()
+        self.assertNotIn('Yeux sensibles', str(resa.__dict__))
 
     def test_honeypot_n_enregistre_rien(self):
         r = self.post(site_web='http://spam.example')
@@ -253,7 +268,7 @@ class NotificationTests(ApiBase):
     @override_settings(STUDIO_EMAIL='studio@example.test')
     def test_tache_envoie_un_mail_une_seule_fois(self):
         with mock.patch.object(tasks.notifier_praticienne, 'delay'):
-            self.creer(premiere_visite='oui', questionnaire=self.RISQUE, precisions='Yeux sensibles')
+            self.creer(premiere_visite='oui', questionnaire=self.RISQUE, precisions='Yeux sensibles')  # `precisions` est ignoré
         pk = Reservation.objects.get().pk
         self.assertEqual(tasks.notifier_praticienne(pk), 'envoyee')
         self.assertEqual(tasks.notifier_praticienne(pk), 'ignoree')   # rejeu : pas de doublon
@@ -263,8 +278,9 @@ class NotificationTests(ApiBase):
         self.assertIn('À CONFIRMER', m.body)
         self.assertIn('Léa Martin', m.body)
         self.assertIn('10:00 à 11:00', m.body)
-        self.assertIn('allergie connue à la colle', m.body)           # réponse à risque signalée
-        self.assertIn('Yeux sensibles', m.body)
+        self.assertIn('réponse à risque', m.body)                      # signalée, sans détail
+        self.assertNotIn('colle', m.body)
+        self.assertNotIn('Yeux sensibles', m.body)
         self.assertNotIn('confirmée', m.body.lower().replace('à confirmer', ''))
         self.assertIsNotNone(Reservation.objects.get().notifiee_le)
 

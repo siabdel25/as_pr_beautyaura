@@ -7,12 +7,8 @@ Les identifiants de questions sont le miroir de `frontend/assets/js/app/validati
 """
 
 # Questions de première visite dont une réponse « oui » est signalée à la praticienne.
-# Identifiant -> libellé utilisé dans l'e-mail de notification.
-QUESTIONS_A_RISQUE = {
-    'allergie_colle': 'allergie connue à la colle ou aux produits de pose',
-    'traitement_oculaire': 'traitement oculaire en cours',
-    'grossesse': 'grossesse en cours',
-}
+# Seul le fait qu'il y ait au moins un « oui » est conservé, jamais quelle question ni le détail.
+QUESTIONS_A_RISQUE = ('allergie_colle', 'traitement_oculaire', 'grossesse')
 
 # Catégories de prestations qui déclenchent la relance de retouche.
 CATEGORIES_RETOUCHE = ('extensions',)

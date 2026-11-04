@@ -67,8 +67,8 @@ class Reservation(models.Model):
     telephone = models.CharField(max_length=20)
     email = models.EmailField()
     premiere_visite = models.BooleanField()
-    questionnaire = models.JSONField(default=dict, blank=True)
-    precisions = models.TextField(blank=True)
+    # Donnée de santé minimale : seul l'indicateur « au moins une réponse à risque » est conservé, jamais le détail (RGPD).
+    reponse_a_risque = models.BooleanField(default=False)
     consentement_rgpd = models.BooleanField()
     cgv_acceptees = models.BooleanField()
     cree_le = models.DateTimeField(auto_now_add=True)

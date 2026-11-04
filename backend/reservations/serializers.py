@@ -42,7 +42,6 @@ class DemandeReservationSerializer(serializers.Serializer):
     client = ClientSerializer()
     premiere_visite = serializers.ChoiceField(choices=['oui', 'non'])
     questionnaire = serializers.DictField(child=serializers.ChoiceField(choices=['oui', 'non']), required=False)
-    precisions = serializers.CharField(required=False, allow_blank=True, max_length=1000)
     consentement_rgpd = serializers.BooleanField()
     cgv_acceptees = serializers.BooleanField()
     site_web = serializers.CharField(required=False, allow_blank=True)  # honeypot
@@ -82,7 +81,8 @@ class DemandeReservationSerializer(serializers.Serializer):
             'client_champs': {
                 'prenom': c['prenom'].strip(), 'nom': c['nom'].strip(), 'telephone': c['telephone'].strip(),
                 'email': c['email'].strip(), 'premiere_visite': d['premiere_visite'] == 'oui',
-                'questionnaire': d.get('questionnaire', {}), 'precisions': d.get('precisions', ''),
+                'reponse_a_risque': d['premiere_visite'] == 'oui'
+                                    and any(d.get('questionnaire', {}).get(q) == 'oui' for q in QUESTIONS_A_RISQUE),
                 'consentement_rgpd': True, 'cgv_acceptees': True,
             },
         }, self._services
