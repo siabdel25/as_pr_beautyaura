@@ -394,3 +394,57 @@ class IcsTests(ApiBase):
         self.assertIn('Studio\\; Lash\\,', s)
         for ligne in s.split('\r\n'):
             self.assertLessEqual(len(ligne.encode('utf-8')), 75)
+
+
+class DisponibilitesTests(ApiBase):
+    def mois(self, jour=None, services='lift'):
+        jour = jour or self.jour
+        return self.client.get('/api/v1/disponibilites/', {'month': f'{jour:%Y-%m}', 'services': services})
+
+    def test_jours_ouverts_seulement(self):
+        r = self.mois()
+        self.assertEqual(r.status_code, 200)
+        dates = r.json()['dates']
+        self.assertIn(self.jour.isoformat(), dates)
+        for d in dates:
+            self.assertNotIn(date.fromisoformat(d).weekday(), (0, 6))   # lundi et dimanche fermés
+            self.assertGreaterEqual(date.fromisoformat(d), date.today())
+
+    def test_jour_ferme_et_jour_complet_disparaissent(self):
+        Indisponibilite.objects.create(date=self.jour, motif='Congé')
+        self.assertNotIn(self.jour.isoformat(), self.mois().json()['dates'])
+
+    def test_jour_entierement_reserve_disparait(self):
+        suivant = self.jour + timedelta(days=1)   # jeudi
+        for h in range(9, 18):
+            Reservation.objects.create(
+                statut=Reservation.A_CONFIRMER, date=suivant, debut=time(h, 30) if h < 18 else time(9, 30), fin=time(h + 1, 30) if h < 17 else time(18, 30),
+                duree_min=60, prenom='A', nom='B', telephone='0612345678', email='a@example.test',
+                premiere_visite=False, consentement_rgpd=True, cgv_acceptees=True)
+        self.assertNotIn(suivant.isoformat(), self.mois(suivant).json()['dates'])
+
+    def test_coherent_avec_les_creneaux(self):
+        """Un jour est listé si et seulement si /creneaux/ y trouve au moins une heure."""
+        dates = set(self.mois(services='pose,lift').json()['dates'])
+        premier = self.jour.replace(day=1)
+        for n in range(31):
+            jour = premier + timedelta(days=n)
+            if jour.month != premier.month:
+                break
+            r = self.client.get('/api/v1/creneaux/', {'date': jour.isoformat(), 'services': 'pose,lift'}).json()
+            self.assertEqual(bool(r['creneaux']), jour.isoformat() in dates, jour)
+
+    def test_duree_plus_longue_reduit_les_jours(self):
+        indispo = self.jour
+        Indisponibilite.objects.create(date=indispo, debut=time(10, 0), fin=time(18, 30))   # reste 09:30-10:00 seulement
+        court = self.client.get('/api/v1/disponibilites/', {'month': f'{indispo:%Y-%m}', 'services': 'lift'}).json()['dates']
+        self.assertNotIn(indispo.isoformat(), court)   # 60 min ne tiennent pas dans 30 min
+
+    def test_parametres_invalides(self):
+        for q in ({}, {'month': '2026-13', 'services': 'lift'}, {'month': 'novembre', 'services': 'lift'},
+                  {'month': '2026-11'}, {'month': '2026-11', 'services': 'zzz'}):
+            self.assertEqual(self.client.get('/api/v1/disponibilites/', q).status_code, 400, q)
+
+    def test_peu_de_requetes_sql(self):
+        with self.assertNumQueries(4):   # services + horaires + indisponibilités + réservations, quel que soit le mois
+            self.mois()

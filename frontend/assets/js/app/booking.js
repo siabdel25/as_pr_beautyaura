@@ -5,7 +5,7 @@ import SlotGrid from './components/SlotGrid.js';
 import CustomerForm from './components/CustomerForm.js';
 import Confirmation from './components/Confirmation.js';
 import { creneauxDuJour, datesDisponibles, totalSelection, formaterDuree, parisMaintenant, ajouterJours } from './slots.js';
-import { envoyerDemande, chargerCreneaux, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from './submit.js';
+import { envoyerDemande, chargerCreneaux, chargerDisponibilites, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from './submit.js';
 import { genererIcs } from './ics.js';
 
 const NOM_STUDIO = 'My Beauty Aura';
@@ -37,8 +37,9 @@ const BookingWidget = {
     const donnees = reactive({ pret: false, erreur: null, config: null, services: [], horaires: {}, indisponibilites: [], reservations: [], exemple: false });
     const etat = reactive({ etape: 1, ids: [], date: null, heure: null, maintenantMs: Date.now(), annonce: '', avertissement: '' });
     // Mode API : les créneaux viennent du serveur, qui connaît les demandes déjà reçues.
-    const api = reactive({ creneaux: [], chargement: false, erreur: false });
+    const api = reactive({ creneaux: [], chargement: false, erreur: false, dates: [], chargementDates: false, erreurDates: false });
     let sequence = 0;
+    let sequenceDates = 0;
     const envoi = reactive({ etat: 'repos', message: '' });
     const recap = ref(null);
     const titre = ref(null);
@@ -68,8 +69,9 @@ const BookingWidget = {
       dureeMin: selection.value.dureeMin, config: donnees.config, horaires: donnees.horaires,
       indisponibilites: donnees.indisponibilites, reservations: donnees.reservations, maintenantMs: etat.maintenantMs
     });
-    const datesOk = computed(() => (donnees.pret && etat.ids.length ? datesDisponibles(contexte()) : []));
     const modeApi = computed(() => Boolean(donnees.config?.api));
+    const datesLocales = computed(() => (donnees.pret && etat.ids.length ? datesDisponibles(contexte()) : []));
+    const datesOk = computed(() => (modeApi.value ? api.dates : datesLocales.value));
     const creneauxLocaux = computed(() => (etat.date ? creneauxDuJour({ ...contexte(), date: etat.date }) : []));
     const creneaux = computed(() => (modeApi.value ? api.creneaux : creneauxLocaux.value));
 
@@ -90,6 +92,25 @@ const BookingWidget = {
       }
     }
     watch(() => [etat.date, etat.ids.join(',')], rafraichirCreneaux);
+
+    // Jours disponibles de tout l'horizon (2 à 3 mois, requêtes en parallèle) : le calendrier grise les jours complets
+    async function rafraichirDates() {
+      if (!modeApi.value || !etat.ids.length) { api.dates = []; return; }
+      const debut = parisMaintenant(etat.maintenantMs, donnees.config.fuseau).date;
+      const fin = ajouterJours(debut, donnees.config.horizon_jours);
+      const mois = [];
+      for (let m = debut.slice(0, 7); m <= fin.slice(0, 7); m = m.slice(5) === '12' ? `${+m.slice(0, 4) + 1}-01` : `${m.slice(0, 5)}${pad(+m.slice(5) + 1)}`) mois.push(m);
+      const mien = ++sequenceDates;
+      api.chargementDates = true; api.erreurDates = false;
+      try {
+        const listes = await Promise.all(mois.map((m) => chargerDisponibilites(donnees.config.api, m, etat.ids)));
+        if (mien === sequenceDates) api.dates = listes.flat().filter((d) => d <= fin);
+      } catch (e) {
+        if (mien === sequenceDates) { api.dates = []; api.erreurDates = true; }
+      } finally {
+        if (mien === sequenceDates) api.chargementDates = false;
+      }
+    }
 
     const aujourdhui = computed(() => (donnees.pret ? parisMaintenant(etat.maintenantMs, donnees.config.fuseau).date : null));
     const minDate = computed(() => (aujourdhui.value ? isoVersDate(aujourdhui.value) : null));
@@ -120,7 +141,7 @@ const BookingWidget = {
 
     async function aller(n) {
       etat.etape = n;
-      if (n === 2) etat.maintenantMs = Date.now();
+      if (n === 2) { etat.maintenantMs = Date.now(); rafraichirDates(); }
       etat.annonce = `Étape ${Math.min(n, 3)} sur 3 : ${ETAPES[n - 1]}`;
       await nextTick();
       titre.value?.focus();
@@ -206,7 +227,9 @@ const BookingWidget = {
           <p class="lb-bk-recap">{{ nomsPrestations.join(', ') }} · {{ formaterDuree(selection.dureeMin) }}</p>
           <VDatePicker v-model="dateObjet" :min-date="minDate" :max-date="maxDate" :disabled-dates="datesFermees"
             locale="fr" :first-day-of-week="2" expanded borderless is-required title-position="left" />
-          <p v-if="!datesOk.length" class="lb-bk-vide" role="status">Aucune date disponible pour cette durée. <a href="/contact.html">Contactez le studio</a>.</p>
+          <p v-if="api.chargementDates" class="lb-bk-vide" role="status">Chargement des disponibilités…</p>
+          <p v-else-if="api.erreurDates" class="alert alert-danger" role="alert">Les disponibilités n’ont pas pu être chargées. Rechargez la page ou <a href="/contact.html">contactez le studio</a>.</p>
+          <p v-else-if="!datesOk.length" class="lb-bk-vide" role="status">Aucune date disponible pour cette durée. <a href="/contact.html">Contactez le studio</a>.</p>
           <div class="lb-bk-liste-dates">
             <label class="form-label" for="bk-date-liste">Ou choisissez la date dans une liste</label>
             <select id="bk-date-liste" class="form-select" :value="etat.date ?? ''" @change="choisirDate($event.target.value)">

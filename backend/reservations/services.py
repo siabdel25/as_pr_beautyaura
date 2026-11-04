@@ -1,6 +1,6 @@
 """Accès aux données et création d'une réservation (le calcul pur est dans slots.py)."""
 
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.conf import settings
 from django.db import transaction
@@ -27,6 +27,26 @@ def charger_contexte(jour):
     resas = [(r.date, _hhmm(r.debut), _hhmm(r.fin))
              for r in Reservation.objects.filter(date=jour, statut__in=Reservation.STATUTS_BLOQUANTS)]
     return horaires, indispos, resas
+
+
+def disponibilites_du_mois(annee, mois, duree_min, maintenant=None):
+    """Jours du mois qui ont au moins un créneau. Un seul chargement des données pour tout le mois."""
+    from calendar import monthrange
+
+    premier, dernier = date(annee, mois, 1), date(annee, mois, monthrange(annee, mois)[1])
+    horaires = {}
+    for h in HoraireOuverture.objects.all():
+        horaires.setdefault(h.jour, []).append(f'{_hhmm(h.debut)}-{_hhmm(h.fin)}')
+    indispos = [(i.date, _hhmm(i.debut), _hhmm(i.fin)) for i in Indisponibilite.objects.filter(date__range=(premier, dernier))]
+    resas = [(r.date, _hhmm(r.debut), _hhmm(r.fin)) for r in
+             Reservation.objects.filter(date__range=(premier, dernier), statut__in=Reservation.STATUTS_BLOQUANTS)]
+    maintenant = maintenant or timezone.now()
+    jours = []
+    for n in range(dernier.day):
+        jour = premier + timedelta(days=n)
+        if slots.creneaux_du_jour(jour, duree_min, settings.RESERVATION, horaires, indispos, resas, maintenant):
+            jours.append(jour.isoformat())
+    return jours
 
 
 def duree_totale(ids):

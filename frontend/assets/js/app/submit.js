@@ -27,3 +27,11 @@ export async function chargerCreneaux(api, date, ids, fetchFn = fetch) {
   if (!reponse.ok) throw new Error(`Créneaux indisponibles (${reponse.status}).`);
   return (await reponse.json()).creneaux;
 }
+
+/** Jours d'un mois (« YYYY-MM ») qui ont au moins un créneau pour ces prestations, selon l'API. */
+export async function chargerDisponibilites(api, mois, ids, fetchFn = fetch) {
+  const q = new URLSearchParams({ month: mois, services: ids.join(',') });
+  const reponse = await fetchFn(`${api}/disponibilites/?${q}`, { headers: { Accept: 'application/json' } });
+  if (!reponse.ok) throw new Error(`Disponibilités indisponibles (${reponse.status}).`);
+  return (await reponse.json()).dates;
+}

@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from rest_framework import status
@@ -32,12 +33,33 @@ def liste_creneaux(request):
         jour = date.fromisoformat(request.query_params.get('date', ''))
     except ValueError:
         return Response({'detail': 'Paramètre date invalide (YYYY-MM-DD).'}, status=400)
+    duree = _duree_demandee(request)
+    if duree is None:
+        return Response({'detail': 'Paramètre services invalide.'}, status=400)
+    return Response({'date': jour.isoformat(), 'duree_min': duree, 'creneaux': svc.creneaux(jour, duree)})
+
+
+@api_view(['GET'])
+def liste_disponibilites(request):
+    """?month=YYYY-MM&services=id1,id2 -> jours du mois qui ont au moins un créneau (pour griser le calendrier)."""
+    m = re.fullmatch(r'(\d{4})-(0[1-9]|1[0-2])', request.query_params.get('month', ''))
+    if not m:
+        return Response({'detail': 'Paramètre month invalide (YYYY-MM).'}, status=400)
+    duree = _duree_demandee(request)
+    if duree is None:
+        return Response({'detail': 'Paramètre services invalide.'}, status=400)
+    annee, mois = int(m[1]), int(m[2])
+    return Response({'month': request.query_params['month'], 'duree_min': duree,
+                     'dates': svc.disponibilites_du_mois(annee, mois, duree)})
+
+
+def _duree_demandee(request):
+    """Durée totale des prestations du paramètre `services`, ou None s'il est absent ou contient un identifiant inconnu."""
     ids = [i for i in request.query_params.get('services', '').split(',') if i]
     services = list(Service.objects.filter(pk__in=ids))
     if not ids or len(services) != len(set(ids)):
-        return Response({'detail': 'Paramètre services invalide.'}, status=400)
-    duree = sum(s.duree_min for s in services)
-    return Response({'date': jour.isoformat(), 'duree_min': duree, 'creneaux': svc.creneaux(jour, duree)})
+        return None
+    return sum(s.duree_min for s in services)
 
 
 @api_view(['POST'])

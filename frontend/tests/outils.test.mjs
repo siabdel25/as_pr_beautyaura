@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validerClient, telephoneValide, reponsesARisque } from '../assets/js/app/validation.js';
 import { genererIcs } from '../assets/js/app/ics.js';
-import { envoyerDemande, chargerCreneaux, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from '../assets/js/app/submit.js';
+import { envoyerDemande, chargerCreneaux, chargerDisponibilites, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from '../assets/js/app/submit.js';
 import { totalSelection, formaterDuree } from '../assets/js/app/slots.js';
 
 const VALIDE = {
@@ -76,6 +76,14 @@ test('créneaux via l\'API : requête et lecture de la liste', async () => {
   assert.equal(url, '/api/v1/creneaux/?date=2026-11-18&services=a%2Cb');
   assert.deepEqual(liste, ['10:00']);
   await assert.rejects(chargerCreneaux('/api/v1', '2026-11-18', ['a'], async () => ({ ok: false, status: 500 })), /500/);
+});
+
+test('disponibilités via l\'API : requête par mois et lecture des dates', async () => {
+  let url;
+  const dates = await chargerDisponibilites('/api/v1', '2026-11', ['a'], async (u) => { url = u; return { ok: true, json: async () => ({ dates: ['2026-11-18'] }) }; });
+  assert.equal(url, '/api/v1/disponibilites/?month=2026-11&services=a');
+  assert.deepEqual(dates, ['2026-11-18']);
+  await assert.rejects(chargerDisponibilites('/api/v1', '2026-11', ['a'], async () => ({ ok: false, status: 400 })), /400/);
 });
 
 test('total de la sélection : durée et prix à confirmer', () => {
