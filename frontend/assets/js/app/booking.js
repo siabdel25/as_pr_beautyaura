@@ -5,7 +5,7 @@ import SlotGrid from './components/SlotGrid.js';
 import CustomerForm from './components/CustomerForm.js';
 import Confirmation from './components/Confirmation.js';
 import { creneauxDuJour, datesDisponibles, totalSelection, formaterDuree, parisMaintenant, ajouterJours } from './slots.js';
-import { envoyerDemande, EnvoiNonConfigure } from './submit.js';
+import { envoyerDemande, chargerCreneaux, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from './submit.js';
 import { genererIcs } from './ics.js';
 
 const NOM_STUDIO = 'My Beauty Aura';
@@ -35,7 +35,10 @@ const BookingWidget = {
   components: { ServicePicker, SlotGrid, CustomerForm, Confirmation },
   setup() {
     const donnees = reactive({ pret: false, erreur: null, config: null, services: [], horaires: {}, indisponibilites: [], reservations: [], exemple: false });
-    const etat = reactive({ etape: 1, ids: [], date: null, heure: null, maintenantMs: Date.now(), annonce: '' });
+    const etat = reactive({ etape: 1, ids: [], date: null, heure: null, maintenantMs: Date.now(), annonce: '', avertissement: '' });
+    // Mode API : les créneaux viennent du serveur, qui connaît les demandes déjà reçues.
+    const api = reactive({ creneaux: [], chargement: false, erreur: false });
+    let sequence = 0;
     const envoi = reactive({ etat: 'repos', message: '' });
     const recap = ref(null);
     const titre = ref(null);
@@ -66,7 +69,27 @@ const BookingWidget = {
       indisponibilites: donnees.indisponibilites, reservations: donnees.reservations, maintenantMs: etat.maintenantMs
     });
     const datesOk = computed(() => (donnees.pret && etat.ids.length ? datesDisponibles(contexte()) : []));
-    const creneaux = computed(() => (etat.date ? creneauxDuJour({ ...contexte(), date: etat.date }) : []));
+    const modeApi = computed(() => Boolean(donnees.config?.api));
+    const creneauxLocaux = computed(() => (etat.date ? creneauxDuJour({ ...contexte(), date: etat.date }) : []));
+    const creneaux = computed(() => (modeApi.value ? api.creneaux : creneauxLocaux.value));
+
+    async function rafraichirCreneaux() {
+      if (!modeApi.value || !etat.date || !etat.ids.length) { api.creneaux = []; return; }
+      const mien = ++sequence; // ignore une réponse arrivée après un changement de date
+      api.chargement = true; api.erreur = false;
+      try {
+        const liste = await chargerCreneaux(donnees.config.api, etat.date, etat.ids);
+        if (mien !== sequence) return;
+        api.creneaux = liste;
+        etat.annonce = `${libelleJour(etat.date)} : ${liste.length} créneaux disponibles.`;
+      } catch (e) {
+        if (mien !== sequence) return;
+        api.creneaux = []; api.erreur = true;
+      } finally {
+        if (mien === sequence) api.chargement = false;
+      }
+    }
+    watch(() => [etat.date, etat.ids.join(',')], rafraichirCreneaux);
 
     const aujourdhui = computed(() => (donnees.pret ? parisMaintenant(etat.maintenantMs, donnees.config.fuseau).date : null));
     const minDate = computed(() => (aujourdhui.value ? isoVersDate(aujourdhui.value) : null));
@@ -88,9 +111,9 @@ const BookingWidget = {
     function choisirDate(iso) {
       etat.date = iso || null;
       etat.heure = null;
-      if (iso) { emettre('booking_step_date'); etat.annonce = `${libelleJour(iso)} : ${creneaux.value.length} créneaux disponibles.`; }
+      if (iso) { emettre('booking_step_date'); if (!modeApi.value) etat.annonce = `${libelleJour(iso)} : ${creneaux.value.length} créneaux disponibles.`; }
     }
-    function choisirHeure(h) { etat.heure = h; emettre('booking_step_slot'); }
+    function choisirHeure(h) { etat.heure = h; etat.avertissement = ''; emettre('booking_step_slot'); }
 
     // Changer de prestations change la durée : date et créneau choisis ne sont plus fiables
     watch(() => etat.ids.join(','), () => { etat.date = null; etat.heure = null; });
@@ -119,10 +142,21 @@ const BookingWidget = {
             client: { prenom: client.prenom, nom: client.nom, telephone: client.telephone, email: client.email },
             premiere_visite: client.premiereVisite, questionnaire: client.questionnaire, precisions: client.allergiesConnues,
             consentement_rgpd: true, cgv_acceptees: true, envoye_le: new Date().toISOString()
-          }, donnees.config.endpoint);
+          }, modeApi.value ? `${donnees.config.api}/reservations/` : donnees.config.endpoint);
         } catch (e) {
+          if (e instanceof CreneauPris) {
+            // Quelqu'un a pris ce créneau entre-temps : retour au choix de l'heure, créneaux rechargés
+            envoi.etat = 'repos';
+            etat.heure = null;
+            etat.avertissement = 'Ce créneau vient d’être pris. Choisissez une autre heure : votre demande n’a pas été envoyée.';
+            await aller(2);
+            rafraichirCreneaux();
+            return;
+          }
           envoi.etat = 'erreur';
-          envoi.message = e instanceof EnvoiNonConfigure
+          envoi.message = e instanceof TropDeDemandes
+            ? 'Vous avez envoyé trop de demandes. Réessayez plus tard ou contactez le studio : votre demande n’a pas été transmise.'
+            : e instanceof EnvoiNonConfigure
             ? 'L’envoi des demandes n’est pas encore activé sur ce site : votre demande n’a pas été transmise. Contactez le studio directement.'
             : 'L’envoi a échoué : votre demande n’a pas été transmise. Réessayez ou contactez le studio.';
           return;
@@ -142,7 +176,7 @@ const BookingWidget = {
     }
 
     return {
-      donnees, etat, envoi, recap, titre, ETAPES, selection, nomsPrestations, datesOk, creneaux,
+      donnees, etat, envoi, recap, titre, ETAPES, selection, nomsPrestations, datesOk, creneaux, api,
       minDate, maxDate, datesFermees, dateObjet, choisirDate, choisirHeure, aller, continuer, soumettre, recommencer,
       libelleJour, formaterDuree
     };
@@ -180,7 +214,8 @@ const BookingWidget = {
               <option v-for="d in datesOk" :key="d" :value="d">{{ libelleJour(d) }}</option>
             </select>
           </div>
-          <SlotGrid v-if="etat.date" :creneaux="creneaux" :model-value="etat.heure" :libelle-jour="libelleJour(etat.date)" @update:model-value="choisirHeure" />
+          <p v-if="etat.avertissement" class="alert alert-warning" role="alert">{{ etat.avertissement }}</p>
+          <SlotGrid v-if="etat.date" :creneaux="creneaux" :chargement="api.chargement" :erreur="api.erreur" :model-value="etat.heure" :libelle-jour="libelleJour(etat.date)" @update:model-value="choisirHeure" />
           <div class="lb-bk-actions">
             <button type="button" class="btn lb-btn lb-btn--contour" @click="aller(1)">Retour</button>
             <button type="button" class="btn lb-btn lb-btn--primaire" :disabled="!etat.heure" @click="continuer(2)">Continuer</button>

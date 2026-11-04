@@ -1,7 +1,7 @@
 // Service worker généré par tools/build-pages.mjs (ne pas modifier sw.js à la main).
 // Pages : réseau d'abord, repli sur le cache puis sur offline.html. Ressources statiques : cache d'abord.
-// Données de réservation (/data/) : jamais servies depuis le cache, un créneau périmé serait trompeur.
-const VERSION = '896676acfb7a';
+// Données de réservation (/data/) et API (/api/) : jamais servies depuis le cache, un créneau périmé serait trompeur.
+const VERSION = 'dcf706c716a3';
 const CACHE = `lb-${VERSION}`;
 const SOCLE = ['/offline.html', '/assets/css/bootstrap.min.css', '/assets/css/variables.css', '/assets/css/custom.css',
   '/assets/fonts/bodoni-moda-latin-wght-normal.woff2', '/assets/fonts/figtree-latin-wght-normal.woff2', '/assets/icons/sprite.svg'];
@@ -19,7 +19,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   const url = new URL(req.url);
-  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/data/')) return;
+  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/data/') || url.pathname.startsWith('/api/')) return;
 
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then((r) => {

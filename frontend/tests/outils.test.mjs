@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validerClient, telephoneValide, reponsesARisque } from '../assets/js/app/validation.js';
 import { genererIcs } from '../assets/js/app/ics.js';
-import { envoyerDemande, EnvoiNonConfigure } from '../assets/js/app/submit.js';
+import { envoyerDemande, chargerCreneaux, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from '../assets/js/app/submit.js';
 import { totalSelection, formaterDuree } from '../assets/js/app/slots.js';
 
 const VALIDE = {
@@ -63,6 +63,19 @@ test('envoi sans endpoint : erreur explicite, aucun appel réseau', async () => 
 test('envoi : succès seulement si le serveur répond ok', async () => {
   assert.equal(await envoyerDemande({ a: 1 }, 'https://x', async () => ({ ok: true })), true);
   await assert.rejects(envoyerDemande({}, 'https://x', async () => ({ ok: false, status: 500 })), /500/);
+});
+
+test('envoi : 409 = créneau pris, 429 = trop de demandes', async () => {
+  await assert.rejects(envoyerDemande({}, '/api/v1/reservations/', async () => ({ ok: false, status: 409 })), CreneauPris);
+  await assert.rejects(envoyerDemande({}, '/api/v1/reservations/', async () => ({ ok: false, status: 429 })), TropDeDemandes);
+});
+
+test('créneaux via l\'API : requête et lecture de la liste', async () => {
+  let url;
+  const liste = await chargerCreneaux('/api/v1', '2026-11-18', ['a', 'b'], async (u) => { url = u; return { ok: true, json: async () => ({ creneaux: ['10:00'] }) }; });
+  assert.equal(url, '/api/v1/creneaux/?date=2026-11-18&services=a%2Cb');
+  assert.deepEqual(liste, ['10:00']);
+  await assert.rejects(chargerCreneaux('/api/v1', '2026-11-18', ['a'], async () => ({ ok: false, status: 500 })), /500/);
 });
 
 test('total de la sélection : durée et prix à confirmer', () => {

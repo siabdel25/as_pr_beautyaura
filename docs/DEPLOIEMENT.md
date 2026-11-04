@@ -11,6 +11,8 @@ Site statique : le dossier `frontend/` est celui à publier. Les commandes `node
 
 ## Hébergement
 
+Le mode API (phase 2) exige un hébergeur capable de faire tourner `backend/` (Docker : voir `docker-compose.yml`), avec nginx devant. Il ne se déploie pas sur un mutualisé. Tant que `"api"` vaut `null`, rien de ce qui suit ne change.
+
 1. Connecter le dépôt, dossier de publication `frontend/`, aucune commande de build.
 2. Domaine : une seule adresse canonique (avec ou sans `www`), l'autre redirige en 301. HTTPS obligatoire, redirection HTTP vers HTTPS.
 3. La page `404.html` est servie automatiquement par Netlify et Cloudflare Pages.

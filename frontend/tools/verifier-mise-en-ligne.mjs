@@ -28,7 +28,8 @@ for (const f of ['reservation.json', 'services.json', 'horaires.json', 'galerie.
   if (lire(`data/${f}`).statut === 'exemple') problemes.push(`data/${f} : données d'exemple (supprimer "statut": "exemple" après remplacement)`);
 }
 if (/\.example/.test(site.url)) problemes.push(`data/site.json : url factice (${site.url})`);
-if (!lire('data/reservation.json').endpoint) problemes.push('data/reservation.json : endpoint d\'envoi non renseigné, les demandes ne partent pas');
+const resa = lire('data/reservation.json');
+if (!resa.api && !resa.endpoint) problemes.push('data/reservation.json : ni api ni endpoint renseigné, les demandes ne partent pas');
 if (!site.mesure.domaine) problemes.push('data/site.json : mesure d\'audience non configurée (facultatif)');
 if (lire('data/galerie.json').items.some((i) => i.type !== 'illustration' && i.consentement !== true)) {
   problemes.push('data/galerie.json : une réalisation sans consentement (elle ne sera pas affichée)');

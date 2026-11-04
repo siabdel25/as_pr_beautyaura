@@ -51,3 +51,9 @@ test('aucune donnée structurée ne contient de note ou d\'avis', () => {
     assert.doesNotMatch(html, /AggregateRating|"Review"|ratingValue/, p);
   }
 });
+
+test('service worker : /api/ et /data/ ne sont jamais mis en cache', () => {
+  const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+  assert.match(sw, /startsWith\('\/api\/'\)/);
+  assert.match(sw, /startsWith\('\/data\/'\)/);
+});

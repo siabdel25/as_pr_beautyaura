@@ -91,7 +91,8 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [x] Restructuration `frontend/` / `backend/`, squelette Django configuré par environnement, `docker-compose.yml`
 - [x] API de réservation DRF : modèles, `POST /api/v1/reservations/` (toujours « à confirmer »), validation côté serveur, honeypot, limitation 5/heure par IP, verrou par jour contre la double réservation, admin avec action « Confirmer »
 - [x] Recalcul des créneaux côté serveur (`backend/reservations/slots.py`, identique à `slots.js` : 0 écart sur 2 450 cas dont changements d'heure) et `GET /api/v1/creneaux/`
-- [ ] Brancher le tunnel sur l'API : `endpoint` = `/api/v1/reservations/` dans `frontend/data/reservation.json`, créneaux lus via l'API (le front calcule encore depuis les JSON), message 409 « créneau plus disponible »
+- [x] Tunnel branché sur l'API, activé par `"api": "/api/v1"` dans `frontend/data/reservation.json` (`null` = comportement de la phase 1 inchangé) : créneaux lus via `GET /creneaux/`, 409 « créneau pris » avec retour à l'étape 2, 429 géré, service worker et CSP adaptés. Vérifié dans Chrome sur la pile Docker (deux visiteuses sur le même créneau)
+- [ ] Calendrier : les jours entièrement réservés restent cliquables (l'API ne renvoie les créneaux que jour par jour) ; ajouter un endpoint de disponibilités par mois
 - [x] Notification de la praticienne à chaque nouvelle demande : tâche Celery `notifier_praticienne` après commit, sans doublon (`notifiee_le`), 6 reprises avec attente croissante, rattrapage par `manage.py renvoyer_notifications`
 - [x] Celery beat (service `beat` du compose) : rattrapage des notifications toutes les 10 min, rappel J-1 chaque jour à 10 h aux clientes dont le rendez-vous est **confirmé**
 - [ ] Brancher un vrai SMTP et `STUDIO_EMAIL` en production ; remplacer `STUDIO_NOM` dans `backend/reservations/tasks.py`

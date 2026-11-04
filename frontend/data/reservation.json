@@ -5,6 +5,7 @@
   "delai_min_heures": 12,
   "horizon_jours": 60,
   "pas_creneau_min": 30,
+  "api": null,
   "endpoint": null,
   "email_studio": null
 }
