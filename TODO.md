@@ -4,6 +4,8 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Lot 0 — Cadrage (bloquant, à obtenir du client)
 
+Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une seule liste : `docs/QUESTIONNAIRE-CLIENT.md`.
+
 - [ ] Nom du studio, logo, adresse, téléphone, e-mail, SIRET (acquis : ville Lyon, responsable indiqué dans `data/studio.json` ; reste rue, code postal, téléphone, e-mail, SIRET)
 - [ ] Liste réelle des prestations, durées et tarifs
 - [ ] Horaires d'ouverture, jours de fermeture, règles d'annulation
