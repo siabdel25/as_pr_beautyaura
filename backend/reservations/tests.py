@@ -5,9 +5,13 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import SimpleTestCase, TestCase
+from unittest import mock
 
-from . import slots
+from django.core import mail
+from django.core.management import call_command
+from django.test import SimpleTestCase, TestCase, override_settings
+
+from . import slots, tasks
 from .models import HoraireOuverture, Indisponibilite, Reservation, Service
 
 PARIS = ZoneInfo('Europe/Paris')
@@ -194,3 +198,66 @@ class ReadApiTests(ApiBase):
 
     def test_health(self):
         self.assertEqual(self.client.get('/api/v1/health/').json(), {'status': 'ok'})
+
+
+class NotificationTests(ApiBase):
+    RISQUE = {'allergie_colle': 'oui', 'traitement_oculaire': 'non', 'grossesse': 'non'}
+
+    def creer(self, **kw):
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.post(**kw)
+
+    def test_creation_planifie_la_notification_apres_commit(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
+            self.assertEqual(self.creer().status_code, 201)
+        delay.assert_called_once_with(Reservation.objects.get().pk)
+
+    def test_pas_de_notification_si_refus_ou_honeypot(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
+            self.creer(heure='18:00')                      # 409
+            self.creer(site_web='spam')                    # honeypot
+            self.creer(prestations=[])                     # 400
+        delay.assert_not_called()
+
+    def test_broker_arrete_n_empeche_pas_la_demande(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay', side_effect=ConnectionError('redis')):
+            r = self.creer()
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(Reservation.objects.get().notifiee_le, None)
+
+    @override_settings(STUDIO_EMAIL='studio@example.test')
+    def test_tache_envoie_un_mail_une_seule_fois(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay'):
+            self.creer(premiere_visite='oui', questionnaire=self.RISQUE, precisions='Yeux sensibles')
+        pk = Reservation.objects.get().pk
+        self.assertEqual(tasks.notifier_praticienne(pk), 'envoyee')
+        self.assertEqual(tasks.notifier_praticienne(pk), 'ignoree')   # rejeu : pas de doublon
+        self.assertEqual(len(mail.outbox), 1)
+        m = mail.outbox[0]
+        self.assertEqual(m.to, ['studio@example.test'])
+        self.assertIn('À CONFIRMER', m.body)
+        self.assertIn('Léa Martin', m.body)
+        self.assertIn('10:00 à 11:00', m.body)
+        self.assertIn('allergie connue à la colle', m.body)           # réponse à risque signalée
+        self.assertIn('Yeux sensibles', m.body)
+        self.assertNotIn('confirmée', m.body.lower().replace('à confirmer', ''))
+        self.assertIsNotNone(Reservation.objects.get().notifiee_le)
+
+    @override_settings(STUDIO_EMAIL='')
+    def test_sans_destinataire_ne_plante_pas(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay'):
+            self.creer()
+        self.assertEqual(tasks.notifier_praticienne(Reservation.objects.get().pk), 'sans_destinataire')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_reservation_supprimee(self):
+        self.assertEqual(tasks.notifier_praticienne(999), 'ignoree')
+
+    def test_commande_renvoyer_notifications(self):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay'):
+            self.creer()
+            self.creer(heure='13:00')
+        Reservation.objects.filter(debut=time(13, 0)).update(statut=Reservation.ANNULEE)
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
+            call_command('renvoyer_notifications')
+        delay.assert_called_once_with(Reservation.objects.get(debut=time(10, 0)).pk)

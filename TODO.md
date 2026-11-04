@@ -92,7 +92,8 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [x] API de réservation DRF : modèles, `POST /api/v1/reservations/` (toujours « à confirmer »), validation côté serveur, honeypot, limitation 5/heure par IP, verrou par jour contre la double réservation, admin avec action « Confirmer »
 - [x] Recalcul des créneaux côté serveur (`backend/reservations/slots.py`, identique à `slots.js` : 0 écart sur 2 450 cas dont changements d'heure) et `GET /api/v1/creneaux/`
 - [ ] Brancher le tunnel sur l'API : `endpoint` = `/api/v1/reservations/` dans `frontend/data/reservation.json`, créneaux lus via l'API (le front calcule encore depuis les JSON), message 409 « créneau plus disponible »
-- [ ] Notification de la praticienne à chaque nouvelle demande (tâche Celery + e-mail)
+- [x] Notification de la praticienne à chaque nouvelle demande : tâche Celery `notifier_praticienne` après commit, sans doublon (`notifiee_le`), 6 reprises avec attente croissante, rattrapage par `manage.py renvoyer_notifications`
+- [ ] Brancher un vrai SMTP et `STUDIO_EMAIL` en production ; planifier `renvoyer_notifications` (Celery beat) pour rattraper les oublis
 - [ ] Blocage automatique des créneaux, anti double réservation
 - [ ] E-mail et SMS de confirmation et rappel J-1 (tâches Celery)
 - [ ] Demande d'avis J+2 et relance retouche J+18

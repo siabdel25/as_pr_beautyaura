@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from . import slots
 from .models import HoraireOuverture, Indisponibilite, JourVerrou, Reservation, Service
+from .tasks import notifier_praticienne
 
 
 class CreneauIndisponible(Exception):
@@ -53,4 +54,7 @@ def creer_reservation(donnees, services, maintenant=None):
             fin=(datetime.combine(jour, time(debut_min // 60, debut_min % 60)) + timedelta(minutes=duree)).time(),
             duree_min=duree, **donnees['client_champs'])
         resa.prestations.set(services)
+        # robust=True : si le broker est arrêté, la demande reste enregistrée et la cliente reçoit sa réponse ;
+        # la commande renvoyer_notifications rattrape les oublis.
+        transaction.on_commit(lambda: notifier_praticienne.delay(resa.pk), robust=True)
     return resa

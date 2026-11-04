@@ -121,7 +121,7 @@ Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement pr
 
 ## Backend et pile Docker (phase 2)
 
-La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il expose `GET /api/v1/services/`, `GET /api/v1/creneaux/?date=YYYY-MM-DD&services=id1,id2` et `POST /api/v1/reservations/` (demande toujours « à confirmer », créneau revérifié côté serveur, 5 demandes par heure et par IP). Les demandes se confirment dans l'admin Django (`/admin/`, action « Confirmer »). Le tunnel du site n'appelle pas encore l'API.
+La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il expose `GET /api/v1/services/`, `GET /api/v1/creneaux/?date=YYYY-MM-DD&services=id1,id2` et `POST /api/v1/reservations/` (demande toujours « à confirmer », créneau revérifié côté serveur, 5 demandes par heure et par IP). Les demandes se confirment dans l'admin Django (`/admin/`, action « Confirmer »). Chaque nouvelle demande déclenche un e-mail à la praticienne (`STUDIO_EMAIL`, tâche Celery) ; sans SMTP configuré, il s'affiche dans les logs du worker. Si le broker ou le SMTP était indisponible, `python manage.py renvoyer_notifications` relance les notifications manquantes. Le tunnel du site n'appelle pas encore l'API.
 
 ```bash
 cp backend/.env.example backend/.env       # renseigner DJANGO_SECRET_KEY (obligatoire si DJANGO_DEBUG=false)
