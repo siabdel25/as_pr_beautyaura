@@ -60,4 +60,5 @@ Négatives : jusqu'au passage à Wagtail, toute modification de texte ou tout no
 ## Références
 
 - Tâches issues de la revue : `TODO.md` (phase 2, entrées « Rattrapage… », « Config métier… », « Blog… », « Déclencheurs de bascule… »).
+- Analyse complète : `docs/ANALYSE-ARCHITECTURE-2026-11-04.md`.
 - Journal de revue gstack : décision enregistrée le 04/11/2026.
