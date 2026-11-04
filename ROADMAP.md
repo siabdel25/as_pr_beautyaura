@@ -43,6 +43,10 @@ Le code de la phase 2 est écrit et testé (70 tests Django). Reste, et tout dé
 - **Wagtail** quand les trois sont vrais : hébergement phase 2 décidé, réservation validée en production avec un vrai SMTP, la praticienne publie ou modifie du contenu plus d'une fois par mois.
 - **Plateforme multi-métiers** seulement avec un second métier signé (un déploiement par client).
 
+### Doublon avec as_shoppy_frm_v2 (à trancher)
+
+My Beauty Aura existe déjà dans l'autre dépôt (booking, Wagtail, multi-établissements). Comparaison : `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md`. Diagnostic de l'API : `docs/DIAGNOSTIC-API-BOOKING.md` (faisable avec un adaptateur, ~3 jours, 4 décisions préalables). Aucune refonte avant la décision.
+
 ## Phase 3 : gestion complète
 
 - Acompte en ligne (Stripe).

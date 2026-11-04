@@ -80,6 +80,7 @@ Un broker ou un SMTP arrêté ne bloque jamais une réservation. Limite connue :
 | SMS de confirmation et de rappel | Choix d'un service (coût, dépendance) |
 | Blog : afficher les 4 articles | Relecture par la praticienne ; choix pages `.mjs` ou Wagtail (ADR 0001) |
 | Flux Instagram après consentement | Compte Instagram |
+| Choix du dépôt porteur du backend (doublon avec `as_shoppy_frm_v2`) | Décision d'hébergement phase 2 ; 4 décisions de `docs/DIAGNOSTIC-API-BOOKING.md` |
 | Spike Wagtail avec Django 6.1 | Déclencheurs de l'ADR (non recommandé avant) |
 
 ## 8. Points d'attention
@@ -87,6 +88,7 @@ Un broker ou un SMTP arrêté ne bloque jamais une réservation. Limite connue :
 - **Données d'exemple** : `reservation.json`, `services.json`, `horaires.json` et `galerie.json` portent `"statut": "exemple"`, prix à `null`. Ni `api` ni `endpoint` n'est renseigné : les demandes ne partent pas.
 - **Textes provisoires `[À VALIDER]`** : e-mails de refus, d'annulation, d'avis et de retouche (`tasks.py`), 4 articles de blog. Aucun n'est validé par la praticienne.
 - **Délai de retouche** : le cahier des charges dit J+18 à un endroit et J+21 à un autre. J+18 retenu, à confirmer.
+- **Doublon** : l'autre dépôt `as_shoppy_frm_v2` contient déjà My Beauty Aura (booking, Wagtail 7.0.9 sur Django 5.2). Voir `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` et `docs/DIAGNOSTIC-API-BOOKING.md`. Ne lancer aucune refonte avant décision.
 - **Wagtail** : compatibilité avec Django 6.1 lue dans les métadonnées (`Django>=5.2`), pas testée. L'impossibilité de l'héberger sur le mutualisé Hostinger n'est pas vérifiée.
 - **Non testé** : e-mails avec un vrai SMTP (seulement le backend console), verrou de jour sous vraie concurrence (testé en séquentiel sur SQLite), test de navigateur automatisé dans le dépôt (vérifié à la main dans Chrome sur la pile Docker).
 - **Limites du mode API** : le calendrier fait 3 requêtes (une par mois de l'horizon) et reste grisé pendant le chargement ; pas de SMS ; pas de `LOCATION` dans l'`.ics` (adresse inconnue).
