@@ -27,14 +27,18 @@ My Beauty Aura existe dans deux dépôts : celui-ci (site statique + `backend/` 
 | Retrait ou gel de `backend/reservations` | ici | Seulement après recette de bout en bout |
 | Recette : démo Docker puis VPS | les deux | Contenu des e-mails non encore vérifié |
 
+## Décisions complémentaires (04/11/2026)
+
+- **Pas de créneau : 15 minutes**, comme l'API de l'autre dépôt. Aucun réglage `step_minutes` à ajouter là-bas. En mode statique (phase 1), `reservation.json` garde `pas_creneau_min: 30` : l'écart ne vaut que tant que le mode API n'est pas activé (à reprendre au passage en mode API).
+- **Questionnaire : on garde `reponse_a_risque`** (oui/non, détail jamais stocké). L'autre API n'a qu'un booléen `allergy`. En attendant un champ dédié là-bas, l'adaptateur enverra `allergy: true` si au moins une réponse est à risque ; ce nom est approximatif (grossesse ou traitement oculaire ne sont pas des allergies) et son effet visible côté praticienne est « allergie signalée ». Lever l'écart demande un champ `risk_flag` et une migration dans l'autre dépôt.
+
 ## Questions encore ouvertes
 
-1. **Questionnaire de première visite** : le navigateur le contrôle et le message « contactez le studio » reste. Côté serveur, ici on conserve `reponse_a_risque` (oui/non), là-bas `allergy` (oui/non). Faut-il aligner ? À valider avec la praticienne.
-2. **Pas de créneau** : 15 ou 30 minutes ?
-3. **Porteur des avis et retouches** : proposition ici = l'autre dépôt, à confirmer.
-4. **Site statique** : reste sur Hostinger ou passe sur le VPS ? Dépend du domaine et de la CSP.
-5. **Un seul site attendu par le client ?** Adresse de `clients/mba.yaml` à confirmer (non reprise ici).
-6. **Fournisseur d'e-mail** : l'autre dépôt prévoit Anymail/Brevo ; non validé.
+1. **Champ dédié `risk_flag` là-bas**, ou rester sur `allergy` à titre provisoire ? À valider avec la praticienne.
+2. **Porteur des avis et retouches** : proposition ici = l'autre dépôt, à confirmer.
+3. **Site statique** : reste sur Hostinger ou passe sur le VPS ? Dépend du domaine et de la CSP.
+4. **Un seul site attendu par le client ?** Adresse de `clients/mba.yaml` à confirmer (non reprise ici).
+5. **Fournisseur d'e-mail** : l'autre dépôt prévoit Anymail/Brevo ; non validé.
 
 ## Conséquences
 
