@@ -12,6 +12,10 @@ Vue d'ensemble. Le détail des tâches est dans `TODO.md`, le périmètre dans `
 - **Déploiement** : `.htaccess` Hostinger, guide de déploiement, recette, fiche Google documentée.
 - **Démo Docker** : nginx et fausses données Python, avec tests.
 - **Structure (04/11/2026)** : dépôt scindé en `frontend/` (site statique) et `backend/` (squelette Django/DRF/Celery), pile `docker-compose.yml` (nginx, gunicorn, PostgreSQL, Redis, worker Celery).
+- **Backend de réservation (04/11/2026)** : API DRF (`/api/v1/`), créneaux recalculés côté serveur (identiques au front), anti double réservation par verrou de jour, tunnel branché sur l'API (désactivé par défaut), calendrier des disponibilités par mois.
+- **Courriers automatiques (04/11/2026)** : notification de la praticienne, e-mail de confirmation avec invitation `.ics`, e-mail de refus ou d'annulation, rappel J-1, demande d'avis J+2, relance de retouche J+18, rattrapage des courriers perdus (Celery + beat).
+- **Arbitrage d'architecture (04/11/2026)** : statique d'abord, Wagtail et plateforme multi-métiers sur déclencheurs (ADR 0001), config métier isolée dans `backend/reservations/vertical.py`.
+- **Contenu prêt (04/11/2026)** : textes des 4 premiers articles de blog (`docs/blog/`, à valider) et questionnaire unique pour le client (`docs/QUESTIONNAIRE-CLIENT.md`).
 
 ## En cours : mise en ligne (bloquée par le client)
 
@@ -25,10 +29,19 @@ Vue d'ensemble. Le détail des tâches est dans `TODO.md`, le périmètre dans `
 
 Stack décidée le 04/11/2026 : API Django REST Framework, tâches planifiées Celery + Redis, PostgreSQL. La phase 1 reste statique et publiée seule (le backend n'est pas nécessaire à la mise en ligne). Hébergement à prévoir : un mutualisé ne suffit pas pour la phase 2 (VPS ou PaaS compatible Docker).
 
-- API de réservation (`/api/v1/`), blocage des créneaux, anti double réservation : faits sur `dev`, avec notification Celery de la praticienne. Reste : brancher le tunnel, SMTP réel, rappels.
-- E-mails et SMS de confirmation et de rappel J-1 ; demande d'avis J+2 ; relance retouche J+18.
-- Blog (4 articles SEO) ; flux Instagram après consentement.
-- À décider avant : service d'e-mail et de SMS, système de réservation existant à remplacer ou à garder.
+Le code de la phase 2 est écrit et testé (70 tests Django). Reste, et tout dépend d'une décision ou d'une information externe :
+
+- Brancher un vrai SMTP (fournisseur à choisir), renseigner `STUDIO_EMAIL`, `STUDIO_NOM`, `AVIS_URL`, `SITE_URL` en production.
+- Décider l'hébergement (VPS ou PaaS Docker), puis activer `"api": "/api/v1"` dans `frontend/data/reservation.json`.
+- SMS de confirmation et de rappel (service à choisir).
+- Faire relire par la praticienne les textes d'e-mails (refus, annulation, avis, retouche) et les 4 articles de blog, puis choisir le support du blog (pages `.mjs` ou Wagtail).
+- Flux Instagram après consentement.
+- À décider : système de réservation existant à remplacer ou à garder.
+
+### Déclencheurs de bascule (ADR 0001)
+
+- **Wagtail** quand les trois sont vrais : hébergement phase 2 décidé, réservation validée en production avec un vrai SMTP, la praticienne publie ou modifie du contenu plus d'une fois par mois.
+- **Plateforme multi-métiers** seulement avec un second métier signé (un déploiement par client).
 
 ## Phase 3 : gestion complète
 
