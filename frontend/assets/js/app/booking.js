@@ -5,7 +5,9 @@ import SlotGrid from './components/SlotGrid.js';
 import CustomerForm from './components/CustomerForm.js';
 import Confirmation from './components/Confirmation.js';
 import { creneauxDuJour, datesDisponibles, totalSelection, formaterDuree, parisMaintenant, ajouterJours } from './slots.js';
-import { envoyerDemande, chargerCreneaux, chargerDisponibilites, EnvoiNonConfigure, CreneauPris, TropDeDemandes } from './submit.js';
+import * as apiReservations from './submit.js';
+import * as apiBooking from './api-booking.js';
+import { EnvoiNonConfigure, CreneauPris, TropDeDemandes } from './submit.js';
 import { genererIcs } from './ics.js';
 
 const NOM_STUDIO = 'My Beauty Aura';
@@ -70,6 +72,13 @@ const BookingWidget = {
       indisponibilites: donnees.indisponibilites, reservations: donnees.reservations, maintenantMs: etat.maintenantMs
     });
     const modeApi = computed(() => Boolean(donnees.config?.api));
+    // Contrat de l'API : « booking » (as_shoppy_frm_v2, ADR 0002) ou, par défaut, celui de backend/reservations.
+    const contrat = () => (donnees.config?.api_format === 'booking' ? apiBooking : apiReservations);
+    const chargerCreneaux = (...a) => contrat().chargerCreneaux(...a);
+    const chargerDisponibilites = (...a) => contrat().chargerDisponibilites(...a);
+    const envoyerDemande = (payload, cible) => (modeApi.value && donnees.config.api_format === 'booking'
+      ? apiBooking.envoyerDemande(payload, donnees.config.api)
+      : apiReservations.envoyerDemande(payload, cible));
     const datesLocales = computed(() => (donnees.pret && etat.ids.length ? datesDisponibles(contexte()) : []));
     const datesOk = computed(() => (modeApi.value ? api.dates : datesLocales.value));
     const creneauxLocaux = computed(() => (etat.date ? creneauxDuJour({ ...contexte(), date: etat.date }) : []));

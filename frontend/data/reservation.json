@@ -6,6 +6,7 @@
   "horizon_jours": 60,
   "pas_creneau_min": 30,
   "api": null,
+  "api_format": null,
   "endpoint": null,
   "email_studio": null
 }
