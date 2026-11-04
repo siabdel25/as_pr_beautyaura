@@ -98,8 +98,8 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [ ] Brancher un vrai SMTP et `STUDIO_EMAIL` en production ; renseigner `STUDIO_NOM` (variable d'environnement) avec le nom réel du studio
 - [x] E-mail à la cliente quand la praticienne confirme (action admin ou statut changé dans le formulaire) : tâche Celery `envoyer_confirmation`, invitation `.ics` jointe, sans doublon, jamais envoyé si la demande n'est pas réellement confirmée
 - [ ] SMS de confirmation (service à choisir)
-- [ ] E-mail à la cliente quand une demande est refusée ou annulée par la praticienne (texte à valider avec elle)
-- [ ] Blocage automatique des créneaux, anti double réservation
+- [x] E-mail à la cliente quand une demande est refusée ou annulée : actions admin « Refuser » et « Annuler » (ou statut changé dans le formulaire), tâche Celery `envoyer_annulation`, sans doublon, jamais envoyé pour une demande encore active. **Texte provisoire `[À VALIDER]` par la praticienne** (`PHRASES_CLOTURE` dans `tasks.py`)
+- [x] Blocage automatique des créneaux, anti double réservation (verrou par jour, voir plus haut)
 - [ ] SMS de confirmation et de rappel (e-mails de confirmation et de rappel J-1 faits)
 - [ ] Demande d'avis J+2 et relance retouche J+18
 - [ ] Blog : 4 premiers articles SEO

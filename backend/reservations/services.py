@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from . import slots
 from .models import HoraireOuverture, Indisponibilite, JourVerrou, Reservation, Service
-from .tasks import envoyer_confirmation, notifier_praticienne
+from .tasks import envoyer_annulation, envoyer_confirmation, notifier_praticienne
 
 
 class CreneauIndisponible(Exception):
@@ -93,4 +93,20 @@ def confirmer_reservation(resa):
             return False
         resa.statut = Reservation.CONFIRMEE
         planifier_confirmation(resa)
+    return True
+
+
+def planifier_annulation(resa):
+    transaction.on_commit(lambda: envoyer_annulation.delay(resa.pk), robust=True)
+
+
+def cloturer_reservation(resa, statut):
+    """Refuse (demande à confirmer) ou annule (à confirmer ou confirmée) et prévient la cliente. Libère le créneau."""
+    sources = {Reservation.REFUSEE: [Reservation.A_CONFIRMER],
+               Reservation.ANNULEE: [Reservation.A_CONFIRMER, Reservation.CONFIRMEE]}[statut]
+    with transaction.atomic():
+        if not Reservation.objects.filter(pk=resa.pk, statut__in=sources).update(statut=statut):
+            return False
+        resa.statut = statut
+        planifier_annulation(resa)
     return True

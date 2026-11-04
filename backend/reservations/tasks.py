@@ -158,3 +158,40 @@ def envoyer_confirmation(reservation_id):
     message.send()
     Reservation.objects.filter(pk=resa.pk, confirmation_envoyee_le__isnull=True).update(confirmation_envoyee_le=timezone.now())
     return 'envoyee'
+
+
+# [À VALIDER] Texte neutre à faire relire par la praticienne : ni motif, ni promesse.
+PHRASES_CLOTURE = {
+    'refusee': 'Nous ne pouvons malheureusement pas donner suite à votre demande de rendez-vous',
+    'annulee': 'Votre rendez-vous est annulé',
+}
+
+
+def composer_annulation(resa):
+    jour = f'{JOURS[resa.date.weekday()]} {resa.date:%d/%m/%Y}'
+    return '\n'.join([
+        f'Bonjour {resa.prenom},',
+        '',
+        f'{PHRASES_CLOTURE[resa.statut]} du {jour}, à {resa.debut:%H:%M}.',
+        f'Prestations : {", ".join(p.nom for p in resa.prestations.all())}',
+        '',
+        'Vous pouvez choisir un autre créneau sur notre site, ou nous contacter en répondant à ce message.',
+        '',
+        settings.STUDIO_NOM,
+    ])
+
+
+@shared_task(autoretry_for=(OSError,), retry_backoff=True, retry_backoff_max=900, max_retries=6)
+def envoyer_annulation(reservation_id):
+    from .models import Reservation
+
+    resa = Reservation.objects.prefetch_related('prestations').filter(pk=reservation_id).first()
+    # On revérifie le statut à l'envoi : jamais d'annulation annoncée pour une demande encore active.
+    if resa is None or resa.statut not in PHRASES_CLOTURE or resa.annulation_envoyee_le:
+        return 'ignoree'
+    sujet = 'Votre demande de rendez-vous' if resa.statut == Reservation.REFUSEE else 'Votre rendez-vous est annulé'
+    send_mail(subject=f'{sujet} du {resa.date:%d/%m}', message=composer_annulation(resa),
+              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[resa.email],
+              )
+    Reservation.objects.filter(pk=resa.pk, annulation_envoyee_le__isnull=True).update(annulation_envoyee_le=timezone.now())
+    return 'envoyee'

@@ -377,6 +377,60 @@ class ConfirmationTests(ApiBase):
         delay.assert_not_called()
 
 
+class AnnulationTests(ApiBase):
+    def test_refuser_et_annuler_planifient_un_seul_envoi(self):
+        a, b = self.resa(statut=Reservation.A_CONFIRMER), self.resa(statut=Reservation.CONFIRMEE)
+        with mock.patch.object(tasks.envoyer_annulation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                self.assertTrue(services.cloturer_reservation(a, Reservation.REFUSEE))
+                self.assertFalse(services.cloturer_reservation(a, Reservation.REFUSEE))
+                self.assertTrue(services.cloturer_reservation(b, Reservation.ANNULEE))
+        self.assertEqual(delay.call_count, 2)
+        a.refresh_from_db()
+        self.assertEqual(a.statut, Reservation.REFUSEE)
+
+    def test_on_ne_refuse_pas_une_confirmee(self):
+        r = self.resa(statut=Reservation.CONFIRMEE)
+        self.assertFalse(services.cloturer_reservation(r, Reservation.REFUSEE))
+        r.refresh_from_db()
+        self.assertEqual(r.statut, Reservation.CONFIRMEE)
+
+    @override_settings(STUDIO_NOM='Studio Test')
+    def test_mails_refus_et_annulation(self):
+        for statut, texte in ((Reservation.REFUSEE, 'ne pouvons malheureusement pas'),
+                              (Reservation.ANNULEE, 'est annulé')):
+            mail.outbox.clear()
+            r = self.resa(statut=statut)
+            self.assertEqual(tasks.envoyer_annulation(r.pk), 'envoyee')
+            self.assertEqual(tasks.envoyer_annulation(r.pk), 'ignoree')
+            self.assertEqual(len(mail.outbox), 1)
+            self.assertEqual(mail.outbox[0].to, ['lea@example.test'])
+            self.assertIn(texte, mail.outbox[0].body)
+            self.assertNotIn('confirmé', mail.outbox[0].body)
+
+    def test_pas_de_mail_pour_une_demande_active(self):
+        for statut in (Reservation.A_CONFIRMER, Reservation.CONFIRMEE):
+            r = self.resa(statut=statut)
+            self.assertEqual(tasks.envoyer_annulation(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_actions_admin_et_formulaire(self):
+        from django.contrib import admin as dj_admin
+        from django.contrib.auth import get_user_model
+        self.client.force_login(get_user_model().objects.create_superuser('admin', 'a@example.test', 'pw'))
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        with mock.patch.object(tasks.envoyer_annulation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                self.client.post('/admin/reservations/reservation/', {'action': 'refuser', '_selected_action': [r.pk]})
+        delay.assert_called_once_with(r.pk)
+        ma = dj_admin.site._registry[Reservation]
+        r.statut = Reservation.ANNULEE
+        with mock.patch.object(tasks.envoyer_annulation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                ma.save_model(mock.Mock(), r, mock.Mock(changed_data=['statut']), change=True)
+        delay.assert_called_once_with(r.pk)
+
+
 class IcsTests(ApiBase):
     def test_heure_utc_hiver_et_ete(self):
         from .ics import generer_ics
