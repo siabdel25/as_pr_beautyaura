@@ -121,11 +121,12 @@ Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une 
 
 ## Questions ouvertes
 
-- [ ] **Doublon avec `as_shoppy_frm_v2`** (My Beauty Aura y existe déjà : module `booking`, Wagtail, multi-établissements) : choisir parmi les options de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (recommandée : option 2, notre site statique appelle leur API). Dépend de l'hébergement phase 2. Quatre décisions listées dans `docs/DIAGNOSTIC-API-BOOKING.md` §6 : option 2 retenue ou non ; questionnaire de première visite (3 questions côté navigateur seulement, ou modèle étendu là-bas) ; pas de créneau 15 ou 30 min ; dépôt qui porte avis J+2 et retouche J+18
+- [x] **Doublon avec `as_shoppy_frm_v2`** (tranché : option 2, ADR 0002) — (My Beauty Aura y existe déjà : module `booking`, Wagtail, multi-établissements) : choisir parmi les options de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (recommandée : option 2, notre site statique appelle leur API). Dépend de l'hébergement phase 2. Quatre décisions listées dans `docs/DIAGNOSTIC-API-BOOKING.md` §6 : option 2 retenue ou non ; questionnaire de première visite (3 questions côté navigateur seulement, ou modèle étendu là-bas) ; pas de créneau 15 ou 30 min ; dépôt qui porte avis J+2 et retouche J+18
 - [x] **RGPD, données de santé** (option A, branche `feat/donnees-sante-minimales`) : le serveur ne conserve plus que `reponse_a_risque` (oui/non). Le détail du questionnaire et le champ libre « précisions » ne sont plus stockés ni demandés ; migration 0007 efface les anciennes valeurs. Texte de la politique de confidentialité ajusté, à faire relire (H5)
 - [ ] Confirmer avec le client : un seul site attendu ? l'adresse « 36 rue de la République, 69200 Vénissieux » de `clients/mba.yaml` (autre dépôt) est-elle réelle ? (non reprise ici)
 
+- [x] **Phase 2 : option 2 et VPS Docker retenus (ADR 0002, 04/11/2026)** : le site statique appelle l'API `booking` d'`as_shoppy_frm_v2`. Reste à trancher : questionnaire côté serveur, pas de créneau, porteur des avis/retouche, site statique sur Hostinger ou VPS, fournisseur d'e-mail
 - [x] Hébergement retenu : Hostinger (mutualisé, `.htaccess`), domaine `jmgaura.com` (d'après `data/studio.json` et `data/site.json`, à confirmer avec le client)
 - [ ] Service d'e-mail et de SMS pour la phase 2 ?
-- [ ] Hébergement de la phase 2 (VPS ou PaaS Docker) : Hostinger mutualisé ne convient pas à Django + Celery + Redis
+- [x] Hébergement de la phase 2 : VPS Docker (ADR 0002)
 - [ ] Le studio a-t-il déjà un système de réservation à remplacer ou à garder ?
