@@ -6,4 +6,4 @@ __pycache__/
 .lighthouseci/
 
 # Prototype de page d'accueil, hors périmètre du site
-demo/landing-my-beauty-aura.html
+frontend/demo/landing-my-beauty-aura.html
