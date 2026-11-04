@@ -1,6 +1,6 @@
 # Diagnostic : notre site statique peut-il appeler l'API `booking` de `as_shoppy_frm_v2` ?
 
-Date : 04/11/2026. Suite de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (option 2). Lecture seule : aucun code modifié, la démo Docker de l'autre dépôt n'a **pas** été lancée.
+Date : 04/11/2026. Suite de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (option 2). Aucun code modifié. Vérifié ensuite sur la démo Docker de l'autre dépôt, déjà en marche (voir §8).
 
 Lu : `booking/urls.py`, `serializers.py`, `api_errors.py`, `services/reservation.py` (créneaux, mode demande), `models.py` (`BookingSettings`), `tenants/middleware.py`, réglages CORS ; côté ici : `backend/reservations/urls.py`, `views.py`, `serializers.py`, `frontend/assets/js/app/submit.js`, `booking.js`, `data/reservation.json`.
 
@@ -33,7 +33,7 @@ Correspondance directe : identifiants de prestation = `slug` (nos ids sont déj�
 ## 3. Infrastructure
 
 - **Résolution de l'établissement par nom de domaine** (`tenants/middleware.py` : `Domain.objects.get(domain=host)`). Un site statique sur Hostinger qui appelle `api.exemple.fr` envoie le domaine de l'API : il faut y enregistrer un `Domain` qui pointe vers l'établissement My Beauty Aura, ou un en-tête dédié.
-- **CORS** : l'autre dépôt a `CORS_ORIGIN_ALLOW_ALL = True` avec `CORS_ALLOW_CREDENTIALS = True` dans `settings/base.py` (lignes 347–358). C'est trop large pour la production : à restreindre à notre domaine, et à refléter dans notre CSP (`connect-src` du fichier `_headers`).
+- **CORS** : `settings/base.py` (développement) est ouvert à toutes les origines, mais `settings/production.py` (lignes 89–92) le restreint à `CORS_ALLOWED_ORIGINS`, une variable d'environnement. À renseigner avec notre domaine, et à refléter dans notre CSP (`connect-src` du fichier `_headers`). *(Première version de ce document : erreur corrigée après lecture de `production.py`.)*
 - **PostgreSQL obligatoire** (contrainte d'exclusion) et hébergement Python : décision d'hébergement de la phase 2 toujours ouverte.
 - **Limitation de débit** par portée (`booking_availability` 60/min, `booking_create` 10/min) : suffisant pour un studio.
 
@@ -66,3 +66,25 @@ Total d'environ 3 jours, **dont aucun ne bloque la mise en ligne de la phase 1**
 - Contrats lus dans le code, pas exécutés : aucun appel réel n'a été fait.
 - `BookingCreateView`, le widget Vue et la gestion de `management_token` n'ont pas été lus en détail.
 - Les estimations viennent du volume de code lu, pas d'un essai.
+
+## 8. Vérification sur la démo (04/11/2026)
+
+La démo `mba-demo` tournait déjà sur `http://mba.localhost:8081` (rien reconstruit). Appels faits avec `curl --resolve`.
+
+| Vérifié | Résultat |
+|---|---|
+| `GET /services/` | 200, slugs identiques aux nôtres (`pose-cil-a-cil`, `rehaussement`, `retouche`, `browlift`…), prix de démonstration en centimes |
+| `GET /availability/days/` | `{month, timezone: "Europe/Paris", booking_mode: "request", days:[{date, available}]}` : conforme à la lecture du code |
+| `GET /availability/` | créneaux en UTC (`2026-11-10T08:30:00Z`…), **pas de 15 min confirmé** ; mode `request` |
+| `POST /bookings/` valide | 201, statut **`pending`** (jamais « confirmé »), `management_token` renvoyé une fois |
+| Deuxième demande sur un créneau chevauchant | 409 `{"error":{"code":"slot_unavailable"}}` |
+| `POST /bookings/<token>/cancel/` | `cancelled_client`, remboursement `no_payment` |
+| Prestation inconnue | 400 `invalid_service` |
+| En-têtes CORS pour une origine tierce | aucun en-tête renvoyé (production restreinte) |
+
+Conséquences :
+- Les contrats du §1 sont confirmés à l'exécution. Le §2 (écarts) reste valable.
+- Le mode demande respecte notre règle : la réservation reste « à confirmer » jusqu'à validation du studio.
+- Une réservation de test a été créée puis annulée dans la démo (créneau du 10/11/2026 à 14 h 15, `diag@example.test`). Elle apparaît dans la base de démonstration ; `bash scripts/demo_mba.sh reset` l'efface.
+- Non vérifié : le contenu des e-mails de cette réservation (la file part à la minute ; je n'ai lu que les 6 plus récents de Mailpit, qui datent d'avant), le widget Vue, l'agenda et l'administration.
+- La description de « Retouche » dans la démo est « Retouche », différente de `clients/mba.yaml` : la base de démonstration ne reflète pas exactement le fichier.
