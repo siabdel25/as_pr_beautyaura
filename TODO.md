@@ -103,8 +103,11 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [ ] SMS de confirmation et de rappel (e-mails de confirmation et de rappel J-1 faits)
 - [x] Demande d'avis J+2 et relance retouche J+18 : tâche Celery quotidienne à 11 h (`envoyer_suivis`), rendez-vous **confirmés** seulement, une fois par réservation, rattrapage sur 7 jours. Avis envoyé seulement si `AVIS_URL` est renseigné ; retouche limitée à la catégorie « extensions » et ignorée si la cliente a déjà un prochain rendez-vous. Textes provisoires `[À VALIDER]` ; délais réglables (`SUIVI_AVIS_JOURS`, `SUIVI_RETOUCHE_JOURS`)
 - [ ] Renseigner `AVIS_URL` (fiche Google Business Profile) et `SITE_URL` en production ; confirmer le délai de retouche réel (le cahier des charges dit J+18 et J+21 selon l'endroit)
-- [ ] Blog : 4 premiers articles SEO
+- [ ] Rattrapage des e-mails de confirmation et de refus/annulation perdus (revue du 04/11/2026) : étendre `rattraper_notifications` et `renvoyer_notifications` aux réservations `CONFIRMEE` sans `confirmation_envoyee_le` et `REFUSEE`/`ANNULEE` sans `annulation_envoyee_le` (plus de 5 min, fenêtre de 7 jours), journal par type, tests
+- [ ] Config métier dans `backend/reservations/vertical.py` (revue du 04/11/2026) : sortir `QUESTIONS_A_RISQUE` (`serializers.py`), `QUESTIONS` et la catégorie de retouche `'extensions'` (`tasks.py`), sans modèle ni migration
+- [ ] Blog : 4 premiers articles SEO, en pages `tools/pages/06-blog.mjs` comme les autres pages (décision de revue du 04/11/2026 : ni parseur Markdown ni CMS Git, qui ajouteraient une dépendance)
 - [ ] Flux Instagram chargé après consentement
+- [ ] **Déclencheurs de bascule (revue du 04/11/2026, à ne pas re-débattre avant)** : passer à **Wagtail** dans `backend/` quand les trois sont vrais : hébergement phase 2 décidé, réservation validée en production avec un vrai SMTP, la praticienne publie ou modifie du contenu plus d'une fois par mois. Passer à une **plateforme multi-métiers** (`core_booking` + packs) seulement avec un second métier signé. À vérifier avant : Wagtail 8.1 annonce `Django>=5.2` (métadonnées lues, installation avec Django 6.1 non testée) ; l'impossibilité d'héberger Wagtail sur le mutualisé Hostinger n'est pas vérifiée auprès de l'hébergeur ; changer la pile exige une décision explicite et la mise à jour de `CLAUDE.md` et du cahier des charges
 
 ## Phase 3 — Gestion complète
 
