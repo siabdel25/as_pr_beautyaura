@@ -61,4 +61,5 @@ Négatives : jusqu'au passage à Wagtail, toute modification de texte ou tout no
 
 - Tâches issues de la revue : `TODO.md` (phase 2, entrées « Rattrapage… », « Config métier… », « Blog… », « Déclencheurs de bascule… »).
 - Analyse complète : `docs/ANALYSE-ARCHITECTURE-2026-11-04.md`.
+- Complément : `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md`. Le dépôt `as_shoppy_frm_v2` contient déjà My Beauty Aura (module `booking`, Wagtail, multi-établissements) : plusieurs faits de ce contexte sont à revoir et la décision « un déploiement par client » reste ouverte.
 - Journal de revue gstack : décision enregistrée le 04/11/2026.
