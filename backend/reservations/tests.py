@@ -431,6 +431,75 @@ class AnnulationTests(ApiBase):
         delay.assert_called_once_with(r.pk)
 
 
+class SuiviTests(ApiBase):
+    def setUp(self):
+        super().setUp()
+        self.aujourdhui = date(2026, 6, 20)
+        self.maintenant = '2026-06-20T09:00:00+00:00'
+
+    def resa_a(self, jours_avant, statut=Reservation.CONFIRMEE, service=None):
+        r = self.resa(statut=statut, jour=self.aujourdhui - timedelta(days=jours_avant))
+        if service:
+            r.prestations.set([service])
+        return r
+
+    @override_settings(AVIS_URL='https://avis.example.test/x')
+    def test_avis_a_j2_seulement_pour_les_confirmees(self):
+        ok = self.resa_a(2)
+        self.resa_a(2, statut=Reservation.ANNULEE)
+        self.resa_a(1)  # trop tôt
+        with mock.patch.object(tasks.envoyer_avis, 'delay') as delay, \
+                mock.patch.object(tasks.envoyer_relance_retouche, 'delay'):
+            self.assertEqual(tasks.envoyer_suivis(self.maintenant)['avis'], 1)
+        delay.assert_called_once_with(ok.pk)
+
+    @override_settings(AVIS_URL='')
+    def test_pas_d_avis_sans_lien(self):
+        self.resa_a(2)
+        self.assertEqual(tasks.envoyer_avis(self.resa_a(2).pk), 'sans_lien')
+        with mock.patch.object(tasks.envoyer_avis, 'delay') as delay:
+            self.assertEqual(tasks.envoyer_suivis(self.maintenant)['avis'], 0)
+        delay.assert_not_called()
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(AVIS_URL='https://avis.example.test/x', STUDIO_NOM='Studio Test')
+    def test_mail_d_avis_une_seule_fois(self):
+        r = self.resa_a(2)
+        self.assertEqual(tasks.envoyer_avis(r.pk), 'envoyee')
+        self.assertEqual(tasks.envoyer_avis(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('https://avis.example.test/x', mail.outbox[0].body)
+
+    def test_rattrapage_apres_un_jour_manque(self):
+        with override_settings(AVIS_URL='https://a.test'), \
+                mock.patch.object(tasks.envoyer_avis, 'delay') as delay:
+            self.resa_a(5)
+            tasks.envoyer_suivis(self.maintenant)
+        self.assertEqual(delay.call_count, 1)
+
+    def test_retouche_pour_les_extensions_seulement(self):
+        ext = self.resa_a(18, service=self.pose)
+        self.resa_a(18)  # rehaussement : pas de retouche
+        with mock.patch.object(tasks.envoyer_relance_retouche, 'delay') as delay:
+            self.assertEqual(tasks.envoyer_suivis(self.maintenant)['retouche'], 1)
+        delay.assert_called_once_with(ext.pk)
+
+    def test_pas_de_relance_si_deja_un_prochain_rendez_vous(self):
+        self.resa_a(18, service=self.pose)
+        self.resa(statut=Reservation.A_CONFIRMER, jour=self.aujourdhui + timedelta(days=5))
+        with mock.patch.object(tasks.envoyer_relance_retouche, 'delay') as delay:
+            self.assertEqual(tasks.envoyer_suivis(self.maintenant)['retouche'], 0)
+        delay.assert_not_called()
+
+    @override_settings(SITE_URL='https://site.example.test')
+    def test_mail_de_retouche_sans_promesse(self):
+        r = self.resa_a(18, service=self.pose)
+        self.assertEqual(tasks.envoyer_relance_retouche(r.pk), 'envoyee')
+        self.assertEqual(tasks.envoyer_relance_retouche(r.pk), 'ignoree')
+        self.assertIn('https://site.example.test', mail.outbox[0].body)
+        self.assertNotIn('confirmé', mail.outbox[0].body)
+
+
 class IcsTests(ApiBase):
     def test_heure_utc_hiver_et_ete(self):
         from .ics import generer_ics

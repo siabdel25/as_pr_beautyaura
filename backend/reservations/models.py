@@ -77,6 +77,8 @@ class Reservation(models.Model):
     confirmation_envoyee_le = models.DateTimeField(null=True, blank=True)
     rappel_envoye_le = models.DateTimeField(null=True, blank=True)
     annulation_envoyee_le = models.DateTimeField(null=True, blank=True)
+    avis_demande_le = models.DateTimeField(null=True, blank=True)
+    retouche_proposee_le = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['date', 'debut']

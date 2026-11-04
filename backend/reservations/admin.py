@@ -10,7 +10,7 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ('statut', 'date')
     search_fields = ('nom', 'prenom', 'email', 'telephone')
     readonly_fields = ('notifiee_le', 'confirmation_envoyee_le', 'rappel_envoye_le',
-                       'annulation_envoyee_le', 'cree_le')
+                       'annulation_envoyee_le', 'avis_demande_le', 'retouche_proposee_le', 'cree_le')
     actions = ['confirmer', 'refuser', 'annuler']
 
     @admin.action(description='Confirmer les demandes sélectionnées (la cliente est prévenue par e-mail)')

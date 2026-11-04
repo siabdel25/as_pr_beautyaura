@@ -101,7 +101,8 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [x] E-mail à la cliente quand une demande est refusée ou annulée : actions admin « Refuser » et « Annuler » (ou statut changé dans le formulaire), tâche Celery `envoyer_annulation`, sans doublon, jamais envoyé pour une demande encore active. **Texte provisoire `[À VALIDER]` par la praticienne** (`PHRASES_CLOTURE` dans `tasks.py`)
 - [x] Blocage automatique des créneaux, anti double réservation (verrou par jour, voir plus haut)
 - [ ] SMS de confirmation et de rappel (e-mails de confirmation et de rappel J-1 faits)
-- [ ] Demande d'avis J+2 et relance retouche J+18
+- [x] Demande d'avis J+2 et relance retouche J+18 : tâche Celery quotidienne à 11 h (`envoyer_suivis`), rendez-vous **confirmés** seulement, une fois par réservation, rattrapage sur 7 jours. Avis envoyé seulement si `AVIS_URL` est renseigné ; retouche limitée à la catégorie « extensions » et ignorée si la cliente a déjà un prochain rendez-vous. Textes provisoires `[À VALIDER]` ; délais réglables (`SUIVI_AVIS_JOURS`, `SUIVI_RETOUCHE_JOURS`)
+- [ ] Renseigner `AVIS_URL` (fiche Google Business Profile) et `SITE_URL` en production ; confirmer le délai de retouche réel (le cahier des charges dit J+18 et J+21 selon l'endroit)
 - [ ] Blog : 4 premiers articles SEO
 - [ ] Flux Instagram chargé après consentement
 

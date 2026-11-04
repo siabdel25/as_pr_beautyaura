@@ -195,3 +195,97 @@ def envoyer_annulation(reservation_id):
               )
     Reservation.objects.filter(pk=resa.pk, annulation_envoyee_le__isnull=True).update(annulation_envoyee_le=timezone.now())
     return 'envoyee'
+
+
+# --- Suivi après rendez-vous : demande d'avis (J+2) et relance de retouche (J+18) ---
+# Textes provisoires [À VALIDER] par la praticienne : aucune promesse, aucun avantage en échange d'un avis.
+
+def composer_avis(resa):
+    return '\n'.join([
+        f'Bonjour {resa.prenom},',
+        '',
+        f'Merci de votre visite chez {settings.STUDIO_NOM}.',
+        'Si vous le souhaitez, vous pouvez partager votre expérience en laissant un avis :',
+        settings.AVIS_URL,
+        '',
+        'Votre retour est libre et nous aide à nous améliorer. Si quelque chose ne vous a pas convenu,',
+        'répondez simplement à ce message, nous en parlerons avec plaisir.',
+        '',
+        settings.STUDIO_NOM,
+    ])
+
+
+def composer_retouche(resa):
+    lignes = [
+        f'Bonjour {resa.prenom},',
+        '',
+        'Votre dernière pose date de quelques semaines : si vous souhaitez une retouche,',
+        'c’est le bon moment pour prendre rendez-vous.',
+    ]
+    if settings.SITE_URL:
+        lignes += ['', f'Réserver en ligne : {settings.SITE_URL}']
+    lignes += ['', 'Vous pouvez aussi nous répondre directement à ce message.', '', settings.STUDIO_NOM]
+    return '\n'.join(lignes)
+
+
+def _envoyer_suivi(reservation_id, champ, sujet, composer):
+    from .models import Reservation
+
+    resa = Reservation.objects.prefetch_related('prestations').filter(pk=reservation_id).first()
+    # Seuls les rendez-vous réellement confirmés ont un suivi, une seule fois.
+    if resa is None or resa.statut != Reservation.CONFIRMEE or getattr(resa, champ):
+        return 'ignoree'
+    send_mail(subject=sujet, message=composer(resa), from_email=settings.DEFAULT_FROM_EMAIL,
+              recipient_list=[resa.email])
+    Reservation.objects.filter(pk=resa.pk, **{f'{champ}__isnull': True}).update(**{champ: timezone.now()})
+    return 'envoyee'
+
+
+@shared_task(autoretry_for=(OSError,), retry_backoff=True, retry_backoff_max=900, max_retries=3)
+def envoyer_avis(reservation_id):
+    if not settings.AVIS_URL:
+        return 'sans_lien'
+    return _envoyer_suivi(reservation_id, 'avis_demande_le', 'Comment s’est passé votre rendez-vous ?', composer_avis)
+
+
+@shared_task(autoretry_for=(OSError,), retry_backoff=True, retry_backoff_max=900, max_retries=3)
+def envoyer_relance_retouche(reservation_id):
+    return _envoyer_suivi(reservation_id, 'retouche_proposee_le', 'Une retouche vous ferait plaisir ?', composer_retouche)
+
+
+@shared_task
+def envoyer_suivis(maintenant=None):
+    """Planifiée chaque jour : lance avis et relances arrivés à échéance, avec une fenêtre de rattrapage."""
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    from .models import Reservation
+
+    now = datetime.fromisoformat(maintenant) if maintenant else timezone.now()
+    aujourdhui = now.astimezone(ZoneInfo(settings.RESERVATION['fuseau'])).date()
+    cfg = settings.SUIVI
+    confirmees = Reservation.objects.filter(statut=Reservation.CONFIRMEE)
+    envoyes = {'avis': 0, 'retouche': 0}
+
+    def fenetre(jours):
+        fin = aujourdhui - timedelta(days=jours)
+        return fin - timedelta(days=cfg['fenetre_rattrapage_jours']), fin
+
+    if settings.AVIS_URL:
+        debut, fin = fenetre(cfg['avis_apres_jours'])
+        for pk in confirmees.filter(date__range=(debut, fin), avis_demande_le__isnull=True).values_list('pk', flat=True):
+            envoyer_avis.delay(pk)
+            envoyes['avis'] += 1
+
+    debut, fin = fenetre(cfg['retouche_apres_jours'])
+    candidates = (confirmees.filter(date__range=(debut, fin), retouche_proposee_le__isnull=True,
+                                    prestations__categorie='extensions').distinct())
+    for resa in candidates:
+        # Inutile de relancer une cliente qui a déjà un prochain rendez-vous.
+        deja_reservee = Reservation.objects.filter(
+            email__iexact=resa.email, date__gt=aujourdhui,
+            statut__in=Reservation.STATUTS_BLOQUANTS).exists()
+        if not deja_reservee:
+            envoyer_relance_retouche.delay(resa.pk)
+            envoyes['retouche'] += 1
+    return envoyes

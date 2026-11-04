@@ -148,6 +148,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'reservations.tasks.envoyer_rappels_j1',
         'schedule': crontab(hour=10, minute=0),
     },
+    'suivi-apres-rendez-vous': {
+        'task': 'reservations.tasks.envoyer_suivis',
+        'schedule': crontab(hour=11, minute=0),
+    },
 }
 
 # E-mail : console en développement ; SMTP en production (EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER...).
@@ -160,6 +164,17 @@ EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', False)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'reservations@localhost')
 # Destinataire des nouvelles demandes (la praticienne). Vide : aucune notification, avertissement dans les logs.
 STUDIO_EMAIL = os.environ.get('STUDIO_EMAIL', '')
+# Suivi après rendez-vous. Délais en jours ; J+18 est une valeur par défaut, à ajuster avec la praticienne.
+SUIVI = {
+    'avis_apres_jours': int(os.environ.get('SUIVI_AVIS_JOURS', '2')),
+    'retouche_apres_jours': int(os.environ.get('SUIVI_RETOUCHE_JOURS', '18')),
+    # Rattrape les jours manqués (beat arrêté) sans jamais renvoyer : les envois sont marqués en base.
+    'fenetre_rattrapage_jours': 7,
+}
+# [À COMPLÉTER] lien d'avis de la fiche Google Business Profile. Vide : aucune demande d'avis n'est envoyée.
+AVIS_URL = os.environ.get('AVIS_URL', '')
+# [À COMPLÉTER] lien de réservation du site, repris dans la relance de retouche.
+SITE_URL = os.environ.get('SITE_URL', '')
 # [À COMPLÉTER] nom réel du studio, utilisé dans les e-mails aux clientes.
 STUDIO_NOM = os.environ.get('STUDIO_NOM', '[NOM_DU_STUDIO]')
 
