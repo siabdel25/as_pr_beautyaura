@@ -26,6 +26,9 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-beautyaura-dev}
       CELERY_BROKER_URL: redis://redis:6379/0
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      DRF_NUM_PROXIES: "1"   # nginx devant gunicorn : nécessaire à la limitation de fréquence par IP
+    volumes:
+      - ./frontend/data:/data:ro   # pour : docker compose exec backend python manage.py charger_donnees --data-dir /data
     depends_on:
       db: {condition: service_healthy}
       redis: {condition: service_started}

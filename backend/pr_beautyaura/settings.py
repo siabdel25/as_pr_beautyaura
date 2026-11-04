@@ -114,8 +114,20 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
     'DEFAULT_THROTTLE_CLASSES': ['rest_framework.throttling.AnonRateThrottle'],
-    'DEFAULT_THROTTLE_RATES': {'anon': '30/min'},
+    'DEFAULT_THROTTLE_RATES': {'anon': '60/min', 'reservation': '5/hour'},
+    # Nombre de proxys de confiance devant gunicorn (nginx = 1) : sans cela, tous les clients
+    # partagent l'adresse du proxy et la limitation de fréquence est inefficace.
+    'NUM_PROXIES': int(os.environ.get('DRF_NUM_PROXIES', '0')),
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+}
+
+# Règles de réservation. Miroir de frontend/data/reservation.json (un test détecte tout écart).
+RESERVATION = {
+    'fuseau': TIME_ZONE,
+    'tampon_min': int(os.environ.get('RESERVATION_TAMPON_MIN', '15')),
+    'delai_min_heures': int(os.environ.get('RESERVATION_DELAI_MIN_HEURES', '12')),
+    'horizon_jours': int(os.environ.get('RESERVATION_HORIZON_JOURS', '60')),
+    'pas_creneau_min': int(os.environ.get('RESERVATION_PAS_CRENEAU_MIN', '30')),
 }
 
 # Celery : tâches planifiées de la phase 2 (rappels J-1, avis J+2, relance J+18).

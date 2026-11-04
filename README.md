@@ -121,12 +121,14 @@ Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement pr
 
 ## Backend et pile Docker (phase 2)
 
-La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il ne contient pour l'instant qu'un squelette et la sonde `GET /api/v1/health/`.
+La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il expose `GET /api/v1/services/`, `GET /api/v1/creneaux/?date=YYYY-MM-DD&services=id1,id2` et `POST /api/v1/reservations/` (demande toujours « à confirmer », créneau revérifié côté serveur, 5 demandes par heure et par IP). Les demandes se confirment dans l'admin Django (`/admin/`, action « Confirmer »). Le tunnel du site n'appelle pas encore l'API.
 
 ```bash
 cp backend/.env.example backend/.env       # renseigner DJANGO_SECRET_KEY (obligatoire si DJANGO_DEBUG=false)
 docker compose up --build                  # http://localhost:8080 (site) et /api/v1/health/
 ```
+
+Premier lancement : `docker compose exec backend python manage.py migrate` est automatique ; chargez les prestations, horaires et fermetures avec `docker compose exec backend python manage.py charger_donnees --data-dir /data` (à relancer seulement pour réimporter `frontend/data`, cela écrase les horaires et fermetures de la base).
 
 La pile lance nginx (site statique, proxy `/api/` et `/admin/`), gunicorn, PostgreSQL, Redis et un worker Celery. Tests du backend : `cd backend && pip install -r requirements.txt && DJANGO_DEBUG=true python manage.py test`.
 
