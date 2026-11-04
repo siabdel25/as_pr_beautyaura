@@ -265,7 +265,8 @@ class NotificationTests(ApiBase):
             self.creer()
             self.creer(heure='13:00')
         Reservation.objects.filter(debut=time(13, 0)).update(statut=Reservation.ANNULEE)
-        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay, \
+                mock.patch.object(tasks.envoyer_annulation, 'delay'):
             call_command('renvoyer_notifications')
         delay.assert_called_once_with(Reservation.objects.get(debut=time(10, 0)).pk)
 
@@ -275,8 +276,9 @@ class PlanningTests(ApiBase):
         ancienne = self.resa(statut=Reservation.A_CONFIRMER)
         Reservation.objects.filter(pk=ancienne.pk).update(cree_le=datetime.now(PARIS) - timedelta(minutes=30))
         self.resa(statut=Reservation.A_CONFIRMER, debut=time(14, 0))   # créée à l'instant
-        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
-            self.assertEqual(tasks.rattraper_notifications(), 1)
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay, \
+                mock.patch.object(tasks.envoyer_confirmation, 'delay'), mock.patch.object(tasks.envoyer_annulation, 'delay'):
+            self.assertEqual(tasks.rattraper_notifications()['notifications'], 1)
         delay.assert_called_once_with(ancienne.pk)
 
     def test_rappel_j1_seulement_pour_les_confirmees_de_demain(self):
@@ -429,6 +431,61 @@ class AnnulationTests(ApiBase):
             with self.captureOnCommitCallbacks(execute=True):
                 ma.save_model(mock.Mock(), r, mock.Mock(changed_data=['statut']), change=True)
         delay.assert_called_once_with(r.pk)
+
+
+class RattrapageCourriersTests(ApiBase):
+    def lancer(self, **kw):
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as n, \
+                mock.patch.object(tasks.envoyer_confirmation, 'delay') as c, \
+                mock.patch.object(tasks.envoyer_annulation, 'delay') as a:
+            compte = tasks.relancer_courriers(**kw)
+        return compte, n, c, a
+
+    def test_confirmation_et_annulation_perdues_sont_relancees(self):
+        conf = self.resa(statut=Reservation.CONFIRMEE)
+        refus = self.resa(statut=Reservation.REFUSEE, debut=time(12, 0))
+        annul = self.resa(statut=Reservation.ANNULEE, debut=time(14, 0))
+        compte, n, c, a = self.lancer()
+        self.assertEqual(compte, {'notifications': 0, 'confirmations': 1, 'annulations': 2})
+        c.assert_called_once_with(conf.pk)
+        self.assertEqual({call.args[0] for call in a.call_args_list}, {refus.pk, annul.pk})
+        n.assert_not_called()
+
+    def test_rien_a_relancer_quand_tout_est_parti(self):
+        Reservation.objects.all().delete()
+        for statut, champ in ((Reservation.CONFIRMEE, 'confirmation_envoyee_le'),
+                              (Reservation.ANNULEE, 'annulation_envoyee_le')):
+            r = self.resa(statut=statut, debut=time(10 if statut == Reservation.CONFIRMEE else 14, 0))
+            Reservation.objects.filter(pk=r.pk).update(**{champ: datetime.now(PARIS)})
+        compte, *_ = self.lancer()
+        self.assertEqual(compte, {'notifications': 0, 'confirmations': 0, 'annulations': 0})
+
+    def test_pas_de_courrier_pour_un_rendez_vous_passe(self):
+        passe = date.today() - timedelta(days=3)
+        self.resa(statut=Reservation.CONFIRMEE, jour=passe)
+        self.resa(statut=Reservation.ANNULEE, jour=passe, debut=time(14, 0))
+        compte, *_ = self.lancer()
+        self.assertEqual(compte['confirmations'] + compte['annulations'], 0)
+
+    def test_a_confirmer_et_actives_ne_declenchent_ni_confirmation_ni_annulation(self):
+        self.resa(statut=Reservation.A_CONFIRMER)
+        compte, *_ = self.lancer(avec_delai=False)
+        self.assertEqual(compte, {'notifications': 1, 'confirmations': 0, 'annulations': 0})
+
+    def test_commande_affiche_les_trois_compteurs(self):
+        from io import StringIO
+        self.resa(statut=Reservation.CONFIRMEE)
+        sortie = StringIO()
+        with mock.patch.object(tasks.envoyer_confirmation, 'delay') as c:
+            call_command('renvoyer_notifications', stdout=sortie)
+        c.assert_called_once()
+        self.assertIn('1 confirmation(s)', sortie.getvalue())
+
+    def test_journalise_quand_quelque_chose_est_relance(self):
+        self.resa(statut=Reservation.CONFIRMEE)
+        with self.assertLogs('reservations.tasks', level='WARNING') as logs:
+            self.lancer()
+        self.assertIn('confirmations', logs.output[0])
 
 
 class SuiviTests(ApiBase):

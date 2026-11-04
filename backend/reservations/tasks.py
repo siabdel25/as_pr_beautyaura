@@ -62,19 +62,53 @@ def notifier_praticienne(reservation_id):
     return 'envoyee'
 
 
-@shared_task
-def rattraper_notifications():
-    """Relance les demandes à confirmer jamais notifiées, hors les toutes dernières secondes (tâche en vol)."""
+def courriers_en_attente(avec_delai=True, aujourdhui=None):
+    """Identifiants des courriers jamais envoyés, par type.
+
+    Demandes à confirmer jamais notifiées (hors les 5 dernières minutes, tâche en vol), puis
+    confirmations et refus/annulations jamais envoyés. Pour ces deux derniers, on ne regarde que
+    les rendez-vous d'aujourd'hui ou à venir : inutile d'écrire à propos d'un rendez-vous passé.
+    Aucune date de changement de statut n'est stockée : une tâche encore en reprise peut donc être
+    relancée en double. On préfère un doublon (même UID d'invitation) à un message perdu.
+    """
     from datetime import timedelta
 
     from .models import Reservation
 
-    limite = timezone.now() - timedelta(minutes=5)
-    ids = list(Reservation.objects.filter(statut=Reservation.A_CONFIRMER, notifiee_le__isnull=True,
-                                          cree_le__lt=limite).values_list('pk', flat=True))
-    for pk in ids:
-        notifier_praticienne.delay(pk)
-    return len(ids)
+    aujourdhui = aujourdhui or timezone.localdate()
+    notifs = Reservation.objects.filter(statut=Reservation.A_CONFIRMER, notifiee_le__isnull=True)
+    if avec_delai:
+        notifs = notifs.filter(cree_le__lt=timezone.now() - timedelta(minutes=5))
+    return {
+        'notifications': list(notifs.values_list('pk', flat=True)),
+        'confirmations': list(Reservation.objects.filter(
+            statut=Reservation.CONFIRMEE, confirmation_envoyee_le__isnull=True, date__gte=aujourdhui,
+        ).values_list('pk', flat=True)),
+        'annulations': list(Reservation.objects.filter(
+            statut__in=(Reservation.REFUSEE, Reservation.ANNULEE), annulation_envoyee_le__isnull=True,
+            date__gte=aujourdhui,
+        ).values_list('pk', flat=True)),
+    }
+
+
+def relancer_courriers(avec_delai=True):
+    """Relance les trois types de courrier en attente et renvoie le nombre relancé par type."""
+    en_attente = courriers_en_attente(avec_delai=avec_delai)
+    taches = {'notifications': notifier_praticienne, 'confirmations': envoyer_confirmation,
+              'annulations': envoyer_annulation}
+    for type_, ids in en_attente.items():
+        for pk in ids:
+            taches[type_].delay(pk)
+    compte = {type_: len(ids) for type_, ids in en_attente.items()}
+    if any(compte.values()):
+        logger.warning('Courriers relancés faute d’envoi : %s', compte)
+    return compte
+
+
+@shared_task
+def rattraper_notifications():
+    """Filet de sécurité planifié : relance les courriers jamais partis (broker ou SMTP indisponible)."""
+    return relancer_courriers()
 
 
 def composer_rappel(resa):
