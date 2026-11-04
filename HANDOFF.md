@@ -29,7 +29,7 @@ Site vitrine statique avec réservation en ligne pour un studio de cils et de so
 # Site statique (depuis frontend/)
 npx serve .
 node tools/build-pages.mjs
-node --test "tests/*.test.mjs"                      # 49 tests
+node --test "tests/*.test.mjs"                      # 59 tests
 
 # Backend (depuis backend/)
 pip install -r requirements.txt
@@ -52,7 +52,7 @@ node tools/verifier-mise-en-ligne.mjs --liste
 - **Toute demande est « à confirmer »** : jamais « confirmé » sans validation réelle de la praticienne. Le client ne peut pas imposer `statut` ni `duree_min`.
 - **Anti double réservation** : un verrou par jour (`JourVerrou`, `select_for_update`). Les statuts « à confirmer » et « confirmée » bloquent les créneaux.
 - **Créneaux** : `backend/reservations/slots.py` est le miroir de `frontend/.../slots.js` (15 min de tampon, 12 h de délai, 60 jours d'horizon, pas de 30 min, Europe/Paris, sûr aux changements d'heure). Parité vérifiée sur 2 450 cas.
-- **Mode API du site** : activé seulement par `"api": "/api/v1"` dans `frontend/data/reservation.json` (`null` = comportement de la phase 1). Ne fonctionne pas sur Hostinger mutualisé.
+- **Mode API du site** : activé seulement par `"api"` dans `frontend/data/reservation.json` (`null` = comportement de la phase 1). `"api_format": "booking"` choisit l'API de `as_shoppy_frm_v2` (`api-booking.js`, ADR 0002) ; sinon le contrat de `backend/reservations`. Aucune des deux n'est activée. Ne fonctionne pas sur Hostinger mutualisé.
 - **Métier isolé** : tout ce qui est propre aux cils et sourcils (questions à risque, catégorie de retouche) est dans `backend/reservations/vertical.py`.
 - **Aucune dépendance ni service ajouté sans accord** (`CLAUDE.md`). C'est pourquoi le blog n'utilise ni parseur Markdown ni CMS Git.
 
