@@ -3,7 +3,7 @@
 # Usage : demo/tests/test_container.sh   (nécessite docker et curl)
 set -euo pipefail
 
-racine="$(cd "$(dirname "$0")/../.." && pwd)"
+racine="$(cd "$(dirname "$0")/../.." && pwd)"  # = frontend/
 image="lb-demo-test"
 nom="lb-demo-test-$$"
 port="${DEMO_PORT:-8089}"

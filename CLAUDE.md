@@ -1,6 +1,6 @@
 # CLAUDE.md — Site Lash & Brow
 
-Ce fichier donne à Claude Code le contexte et les règles du projet. Source de vérité fonctionnelle : `CAHIER_DES_CHARGES.md`. En cas de conflit, le cahier des charges prime, sauf décision explicite de l'utilisateur.
+Ce fichier donne à Claude Code le contexte et les règles du projet. Source de vérité fonctionnelle : `docs/CAHIER_DES_CHARGES.md`. En cas de conflit, le cahier des charges prime, sauf décision explicite de l'utilisateur.
 
 ## Projet
 
@@ -27,7 +27,14 @@ Avant d'intégrer V-Calendar : vérifier la version stable et l'URL CDN réelles
 - Charger Vue et V-Calendar seulement sur les pages qui les utilisent.
 - État local avec `reactive()`. Pas de Pinia en phase 1.
 
-Arborescence cible : voir `CAHIER_DES_CHARGES.md`, section 1.1.2.
+Arborescence cible : voir `docs/CAHIER_DES_CHARGES.md`, section 1.1.2.
+
+## Structure du dépôt (depuis le 04/11/2026)
+
+- `frontend/` : site statique, `tools/`, `tests/`, `demo/`. Les commandes `node` et `npx` s'y lancent.
+- `backend/` : Django + DRF + Celery, **phase 2 uniquement**. Configuré par variables d'environnement (`backend/.env.example`). Ne pas y mettre de logique tant que la phase 1 n'est pas en ligne, sauf demande explicite.
+- `docker-compose.yml`, `docker/` : pile de développement (nginx, gunicorn, PostgreSQL, Redis, worker). La démo `frontend/demo/` est indépendante.
+- La phase 1 reste statique : la stack ci-dessus (HTML, Bootstrap, Vue sans bundler) ne change pas.
 
 ## Conventions de code
 
@@ -75,7 +82,7 @@ Arborescence cible : voir `CAHIER_DES_CHARGES.md`, section 1.1.2.
 
 ## Commandes
 
-Phase 1 sans bundler :
+Phase 1 sans bundler (depuis `frontend/`) :
 
 ```bash
 npx serve .                      # serveur local

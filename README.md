@@ -22,7 +22,8 @@ Site vitrine et prise de rendez-vous en ligne pour un studio de soins des cils e
 | Style | CSS3 + Bootstrap 5.3 |
 | Interactivité | Vue 3 (ES modules, sans bundler) |
 | Calendrier | V-Calendar 3.x |
-| Données | JSON dans `/data` (phase 1) |
+| Données | JSON dans `frontend/data` (phase 1) |
+| Backend (phase 2) | Django, Django REST Framework, Celery + Redis, PostgreSQL |
 
 ## Démarrage rapide
 
@@ -30,11 +31,11 @@ Prérequis : Node.js 20 ou plus récent (uniquement pour le serveur local et les
 
 ```bash
 git clone <url-du-depot> lash-brow-studio
-cd lash-brow-studio
+cd lash-brow-studio/frontend
 npx serve .
 ```
 
-Ouvrir `http://localhost:3000`.
+Ouvrir `http://localhost:3000`. Toutes les commandes `node`, `npx` et `python3 -m unittest` de ce README se lancent depuis `frontend/`.
 
 > Vue et V-Calendar sont chargés en modules navigateur. Le site doit être servi en HTTP (pas en `file://`).
 
@@ -42,30 +43,28 @@ Ouvrir `http://localhost:3000`.
 
 ```
 lash-brow-studio/
-├── index.html
-├── prestations/        # une page par prestation
-├── tarifs.html
-├── reservation.html    # tunnel Vue + V-Calendar
-├── galerie.html
-├── a-propos.html
-├── faq.html
-├── conseils-apres-soin.html
-├── contact.html
-├── assets/             # css, js, img, fonts
-├── data/               # services, horaires, indisponibilités, avis
-├── tools/              # build des pages, service worker (sw.template.js), sprite, vérifications
-├── tests/              # tests Node (créneaux, validation, build, démo)
-├── demo/               # démo Docker : Dockerfile, nginx, générateur de fausses données, tests
-├── manifest.webmanifest, sw.js, offline.html   # PWA (sw.js est généré par le build)
-├── .htaccess           # Apache/LiteSpeed (Hostinger), généré par le build
-├── CAHIER_DES_CHARGES.md
-├── CLAUDE.md
-└── TODO.md
+├── frontend/               # site statique (phase 1) : publié tel quel
+│   ├── index.html, tarifs.html, reservation.html, galerie.html, faq.html, ...
+│   ├── prestations/        # une page par prestation
+│   ├── assets/             # css, js, img, fonts
+│   ├── data/               # services, horaires, indisponibilités, avis
+│   ├── tools/              # build des pages, service worker, sprite, vérifications
+│   ├── tests/              # tests Node (créneaux, validation, build, démo)
+│   ├── demo/               # démo Docker autonome : nginx et fausses données
+│   ├── manifest.webmanifest, sw.js, offline.html   # PWA (sw.js est généré par le build)
+│   └── .htaccess, _headers # générés par le build (Hostinger, Netlify)
+├── backend/                # Django + DRF + Celery (phase 2, squelette)
+│   ├── pr_beautyaura/      # réglages par variables d'environnement, Celery
+│   └── reservations/       # app de l'API /api/v1/ (sonde /health/ pour l'instant)
+├── docker/                 # image web (nginx : statique + proxy /api et /admin)
+├── docker-compose.yml      # pile de développement
+├── docs/                   # cahier des charges, déploiement, recette, guides
+├── CLAUDE.md, TODO.md, ROADMAP.md
 ```
 
 ## Mettre à jour le contenu
 
-Tout se modifie dans `/data`, sans toucher au code.
+Tout se modifie dans `frontend/data`, sans toucher au code.
 
 | Fichier | Contenu |
 |---|---|
@@ -110,7 +109,7 @@ Objectifs : Lighthouse mobile Performance ≥ 90, Accessibilité ≥ 95, SEO ≥
 
 ## Déploiement
 
-Le site est statique. Hébergement prévu : Hostinger (mutualisé, `.htaccess` généré par le build : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués). Netlify et Cloudflare Pages restent possibles avec `_headers`. Relancer `node tools/build-pages.mjs` avant chaque déploiement : il renouvelle la version du cache du service worker. Marche à suivre complète : `docs/DEPLOIEMENT.md`.
+Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement prévu : Hostinger (mutualisé, `.htaccess` généré par le build : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués). Netlify et Cloudflare Pages restent possibles avec `_headers`. Relancer `node tools/build-pages.mjs` avant chaque déploiement : il renouvelle la version du cache du service worker. Marche à suivre complète : `docs/DEPLOIEMENT.md`.
 
 Étapes générales :
 
@@ -120,12 +119,23 @@ Le site est statique. Hébergement prévu : Hostinger (mutualisé, `.htaccess` g
 4. En-têtes de sécurité : `_headers` (Netlify, Cloudflare Pages) est généré par le build. Sur un autre hébergeur, reprendre les mêmes en-têtes. La CSP autorise `'unsafe-eval'` parce que Vue compile ses gabarits dans le navigateur ; la supprimer demanderait de précompiler les gabarits (donc un build).
 5. Mesure d'audience : renseigner `mesure.domaine` dans `data/site.json` pour activer Plausible (sans cookie). Tant que le champ est `null`, aucun script de mesure n'est chargé.
 
+## Backend et pile Docker (phase 2)
+
+La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il ne contient pour l'instant qu'un squelette et la sonde `GET /api/v1/health/`.
+
+```bash
+cp backend/.env.example backend/.env       # renseigner DJANGO_SECRET_KEY (obligatoire si DJANGO_DEBUG=false)
+docker compose up --build                  # http://localhost:8080 (site) et /api/v1/health/
+```
+
+La pile lance nginx (site statique, proxy `/api/` et `/admin/`), gunicorn, PostgreSQL, Redis et un worker Celery. Tests du backend : `cd backend && pip install -r requirements.txt && DJANGO_DEBUG=true python manage.py test`.
+
 ## Démo Docker
 
 nginx sert le site avec de fausses données (services, indisponibilités, réservations « à confirmer »), régénérées à chaque démarrage à la date du jour. Les données de `data/` ne sont pas modifiées. Réservée à la démonstration, pas à la production.
 
 ```bash
-docker build -f demo/Dockerfile -t lb-demo .
+docker build -f frontend/demo/Dockerfile -t lb-demo frontend   # depuis la racine du dépôt
 docker run --rm -p 8080:80 lb-demo              # http://localhost:8080
 ```
 
@@ -140,7 +150,7 @@ Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
 ## Documentation
 
 - `docs/GUIDE-MISE-A-JOUR.md`, `docs/DEPLOIEMENT.md`, `docs/GOOGLE-BUSINESS-PROFILE.md`, `docs/RECETTE.md`
-- `CAHIER_DES_CHARGES.md` : besoins, architecture, marketing, planning, recette
+- `docs/CAHIER_DES_CHARGES.md` : besoins, architecture, marketing, planning, recette
 - `CLAUDE.md` : règles pour travailler avec Claude Code
 - `TODO.md` : suivi des tâches par phase
 - `ROADMAP.md` : vue d'ensemble des étapes (en cours, à venir)
@@ -148,4 +158,3 @@ Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
 ## Licence
 
 À définir par le propriétaire du projet. Les polices (Bodoni Moda, Figtree) sont sous licence SIL Open Font License.
-# as_pr_beautyaura

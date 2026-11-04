@@ -87,9 +87,12 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 ## Phase 2 — Réservation automatisée
 
-- [ ] API de réservation (Node/Express ou Supabase)
+- [x] Décision de stack : Django + DRF + Celery + PostgreSQL (04/11/2026)
+- [x] Restructuration `frontend/` / `backend/`, squelette Django configuré par environnement, `docker-compose.yml`
+- [ ] API de réservation Django REST Framework (modèles, endpoint de création, validation côté serveur, limitation de fréquence)
+- [ ] Recalcul des créneaux côté serveur (mêmes règles que `frontend/assets/js/`) et branchement de `endpoint` sur l'API
 - [ ] Blocage automatique des créneaux, anti double réservation
-- [ ] E-mail et SMS de confirmation et rappel J-1
+- [ ] E-mail et SMS de confirmation et rappel J-1 (tâches Celery)
 - [ ] Demande d'avis J+2 et relance retouche J+18
 - [ ] Blog : 4 premiers articles SEO
 - [ ] Flux Instagram chargé après consentement
@@ -107,4 +110,5 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 
 - [x] Hébergement retenu : Hostinger (mutualisé, `.htaccess`), domaine `jmgaura.com` (d'après `data/studio.json` et `data/site.json`, à confirmer avec le client)
 - [ ] Service d'e-mail et de SMS pour la phase 2 ?
+- [ ] Hébergement de la phase 2 (VPS ou PaaS Docker) : Hostinger mutualisé ne convient pas à Django + Celery + Redis
 - [ ] Le studio a-t-il déjà un système de réservation à remplacer ou à garder ?

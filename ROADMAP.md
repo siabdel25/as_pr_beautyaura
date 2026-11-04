@@ -11,6 +11,7 @@ Vue d'ensemble. Le détail des tâches est dans `TODO.md`, le périmètre dans `
 - **PWA** : manifeste, service worker, page hors ligne, installation.
 - **Déploiement** : `.htaccess` Hostinger, guide de déploiement, recette, fiche Google documentée.
 - **Démo Docker** : nginx et fausses données Python, avec tests.
+- **Structure (04/11/2026)** : dépôt scindé en `frontend/` (site statique) et `backend/` (squelette Django/DRF/Celery), pile `docker-compose.yml` (nginx, gunicorn, PostgreSQL, Redis, worker Celery).
 
 ## En cours : mise en ligne (bloquée par le client)
 
@@ -20,9 +21,11 @@ Vue d'ensemble. Le détail des tâches est dans `TODO.md`, le périmètre dans `
 - Déploiement, HTTPS, redirections ; fiche Google Business Profile ; vérification Rich Results.
 - Photos avec consentements écrits ; décisions sur l'acompte et l'offre de première visite ; confirmation sur le microblading.
 
-## Phase 2 : réservation automatisée
+## Phase 2 : réservation automatisée (Django + DRF + Celery)
 
-- API de réservation, blocage des créneaux, anti double réservation.
+Stack décidée le 04/11/2026 : API Django REST Framework, tâches planifiées Celery + Redis, PostgreSQL. La phase 1 reste statique et publiée seule (le backend n'est pas nécessaire à la mise en ligne). Hébergement à prévoir : un mutualisé ne suffit pas pour la phase 2 (VPS ou PaaS compatible Docker).
+
+- API de réservation (`/api/v1/`), blocage des créneaux, anti double réservation.
 - E-mails et SMS de confirmation et de rappel J-1 ; demande d'avis J+2 ; relance retouche J+18.
 - Blog (4 articles SEO) ; flux Instagram après consentement.
 - À décider avant : service d'e-mail et de SMS, système de réservation existant à remplacer ou à garder.

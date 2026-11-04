@@ -37,7 +37,8 @@
 | Interactivité | Vue 3 en build navigateur (ES modules + importmap) | « Intégré » : pas de bundler obligatoire, îlots Vue montés sur des zones précises |
 | Réservation | **V-Calendar 3.x (Vue 3)** : composant `DatePicker` | Léger, accessible, localisable en français, dates désactivables |
 | Agenda pro (option) | **Vue Cal** (v4, Vue 3) | Vue agenda jour/semaine pour l'espace praticienne en phase 2 |
-| Données | JSON statiques (`/data/*.json`) en phase 1, API en phase 2 | Démarrage rapide, migration facile |
+| Données | JSON statiques (`frontend/data/*.json`) en phase 1, API Django en phase 2 | Démarrage rapide, migration facile |
+| Backend (phase 2) | **Django + Django REST Framework**, **Celery** + Redis pour les tâches planifiées, PostgreSQL | Décision du 04/11/2026. API de réservation, anti double réservation, rappels J-1 / J+2 / J+18. Absent de la phase 1 : le site reste statique. |
 | Hébergement | Netlify, Cloudflare Pages ou OVH mutualisé | CDN, HTTPS, déploiement Git |
 
 > **Note sur V-Calendar** : le lien fourni (`v2.vcalendar.io/vue-3.html`) correspond à la documentation de la branche v2 compatible Vue 3. La version stable actuelle est la 3.x pour Vue 3. Claude Code doit **vérifier la version et l'URL CDN réelles** avant l'intégration, puis figer la version (pas de `latest`).
@@ -45,6 +46,8 @@
 > **Pourquoi V-Calendar pour la réservation et Vue Cal pour l'agenda** : V-Calendar est conçu pour choisir une date. Vue Cal est conçu pour afficher des événements sur une grille horaire. Le client choisit un jour (V-Calendar) puis un créneau (boutons personnalisés). La praticienne gère ses RDV dans une vue agenda (Vue Cal), plus tard.
 
 ### 1.1.2 Arborescence
+
+> Depuis la décision du 04/11/2026, le dépôt est scindé en `frontend/` (tout ce qui est décrit ci-dessous : site statique, `tools/`, `tests/`, `demo/`), `backend/` (Django/DRF/Celery, phase 2), `docker/` et `docker-compose.yml` (pile de développement). L'arborescence ci-dessous se lit donc à partir de `frontend/`.
 
 ```
 lash-brow-studio/
@@ -138,7 +141,7 @@ Composant Vue `BookingWidget`, monté sur `reservation.html` et ouvert aussi en 
 | Phase | Fonctionnement | Livrable |
 |---|---|---|
 | 1 (MVP) | Créneaux calculés depuis les JSON. La demande part par fonction serverless (Netlify Function ou Formspree) vers l'e-mail de la praticienne. La demande est « à confirmer » par la praticienne. | Site en ligne, demandes de RDV fonctionnelles |
-| 2 | API légère (Node/Express ou Supabase) : créneaux réels, blocage automatique, e-mail et SMS de confirmation et de rappel | Réservation automatisée |
+| 2 | **API Django + DRF** (dossier `backend/`) : créneaux réels, blocage automatique et anti double réservation. **Celery** + Redis : e-mail et SMS de confirmation, rappel J-1, demande d'avis J+2, relance retouche J+18. PostgreSQL. Le front reste statique et appelle `/api/v1/`. | Réservation automatisée |
 | 3 | Acompte (Stripe), espace praticienne avec Vue Cal, liste d'attente | Gestion complète |
 
 ### 1.1.5 Architecture front
@@ -350,7 +353,7 @@ Le site intègre un lien Instagram et, en phase 2, un flux de photos **chargé s
 | Lot 3 | Tunnel de réservation Vue + V-Calendar, phase 1 | 1,5 semaine |
 | Lot 4 | Galerie avant/après, SEO technique, accessibilité, performance | 1 semaine |
 | Lot 5 | Recette, correctifs, mise en ligne, fiche Google | 1 semaine |
-| Phase 2 | Backend de réservation, notifications, blog | À planifier |
+| Phase 2 | Backend Django/DRF/Celery (réservation, notifications), blog | À planifier. Squelette `backend/` et pile Docker en place (04/11/2026). |
 | Phase 3 | Acompte, espace praticienne (Vue Cal), cartes cadeaux | À planifier |
 
 **Livrables** : code source versionné (Git), site déployé, `README.md`, guide de mise à jour des tarifs, horaires et indisponibilités (édition des JSON), rapport Lighthouse.

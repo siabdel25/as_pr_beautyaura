@@ -1,5 +1,5 @@
 # Démo : site statique servi par nginx, fausses données Python régénérées au démarrage.
-# Construire depuis la racine du dépôt : docker build -f demo/Dockerfile -t lb-demo .
+# Construire depuis la racine du dépôt : docker build -f frontend/demo/Dockerfile -t lb-demo frontend
 FROM nginx:1.27-alpine
 
 RUN apk add --no-cache python3 tzdata

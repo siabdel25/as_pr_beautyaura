@@ -1,6 +1,6 @@
 # Déploiement
 
-Site statique : la racine du dépôt est le dossier à publier. Hébergeurs prévus : Netlify ou Cloudflare Pages (le fichier `_headers` est lu tel quel). Sur un autre hébergeur, reprendre les en-têtes de `_headers`.
+Site statique : le dossier `frontend/` est celui à publier. Les commandes `node` ci-dessous se lancent depuis `frontend/`. Le dossier `backend/` (phase 2) n'est pas nécessaire à la mise en ligne de la phase 1. Hébergeurs prévus : Netlify ou Cloudflare Pages (le fichier `_headers` est lu tel quel). Sur un autre hébergeur, reprendre les en-têtes de `_headers`.
 
 ## Avant la mise en ligne
 
@@ -11,7 +11,7 @@ Site statique : la racine du dépôt est le dossier à publier. Hébergeurs pré
 
 ## Hébergement
 
-1. Connecter le dépôt, dossier de publication `/`, aucune commande de build.
+1. Connecter le dépôt, dossier de publication `frontend/`, aucune commande de build.
 2. Domaine : une seule adresse canonique (avec ou sans `www`), l'autre redirige en 301. HTTPS obligatoire, redirection HTTP vers HTTPS.
 3. La page `404.html` est servie automatiquement par Netlify et Cloudflare Pages.
 4. Vérifier les en-têtes : `curl -sI https://domaine/ | grep -i "content-security\|referrer\|nosniff"`.
@@ -28,13 +28,14 @@ Site statique : la racine du dépôt est le dossier à publier. Hébergeurs pré
 Version de démonstration : nginx sert le site statique et un script Python génère de fausses données (services, indisponibilités, réservations « à confirmer »). Les données du dépôt dans `data/` ne sont jamais modifiées. Ne pas utiliser cette image en production.
 
 ```bash
-docker build -f demo/Dockerfile -t lb-demo .      # depuis la racine du dépôt
+docker build -f frontend/demo/Dockerfile -t lb-demo frontend   # depuis la racine du dépôt
 docker run --rm -p 8080:80 lb-demo                # http://localhost:8080
 ```
 
 - Les fausses données sont régénérées à chaque démarrage, à la date du jour : la démo propose toujours des créneaux sur les 60 jours à venir. `DEMO_SEED` (défaut 2026) change le jeu de données : `docker run --rm -e DEMO_SEED=7 -p 8080:80 lb-demo`.
 - Les services et horaires viennent de `data/`, les prix sont fictifs. Les clientes sont `Cliente démo NN` avec des adresses en `@example.test`.
 - Les en-têtes de sécurité sont convertis depuis `_headers` au build de l'image : une seule source à maintenir.
+- Le dossier `frontend/demo/` est indépendant de la pile de développement `docker-compose.yml` (voir README).
 - L'image ne contient que les pages, `assets/` et `prestations/` (ni `tools/`, `tests/`, `docs/`).
 - Après un changement de pages, relancer `node tools/build-pages.mjs` avant de reconstruire l'image.
 
