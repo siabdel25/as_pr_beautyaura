@@ -8,8 +8,6 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
-STUDIO_NOM = '[NOM_DU_STUDIO]'  # [À COMPLÉTER] avec le nom réel du studio
-
 QUESTIONS = {
     'allergie_colle': 'allergie connue à la colle ou aux produits de pose',
     'traitement_oculaire': 'traitement oculaire en cours',
@@ -89,7 +87,7 @@ def composer_rappel(resa):
         '',
         'En cas d’empêchement, merci de nous prévenir au plus tôt en répondant à ce message ou par téléphone.',
         '',
-        STUDIO_NOM,
+        settings.STUDIO_NOM,
     ])
 
 
@@ -122,3 +120,41 @@ def envoyer_rappels_j1(maintenant=None):
     for pk in ids:
         envoyer_rappel.delay(pk)
     return len(ids)
+
+
+def composer_confirmation(resa):
+    jour = f'{JOURS[resa.date.weekday()]} {resa.date:%d/%m/%Y}'
+    return '\n'.join([
+        f'Bonjour {resa.prenom},',
+        '',
+        'Votre rendez-vous est confirmé par la praticienne.',
+        '',
+        f'Date : {jour}, de {resa.debut:%H:%M} à {resa.fin:%H:%M}',
+        f'Prestations : {", ".join(p.nom for p in resa.prestations.all())}',
+        '',
+        'Vous trouverez en pièce jointe une invitation à ajouter à votre agenda.',
+        'En cas d’empêchement, merci de nous prévenir au plus tôt en répondant à ce message ou par téléphone.',
+        '',
+        settings.STUDIO_NOM,
+    ])
+
+
+@shared_task(autoretry_for=(OSError,), retry_backoff=True, retry_backoff_max=900, max_retries=6)
+def envoyer_confirmation(reservation_id):
+    from django.core.mail import EmailMessage
+
+    from .ics import generer_ics
+    from .models import Reservation
+
+    resa = Reservation.objects.prefetch_related('prestations').filter(pk=reservation_id).first()
+    # Jamais « confirmé » sans validation réelle : on revérifie le statut au moment de l'envoi.
+    if resa is None or resa.statut != Reservation.CONFIRMEE or resa.confirmation_envoyee_le:
+        return 'ignoree'
+    message = EmailMessage(
+        subject=f'Votre rendez-vous du {resa.date:%d/%m} à {resa.debut:%H:%M} est confirmé',
+        body=composer_confirmation(resa), from_email=settings.DEFAULT_FROM_EMAIL, to=[resa.email],
+        reply_to=[settings.STUDIO_EMAIL] if settings.STUDIO_EMAIL else None)
+    message.attach('rendez-vous.ics', generer_ics(resa, settings.STUDIO_NOM, settings.RESERVATION['fuseau']), 'text/calendar')
+    message.send()
+    Reservation.objects.filter(pk=resa.pk, confirmation_envoyee_le__isnull=True).update(confirmation_envoyee_le=timezone.now())
+    return 'envoyee'

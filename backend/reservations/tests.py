@@ -11,7 +11,7 @@ from django.core import mail
 from django.core.management import call_command
 from django.test import SimpleTestCase, TestCase, override_settings
 
-from . import slots, tasks
+from . import services, slots, tasks
 from .models import HoraireOuverture, Indisponibilite, Reservation, Service
 
 PARIS = ZoneInfo('Europe/Paris')
@@ -100,6 +100,13 @@ class ApiBase(TestCase):
         while j.weekday() != 2:  # mercredi
             j += timedelta(days=1)
         self.jour = j
+
+    def resa(self, statut=Reservation.CONFIRMEE, jour=None, debut=time(10, 0)):
+        r = Reservation.objects.create(
+            statut=statut, date=jour or self.jour, debut=debut, fin=time(11, 0), duree_min=60, prenom='Léa', nom='Martin',
+            telephone='0612345678', email='lea@example.test', premiere_visite=False, consentement_rgpd=True, cgv_acceptees=True)
+        r.prestations.set([self.lift])
+        return r
 
     def payload(self, **kw):
         base = {
@@ -264,13 +271,6 @@ class NotificationTests(ApiBase):
 
 
 class PlanningTests(ApiBase):
-    def resa(self, statut=Reservation.CONFIRMEE, jour=None, debut=time(10, 0)):
-        r = Reservation.objects.create(
-            statut=statut, date=jour or self.jour, debut=debut, fin=time(11, 0), duree_min=60, prenom='Léa', nom='Martin',
-            telephone='0612345678', email='lea@example.test', premiere_visite=False, consentement_rgpd=True, cgv_acceptees=True)
-        r.prestations.set([self.lift])
-        return r
-
     def test_rattrapage_ignore_les_notifiees_et_les_toutes_recentes(self):
         ancienne = self.resa(statut=Reservation.A_CONFIRMER)
         Reservation.objects.filter(pk=ancienne.pk).update(cree_le=datetime.now(PARIS) - timedelta(minutes=30))
@@ -308,3 +308,89 @@ class PlanningTests(ApiBase):
         app.loader.import_default_modules()
         for nom, entree in settings.CELERY_BEAT_SCHEDULE.items():
             self.assertIn(entree['task'], app.tasks, nom)
+
+
+class ConfirmationTests(ApiBase):
+    def setUp(self):
+        super().setUp()
+        from django.contrib.auth import get_user_model
+        self.admin = get_user_model().objects.create_superuser('admin', 'a@example.test', 'pw')
+
+    def test_confirmer_planifie_l_envoi_une_seule_fois(self):
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        with mock.patch.object(tasks.envoyer_confirmation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                self.assertTrue(services.confirmer_reservation(r))
+                self.assertFalse(services.confirmer_reservation(r))   # déjà confirmée
+        delay.assert_called_once_with(r.pk)
+        r.refresh_from_db()
+        self.assertEqual(r.statut, Reservation.CONFIRMEE)
+
+    def test_on_ne_confirme_pas_une_annulee(self):
+        r = self.resa(statut=Reservation.ANNULEE)
+        self.assertFalse(services.confirmer_reservation(r))
+        r.refresh_from_db()
+        self.assertEqual(r.statut, Reservation.ANNULEE)
+
+    @override_settings(STUDIO_EMAIL='studio@example.test', STUDIO_NOM='Studio Test')
+    def test_mail_de_confirmation_avec_invitation(self):
+        r = self.resa(statut=Reservation.CONFIRMEE)
+        self.assertEqual(tasks.envoyer_confirmation(r.pk), 'envoyee')
+        self.assertEqual(tasks.envoyer_confirmation(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 1)
+        m = mail.outbox[0]
+        self.assertEqual(m.to, ['lea@example.test'])
+        self.assertEqual(m.reply_to, ['studio@example.test'])
+        self.assertIn('10:00 à 11:00', m.body)
+        nom, contenu, type_mime = m.attachments[0]
+        self.assertEqual((nom, type_mime), ('rendez-vous.ics', 'text/calendar'))
+        self.assertIn('BEGIN:VEVENT', contenu)
+
+    def test_pas_de_mail_si_la_demande_n_est_pas_confirmee(self):
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        self.assertEqual(tasks.envoyer_confirmation(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_action_admin(self):
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        self.client.force_login(self.admin)
+        with mock.patch.object(tasks.envoyer_confirmation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                rep = self.client.post('/admin/reservations/reservation/', {'action': 'confirmer', '_selected_action': [r.pk]})
+        self.assertEqual(rep.status_code, 302)
+        delay.assert_called_once_with(r.pk)
+
+    def test_changement_de_statut_dans_le_formulaire_admin(self):
+        from django.contrib import admin as dj_admin
+        ma = dj_admin.site._registry[Reservation]
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        r.statut = Reservation.CONFIRMEE
+        form = mock.Mock(changed_data=['statut'])
+        with mock.patch.object(tasks.envoyer_confirmation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                ma.save_model(mock.Mock(), r, form, change=True)
+        delay.assert_called_once_with(r.pk)
+        form.changed_data = ['telephone']
+        with mock.patch.object(tasks.envoyer_confirmation, 'delay') as delay:
+            with self.captureOnCommitCallbacks(execute=True):
+                ma.save_model(mock.Mock(), r, form, change=True)
+        delay.assert_not_called()
+
+
+class IcsTests(ApiBase):
+    def test_heure_utc_hiver_et_ete(self):
+        from .ics import generer_ics
+        hiver = self.resa(jour=date(2026, 12, 2))
+        ete = self.resa(jour=date(2026, 7, 1), debut=time(10, 0))
+        self.assertIn('DTSTART:20261202T090000Z', generer_ics(hiver, 'S', 'Europe/Paris'))  # UTC+1
+        self.assertIn('DTSTART:20260701T080000Z', generer_ics(ete, 'S', 'Europe/Paris'))    # UTC+2
+        self.assertIn('DTEND:20261202T100000Z', generer_ics(hiver, 'S', 'Europe/Paris'))
+
+    def test_format_crlf_echappement_et_pliage(self):
+        from .ics import generer_ics
+        r = self.resa()
+        s = generer_ics(r, 'Studio; Lash, & Brow' + ' très long' * 12, 'Europe/Paris')
+        self.assertTrue(s.startswith('BEGIN:VCALENDAR\r\n') and s.endswith('END:VCALENDAR\r\n'))
+        self.assertIn('Studio\\; Lash\\,', s)
+        for ligne in s.split('\r\n'):
+            self.assertLessEqual(len(ligne.encode('utf-8')), 75)

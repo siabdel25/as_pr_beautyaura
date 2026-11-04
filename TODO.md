@@ -95,10 +95,12 @@ Légende : `[ ]` à faire, `[x]` terminé. Ordre de priorité : de haut en bas d
 - [ ] Calendrier : les jours entièrement réservés restent cliquables (l'API ne renvoie les créneaux que jour par jour) ; ajouter un endpoint de disponibilités par mois
 - [x] Notification de la praticienne à chaque nouvelle demande : tâche Celery `notifier_praticienne` après commit, sans doublon (`notifiee_le`), 6 reprises avec attente croissante, rattrapage par `manage.py renvoyer_notifications`
 - [x] Celery beat (service `beat` du compose) : rattrapage des notifications toutes les 10 min, rappel J-1 chaque jour à 10 h aux clientes dont le rendez-vous est **confirmé**
-- [ ] Brancher un vrai SMTP et `STUDIO_EMAIL` en production ; remplacer `STUDIO_NOM` dans `backend/reservations/tasks.py`
-- [ ] E-mail à la cliente lors de la confirmation par la praticienne (action admin) et SMS (service à choisir)
+- [ ] Brancher un vrai SMTP et `STUDIO_EMAIL` en production ; renseigner `STUDIO_NOM` (variable d'environnement) avec le nom réel du studio
+- [x] E-mail à la cliente quand la praticienne confirme (action admin ou statut changé dans le formulaire) : tâche Celery `envoyer_confirmation`, invitation `.ics` jointe, sans doublon, jamais envoyé si la demande n'est pas réellement confirmée
+- [ ] SMS de confirmation (service à choisir)
+- [ ] E-mail à la cliente quand une demande est refusée ou annulée par la praticienne (texte à valider avec elle)
 - [ ] Blocage automatique des créneaux, anti double réservation
-- [ ] SMS de confirmation et de rappel (e-mails J-1 faits)
+- [ ] SMS de confirmation et de rappel (e-mails de confirmation et de rappel J-1 faits)
 - [ ] Demande d'avis J+2 et relance retouche J+18
 - [ ] Blog : 4 premiers articles SEO
 - [ ] Flux Instagram chargé après consentement

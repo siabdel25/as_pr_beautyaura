@@ -160,6 +160,8 @@ EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', False)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'reservations@localhost')
 # Destinataire des nouvelles demandes (la praticienne). Vide : aucune notification, avertissement dans les logs.
 STUDIO_EMAIL = os.environ.get('STUDIO_EMAIL', '')
+# [À COMPLÉTER] nom réel du studio, utilisé dans les e-mails aux clientes.
+STUDIO_NOM = os.environ.get('STUDIO_NOM', '[NOM_DU_STUDIO]')
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)

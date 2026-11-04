@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from . import slots
 from .models import HoraireOuverture, Indisponibilite, JourVerrou, Reservation, Service
-from .tasks import notifier_praticienne
+from .tasks import envoyer_confirmation, notifier_praticienne
 
 
 class CreneauIndisponible(Exception):
@@ -58,3 +58,19 @@ def creer_reservation(donnees, services, maintenant=None):
         # la commande renvoyer_notifications rattrape les oublis.
         transaction.on_commit(lambda: notifier_praticienne.delay(resa.pk), robust=True)
     return resa
+
+
+def planifier_confirmation(resa):
+    """Programme l'e-mail de confirmation après le commit (robust : un broker arrêté ne bloque pas l'admin)."""
+    transaction.on_commit(lambda: envoyer_confirmation.delay(resa.pk), robust=True)
+
+
+def confirmer_reservation(resa):
+    """Passe une demande « à confirmer » à « confirmée » et prévient la cliente. False si le statut ne le permet pas."""
+    with transaction.atomic():
+        modifie = Reservation.objects.filter(pk=resa.pk, statut=Reservation.A_CONFIRMER).update(statut=Reservation.CONFIRMEE)
+        if not modifie:
+            return False
+        resa.statut = Reservation.CONFIRMEE
+        planifier_confirmation(resa)
+    return True
