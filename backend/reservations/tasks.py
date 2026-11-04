@@ -5,14 +5,11 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
+from .vertical import CATEGORIES_RETOUCHE, QUESTIONS_A_RISQUE
+
 
 logger = logging.getLogger(__name__)
 
-QUESTIONS = {
-    'allergie_colle': 'allergie connue à la colle ou aux produits de pose',
-    'traitement_oculaire': 'traitement oculaire en cours',
-    'grossesse': 'grossesse en cours',
-}
 JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
 
 
@@ -30,7 +27,7 @@ def composer_message(resa):
         f'E-mail : {resa.email}',
         f'Première visite : {"oui" if resa.premiere_visite else "non"}',
     ]
-    risques = [QUESTIONS[q] for q, r in resa.questionnaire.items() if r == 'oui' and q in QUESTIONS]
+    risques = [QUESTIONS_A_RISQUE[q] for q, r in resa.questionnaire.items() if r == 'oui' and q in QUESTIONS_A_RISQUE]
     if risques:
         lignes += ['', 'ATTENTION, réponses à risque (contacter la cliente avant de confirmer) :']
         lignes += [f'- {r}' for r in risques]
@@ -313,7 +310,7 @@ def envoyer_suivis(maintenant=None):
 
     debut, fin = fenetre(cfg['retouche_apres_jours'])
     candidates = (confirmees.filter(date__range=(debut, fin), retouche_proposee_le__isnull=True,
-                                    prestations__categorie='extensions').distinct())
+                                    prestations__categorie__in=CATEGORIES_RETOUCHE).distinct())
     for resa in candidates:
         # Inutile de relancer une cliente qui a déjà un prochain rendez-vous.
         deja_reservee = Reservation.objects.filter(

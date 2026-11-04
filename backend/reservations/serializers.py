@@ -3,8 +3,7 @@ import re
 from rest_framework import serializers
 
 from .models import Reservation, Service
-
-QUESTIONS_A_RISQUE = ('allergie_colle', 'traitement_oculaire', 'grossesse')
+from .vertical import QUESTIONS_A_RISQUE
 
 
 def telephone_valide(brut):

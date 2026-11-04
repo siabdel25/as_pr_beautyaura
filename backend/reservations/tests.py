@@ -87,6 +87,24 @@ class ConfigTests(SimpleTestCase):
             self.assertEqual(settings.RESERVATION[k], d[k], k)
         self.assertEqual(settings.RESERVATION['fuseau'], d['fuseau'])
 
+    def test_questions_a_risque_miroir_du_frontend(self):
+        import re
+
+        from .vertical import QUESTIONS_A_RISQUE
+        f = Path(settings.BASE_DIR).parent / 'frontend' / 'assets' / 'js' / 'app' / 'validation.js'
+        if not f.exists():
+            self.skipTest('frontend absent (image Docker)')
+        bloc = f.read_text(encoding='utf-8').split('QUESTIONS_A_RISQUE = [', 1)[1].split('];', 1)[0]
+        self.assertEqual(re.findall(r"id: '([a-z_]+)'", bloc), list(QUESTIONS_A_RISQUE))
+
+    def test_categories_de_retouche_existent_dans_les_services_du_frontend(self):
+        from .vertical import CATEGORIES_RETOUCHE
+        f = Path(settings.BASE_DIR).parent / 'frontend' / 'data' / 'services.json'
+        if not f.exists():
+            self.skipTest('frontend/data absent (image Docker)')
+        categories = {s['categorie'] for s in json.loads(f.read_text(encoding='utf-8'))['services']}
+        self.assertTrue(set(CATEGORIES_RETOUCHE) <= categories)
+
 
 class ApiBase(TestCase):
     def setUp(self):
