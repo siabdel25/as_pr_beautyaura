@@ -5,7 +5,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
+
 logger = logging.getLogger(__name__)
+
+STUDIO_NOM = '[NOM_DU_STUDIO]'  # [À COMPLÉTER] avec le nom réel du studio
 
 QUESTIONS = {
     'allergie_colle': 'allergie connue à la colle ou aux produits de pose',
@@ -59,3 +62,63 @@ def notifier_praticienne(reservation_id):
     # Conditionnel : deux exécutions simultanées n'écrivent pas deux fois
     Reservation.objects.filter(pk=resa.pk, notifiee_le__isnull=True).update(notifiee_le=timezone.now())
     return 'envoyee'
+
+
+@shared_task
+def rattraper_notifications():
+    """Relance les demandes à confirmer jamais notifiées, hors les toutes dernières secondes (tâche en vol)."""
+    from datetime import timedelta
+
+    from .models import Reservation
+
+    limite = timezone.now() - timedelta(minutes=5)
+    ids = list(Reservation.objects.filter(statut=Reservation.A_CONFIRMER, notifiee_le__isnull=True,
+                                          cree_le__lt=limite).values_list('pk', flat=True))
+    for pk in ids:
+        notifier_praticienne.delay(pk)
+    return len(ids)
+
+
+def composer_rappel(resa):
+    jour = f'{JOURS[resa.date.weekday()]} {resa.date:%d/%m/%Y}'
+    return '\n'.join([
+        f'Bonjour {resa.prenom},',
+        '',
+        f'Nous vous rappelons votre rendez-vous demain, {jour}, à {resa.debut:%H:%M}.',
+        f'Prestations : {", ".join(p.nom for p in resa.prestations.all())}',
+        '',
+        'En cas d’empêchement, merci de nous prévenir au plus tôt en répondant à ce message ou par téléphone.',
+        '',
+        STUDIO_NOM,
+    ])
+
+
+@shared_task(autoretry_for=(OSError,), retry_backoff=True, retry_backoff_max=900, max_retries=3)
+def envoyer_rappel(reservation_id):
+    from .models import Reservation
+
+    resa = Reservation.objects.prefetch_related('prestations').filter(pk=reservation_id).first()
+    # Seules les réservations réellement confirmées reçoivent un rappel : jamais pour une demande à confirmer.
+    if resa is None or resa.statut != Reservation.CONFIRMEE or resa.rappel_envoye_le:
+        return 'ignoree'
+    send_mail(subject=f'Rappel de votre rendez-vous demain à {resa.debut:%H:%M}', message=composer_rappel(resa),
+              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[resa.email])
+    Reservation.objects.filter(pk=resa.pk, rappel_envoye_le__isnull=True).update(rappel_envoye_le=timezone.now())
+    return 'envoyee'
+
+
+@shared_task
+def envoyer_rappels_j1(maintenant=None):
+    """Planifiée chaque jour : rappelle les rendez-vous confirmés de demain (jour civil du studio)."""
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    from .models import Reservation
+
+    now = datetime.fromisoformat(maintenant) if maintenant else timezone.now()
+    demain = now.astimezone(ZoneInfo(settings.RESERVATION['fuseau'])).date() + timedelta(days=1)
+    ids = list(Reservation.objects.filter(statut=Reservation.CONFIRMEE, date=demain, rappel_envoye_le__isnull=True)
+               .values_list('pk', flat=True))
+    for pk in ids:
+        envoyer_rappel.delay(pk)
+    return len(ids)

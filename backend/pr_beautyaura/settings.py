@@ -8,6 +8,8 @@ Tout ce qui change selon l'environnement vient de variables d'environnement
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -135,6 +137,18 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_ALWAYS_EAGER = env_bool('CELERY_TASK_ALWAYS_EAGER', False)
+CELERY_BEAT_SCHEDULE = {
+    # Filet de sécurité : renotifie les demandes dont l'envoi a échoué (broker ou SMTP indisponible).
+    'rattraper-notifications': {
+        'task': 'reservations.tasks.rattraper_notifications',
+        'schedule': 600.0,
+    },
+    # Rappel envoyé la veille : la tâche s'exécute chaque jour à 10 h, heure de Paris (CELERY_TIMEZONE).
+    'rappels-j-1': {
+        'task': 'reservations.tasks.envoyer_rappels_j1',
+        'schedule': crontab(hour=10, minute=0),
+    },
+}
 
 # E-mail : console en développement ; SMTP en production (EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER...).
 EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')

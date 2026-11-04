@@ -74,6 +74,7 @@ class Reservation(models.Model):
     cree_le = models.DateTimeField(auto_now_add=True)
     # Renseigné quand la praticienne a été prévenue : évite le doublon si la tâche est rejouée.
     notifiee_le = models.DateTimeField(null=True, blank=True)
+    rappel_envoye_le = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['date', 'debut']

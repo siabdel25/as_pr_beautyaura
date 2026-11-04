@@ -44,6 +44,17 @@ services:
     depends_on: [backend]
     command: celery -A pr_beautyaura worker --loglevel=info
 
+  beat:
+    build: ./backend
+    env_file: [backend/.env]
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-beautyaura-dev}
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on: [backend]
+    # Un seul beat par pile, sinon les tâches planifiées partent en double.
+    command: celery -A pr_beautyaura beat --loglevel=info --schedule /tmp/celerybeat-schedule
+
   web:
     build:
       context: .

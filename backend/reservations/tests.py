@@ -261,3 +261,50 @@ class NotificationTests(ApiBase):
         with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
             call_command('renvoyer_notifications')
         delay.assert_called_once_with(Reservation.objects.get(debut=time(10, 0)).pk)
+
+
+class PlanningTests(ApiBase):
+    def resa(self, statut=Reservation.CONFIRMEE, jour=None, debut=time(10, 0)):
+        r = Reservation.objects.create(
+            statut=statut, date=jour or self.jour, debut=debut, fin=time(11, 0), duree_min=60, prenom='Léa', nom='Martin',
+            telephone='0612345678', email='lea@example.test', premiere_visite=False, consentement_rgpd=True, cgv_acceptees=True)
+        r.prestations.set([self.lift])
+        return r
+
+    def test_rattrapage_ignore_les_notifiees_et_les_toutes_recentes(self):
+        ancienne = self.resa(statut=Reservation.A_CONFIRMER)
+        Reservation.objects.filter(pk=ancienne.pk).update(cree_le=datetime.now(PARIS) - timedelta(minutes=30))
+        self.resa(statut=Reservation.A_CONFIRMER, debut=time(14, 0))   # créée à l'instant
+        with mock.patch.object(tasks.notifier_praticienne, 'delay') as delay:
+            self.assertEqual(tasks.rattraper_notifications(), 1)
+        delay.assert_called_once_with(ancienne.pk)
+
+    def test_rappel_j1_seulement_pour_les_confirmees_de_demain(self):
+        veille = self.jour - timedelta(days=1)
+        maintenant = datetime(veille.year, veille.month, veille.day, 10, 0, tzinfo=PARIS).isoformat()
+        ok = self.resa()
+        self.resa(statut=Reservation.A_CONFIRMER, debut=time(14, 0))
+        self.resa(statut=Reservation.ANNULEE, debut=time(16, 0))
+        self.resa(jour=self.jour + timedelta(days=1))
+        with mock.patch.object(tasks.envoyer_rappel, 'delay') as delay:
+            self.assertEqual(tasks.envoyer_rappels_j1(maintenant), 1)
+        delay.assert_called_once_with(ok.pk)
+
+    def test_rappel_envoye_une_fois_au_client(self):
+        r = self.resa()
+        self.assertEqual(tasks.envoyer_rappel(r.pk), 'envoyee')
+        self.assertEqual(tasks.envoyer_rappel(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['lea@example.test'])
+        self.assertIn('10:00', mail.outbox[0].body)
+
+    def test_pas_de_rappel_pour_une_demande_a_confirmer(self):
+        r = self.resa(statut=Reservation.A_CONFIRMER)
+        self.assertEqual(tasks.envoyer_rappel(r.pk), 'ignoree')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_planning_beat_declare_des_taches_existantes(self):
+        from pr_beautyaura.celery import app
+        app.loader.import_default_modules()
+        for nom, entree in settings.CELERY_BEAT_SCHEDULE.items():
+            self.assertIn(entree['task'], app.tasks, nom)
