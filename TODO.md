@@ -122,7 +122,7 @@ Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une 
 ## Questions ouvertes
 
 - [ ] **Doublon avec `as_shoppy_frm_v2`** (My Beauty Aura y existe déjà : module `booking`, Wagtail, multi-établissements) : choisir parmi les options de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (recommandée : option 2, notre site statique appelle leur API). Dépend de l'hébergement phase 2. Quatre décisions listées dans `docs/DIAGNOSTIC-API-BOOKING.md` §6 : option 2 retenue ou non ; questionnaire de première visite (3 questions côté navigateur seulement, ou modèle étendu là-bas) ; pas de créneau 15 ou 30 min ; dépôt qui porte avis J+2 et retouche J+18
-- [ ] **RGPD, données de santé** : nos réponses grossesse et traitement oculaire et le champ `precisions` sont stockés ; l'autre dépôt ne garde qu'un oui/non allergie (décision D17). Réexaminer ici, avec la praticienne et un juriste
+- [x] **RGPD, données de santé** (option A, branche `feat/donnees-sante-minimales`) : le serveur ne conserve plus que `reponse_a_risque` (oui/non). Le détail du questionnaire et le champ libre « précisions » ne sont plus stockés ni demandés ; migration 0007 efface les anciennes valeurs. Texte de la politique de confidentialité ajusté, à faire relire (H5)
 - [ ] Confirmer avec le client : un seul site attendu ? l'adresse « 36 rue de la République, 69200 Vénissieux » de `clients/mba.yaml` (autre dépôt) est-elle réelle ? (non reprise ici)
 
 - [x] Hébergement retenu : Hostinger (mutualisé, `.htaccess`), domaine `jmgaura.com` (d'après `data/studio.json` et `data/site.json`, à confirmer avec le client)

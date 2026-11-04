@@ -88,3 +88,7 @@ Conséquences :
 - Une réservation de test a été créée puis annulée dans la démo (créneau du 10/11/2026 à 14 h 15, `diag@example.test`). Elle apparaît dans la base de démonstration ; `bash scripts/demo_mba.sh reset` l'efface.
 - Non vérifié : le contenu des e-mails de cette réservation (la file part à la minute ; je n'ai lu que les 6 plus récents de Mailpit, qui datent d'avant), le widget Vue, l'agenda et l'administration.
 - La description de « Retouche » dans la démo est « Retouche », différente de `clients/mba.yaml` : la base de démonstration ne reflète pas exactement le fichier.
+
+## 9. Mise à jour du 04/11/2026
+
+Écarts n° 1 et 2 réduits côté ici : le backend ne stocke plus que `reponse_a_risque` (oui/non) et le champ libre « précisions » a été retiré du formulaire (branche `feat/donnees-sante-minimales`). Les réponses détaillées restent contrôlées dans le navigateur. Reste à décider si l'indicateur unique suffit à la praticienne, ou s'il faut l'aligner sur le booléen `allergy` de l'autre API.

@@ -11,7 +11,7 @@ Site vitrine statique avec réservation en ligne pour un studio de cils et de so
 | Phase | État | Bloqué par |
 |---|---|---|
 | 1. Site statique + tunnel de réservation | Prêt, 136 marqueurs `[À COMPLÉTER]` / `[À REMPLACER]` / `[À CONFIRMER]` dans 18 pages | Réponses du client : `docs/QUESTIONNAIRE-CLIENT.md` |
-| 2. Réservation automatisée | Code et tests faits (70 tests Django) | SMTP, hébergement, SMS, relecture des textes |
+| 2. Réservation automatisée | Code et tests faits (72 tests Django) | SMTP, hébergement, SMS, relecture des textes |
 | 3. Gestion complète (acompte, agenda, liste d'attente…) | Non commencée | Phases précédentes |
 
 `main` et `origin/main` sont synchronisés. Aucune branche locale en cours.
@@ -85,6 +85,7 @@ Un broker ou un SMTP arrêté ne bloque jamais une réservation. Limite connue :
 
 ## 8. Points d'attention
 
+- **Données de santé minimales** : `Reservation.reponse_a_risque` (booléen) remplace `questionnaire` et `precisions`. Le questionnaire reste contrôlé côté serveur pour calculer ce booléen, mais n'est pas stocké.
 - **Données d'exemple** : `reservation.json`, `services.json`, `horaires.json` et `galerie.json` portent `"statut": "exemple"`, prix à `null`. Ni `api` ni `endpoint` n'est renseigné : les demandes ne partent pas.
 - **Textes provisoires `[À VALIDER]`** : e-mails de refus, d'annulation, d'avis et de retouche (`tasks.py`), 4 articles de blog. Aucun n'est validé par la praticienne.
 - **Délai de retouche** : le cahier des charges dit J+18 à un endroit et J+21 à un autre. J+18 retenu, à confirmer.
