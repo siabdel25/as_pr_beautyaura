@@ -1,0 +1,52 @@
+# Pile de développement : web (nginx) -> backend (Django/gunicorn) -> db (PostgreSQL), redis, worker Celery.
+#   cp backend/.env.example backend/.env   # puis renseigner DJANGO_SECRET_KEY
+#   docker compose up --build              # http://localhost:8080
+# La démo statique indépendante reste dans frontend/demo/.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: beautyaura
+      POSTGRES_USER: beautyaura
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-beautyaura-dev}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beautyaura"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  backend:
+    build: ./backend
+    env_file: [backend/.env]
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-beautyaura-dev}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+    command: sh -c "python manage.py migrate --noinput && gunicorn pr_beautyaura.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+
+  worker:
+    build: ./backend
+    env_file: [backend/.env]
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-beautyaura-dev}
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on: [backend]
+    command: celery -A pr_beautyaura worker --loglevel=info
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports: ["8080:80"]
+    depends_on: [backend]
+
+volumes:
+  pgdata:

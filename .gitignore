@@ -7,3 +7,8 @@ __pycache__/
 
 # Prototype de page d'accueil, hors périmètre du site
 frontend/demo/landing-my-beauty-aura.html
+
+# Backend
+.env
+backend/db.sqlite3
+backend/staticfiles/
