@@ -121,6 +121,8 @@ Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une 
 
 ## Questions ouvertes
 
+- [x] **Procédure de déploiement VPS Hostinger / Debian 13 / `dimatlas.com` écrite** (`docs/DEPLOIEMENT-VPS.md`) : rien n'est exécuté. Reste à choisir : stockage de sauvegardes UE, moniteur externe, hébergement du site statique, domaine définitif du studio
+
 - [ ] **En attente de vos infos (reporté le 05/11/2026)** : (1) envoyer `docs/QUESTIONNAIRE-CLIENT.md` au client après relecture (ton et prénom à adapter) ; (2) choisir le VPS, le fournisseur d'e-mail et le domaine de l'API. Dès réception : (1) renseigner `frontend/data/*.json` et supprimer les marqueurs ; (2) activer le mode API (`api`, `api_format`, `connect-src`, CORS, pas de 15 min)
 
 - [x] **Doublon avec `as_shoppy_frm_v2`** (tranché : option 2, ADR 0002) — (My Beauty Aura y existe déjà : module `booking`, Wagtail, multi-établissements) : choisir parmi les options de `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md` (recommandée : option 2, notre site statique appelle leur API). Dépend de l'hébergement phase 2. Quatre décisions listées dans `docs/DIAGNOSTIC-API-BOOKING.md` §6 : option 2 retenue ou non ; questionnaire de première visite (3 questions côté navigateur seulement, ou modèle étendu là-bas) ; pas de créneau 15 ou 30 min ; dépôt qui porte avis J+2 et retouche J+18
