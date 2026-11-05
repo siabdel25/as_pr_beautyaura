@@ -1,0 +1,108 @@
+# Démonstration complète avec fausses données : site, API, Celery, e-mails capturés (Mailpit).
+# Pile autonome (nom de projet lb-demo), séparée de la pile de développement. Ne jamais l'utiliser en production.
+#   bash scripts/demo.sh up        # puis http://localhost:8082
+# Les e-mails ne sortent jamais : Mailpit les capture (http://localhost:8026).
+name: lb-demo
+
+# L'image du backend est construite une seule fois (service data-init), les autres services la réutilisent.
+x-backend: &backend
+  image: lb-demo-backend
+  environment: &env
+    DJANGO_DEBUG: "true"
+    DJANGO_SECRET_KEY: demo-uniquement-ne-jamais-reutiliser
+    DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+    DJANGO_CSRF_TRUSTED_ORIGINS: http://localhost:${DEMO_PORT:-8082}
+    DRF_NUM_PROXIES: "1"
+    DATABASE_HOST: db
+    DATABASE_PASSWORD: demo
+    CELERY_BROKER_URL: redis://redis:6379/0
+    DJANGO_EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+    EMAIL_HOST: mailpit
+    EMAIL_PORT: "1025"
+    DEFAULT_FROM_EMAIL: reservations@demo.test
+    STUDIO_EMAIL: studio@demo.test
+    STUDIO_NOM: Studio de démonstration
+    SITE_URL: http://localhost:${DEMO_PORT:-8082}
+    AVIS_URL: http://localhost:${DEMO_PORT:-8082}/avis-demo
+  depends_on: &deps
+    data-init: {condition: service_completed_successfully}
+    db: {condition: service_healthy}
+    redis: {condition: service_started}
+
+services:
+  # Fausses données à la date du jour, partagées entre l'API (/data) et le site (data/).
+  data-init:
+    build: ./backend
+    image: lb-demo-backend
+    user: root
+    volumes:
+      - ./frontend:/frontend:ro
+      - ./docker/demo/preparer-donnees.sh:/preparer.sh:ro
+      - demo-data:/out
+      - demo-static:/static
+    command: sh /preparer.sh
+
+  db:
+    image: postgres:17-alpine
+    environment: {POSTGRES_DB: beautyaura, POSTGRES_USER: beautyaura, POSTGRES_PASSWORD: demo}
+    volumes: [demo-pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U beautyaura"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["${MAILPIT_PORT:-8026}:8025"]
+
+  backend:
+    <<: *backend
+    environment:
+      <<: *env
+      DJANGO_SUPERUSER_USERNAME: studio
+      DJANGO_SUPERUSER_PASSWORD: demo-studio
+      DJANGO_SUPERUSER_EMAIL: studio@demo.test
+    volumes:
+      - demo-data:/data:ro
+      - demo-static:/app/staticfiles
+      - ./docker/demo/seed_demo.py:/seed_demo.py:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request as u; u.urlopen('http://localhost:8000/api/v1/health/')\""]
+      interval: 5s
+      retries: 30
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput >/dev/null &&
+             python manage.py charger_donnees --data-dir /data &&
+             python manage.py shell < /seed_demo.py &&
+             (python manage.py createsuperuser --noinput || true) &&
+             gunicorn pr_beautyaura.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+
+  worker:
+    <<: *backend
+    depends_on: {backend: {condition: service_healthy}}
+    command: celery -A pr_beautyaura worker --loglevel=info
+
+  beat:
+    <<: *backend
+    depends_on: {backend: {condition: service_healthy}}
+    command: celery -A pr_beautyaura beat --loglevel=info --schedule /tmp/celerybeat-schedule
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports: ["${DEMO_PORT:-8082}:80"]
+    volumes:
+      - demo-data:/usr/share/nginx/html/data:ro
+      - demo-static:/usr/share/nginx/html/static:ro
+      - ./docker/demo/web.nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: {backend: {condition: service_healthy}}
+
+volumes:
+  demo-pg:
+  demo-data:
+  demo-static:
