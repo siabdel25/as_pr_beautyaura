@@ -121,6 +121,8 @@ Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une 
 
 ## Questions ouvertes
 
+- [x] **Guide des endpoints** (`docs/GUIDE-API-FRONTEND.md`) et **PWA dans Docker** (`docs/PWA-DOCKER.md`) écrits ; correctif nginx du type MIME du manifeste et du cache de `sw.js`. Reste : audit PWA sur appareil réel après mise en ligne ; **décision sur l'agenda de la praticienne** (option A réutiliser celui de l'autre dépôt, B Vite ici, C sans bundler)
+
 - [x] **Procédure de déploiement VPS Hostinger / Debian 13 / `dimatlas.com` écrite** (`docs/DEPLOIEMENT-VPS.md`) : rien n'est exécuté. Reste à choisir : stockage de sauvegardes UE, moniteur externe, hébergement du site statique, domaine définitif du studio
 
 - [ ] **En attente de vos infos (reporté le 05/11/2026)** : (1) envoyer `docs/QUESTIONNAIRE-CLIENT.md` au client après relecture (ton et prénom à adapter) ; (2) choisir le VPS, le fournisseur d'e-mail et le domaine de l'API. Dès réception : (1) renseigner `frontend/data/*.json` et supprimer les marqueurs ; (2) activer le mode API (`api`, `api_format`, `connect-src`, CORS, pas de 15 min)

@@ -12,7 +12,7 @@ Site vitrine et prise de rendez-vous en ligne pour un studio de soins des cils e
 - SEO local : données structurées schema.org, une page par prestation
 - Conforme RGPD : bandeau cookies, mesure d'audience sans cookie
 - **Application installable (PWA)** : manifeste, service worker (pages réseau d'abord, ressources en cache, page hors ligne), bouton « Installer l'application » dans le pied de page
-- **Version démo Docker** : nginx et fausses données générées en Python (voir « Démo Docker »)
+- **Démos Docker** : site statique avec fausses données, et pile complète (API, e-mails capturés, administration) pour tester la réservation de bout en bout (voir « Démos Docker »)
 
 ## Stack
 
@@ -23,7 +23,7 @@ Site vitrine et prise de rendez-vous en ligne pour un studio de soins des cils e
 | Interactivité | Vue 3 (ES modules, sans bundler) |
 | Calendrier | V-Calendar 3.x |
 | Données | JSON dans `frontend/data` (phase 1) |
-| Backend (phase 2) | Django, Django REST Framework, Celery + Redis, PostgreSQL |
+| Backend (phase 2) | Django, Django REST Framework, Celery + Redis, PostgreSQL. API cible de production : celle du dépôt `as_shoppy_frm_v2` (ADR 0002) |
 
 ## Démarrage rapide
 
@@ -53,13 +53,15 @@ lash-brow-studio/
 │   ├── demo/               # démo Docker autonome : nginx et fausses données
 │   ├── manifest.webmanifest, sw.js, offline.html   # PWA (sw.js est généré par le build)
 │   └── .htaccess, _headers # générés par le build (Hostinger, Netlify)
-├── backend/                # Django + DRF + Celery (phase 2, squelette)
+├── backend/                # Django + DRF + Celery (phase 2)
 │   ├── pr_beautyaura/      # réglages par variables d'environnement, Celery
-│   └── reservations/       # app de l'API /api/v1/ (sonde /health/ pour l'instant)
-├── docker/                 # image web (nginx : statique + proxy /api et /admin)
+│   └── reservations/       # API /api/v1/ : créneaux, demandes, e-mails, métier isolé dans vertical.py
+├── docker/                 # image web (nginx : statique + proxy /api et /admin) ; docker/demo/ : pile de démonstration
 ├── docker-compose.yml      # pile de développement
-├── docs/                   # cahier des charges, déploiement, recette, guides
-├── CLAUDE.md, TODO.md, ROADMAP.md
+├── docker-compose.demo.yml # pile de démonstration complète avec fausses données (scripts/demo.sh)
+├── scripts/demo.sh         # up, status, logs, down, reset de la démonstration
+├── docs/                   # cahier des charges, ADR, guides (API, déploiement VPS, PWA), recette
+├── CLAUDE.md, TODO.md, ROADMAP.md, HANDOFF.md
 ```
 
 ## Mettre à jour le contenu
@@ -89,7 +91,7 @@ Exemple, ajouter un jour de fermeture :
 2. La demande est envoyée à la praticienne par e-mail via une fonction serverless.
 3. La praticienne **confirme manuellement**. Le site affiche « demande envoyée », jamais « confirmé ».
 
-La phase 2 ajoute une API pour bloquer les créneaux automatiquement et envoyer les confirmations.
+La phase 2 ajoute une API pour bloquer les créneaux automatiquement et envoyer les confirmations. Décision du 04/11/2026 (`docs/adr/0002-api-booking-d-as-shoppy-frm-v2-sur-vps-docker.md`) : en production, le site appellera l'API `booking` du dépôt `as_shoppy_frm_v2`, hébergée sur un VPS Docker ; l'adaptateur est prêt (`"api_format": "booking"`), pas encore activé.
 
 ## Qualité
 
@@ -109,7 +111,7 @@ Objectifs : Lighthouse mobile Performance ≥ 90, Accessibilité ≥ 95, SEO ≥
 
 ## Déploiement
 
-Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement prévu : Hostinger (mutualisé, `.htaccess` généré par le build : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués). Netlify et Cloudflare Pages restent possibles avec `_headers`. Relancer `node tools/build-pages.mjs` avant chaque déploiement : il renouvelle la version du cache du service worker. Marche à suivre complète : `docs/DEPLOIEMENT.md`.
+Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement prévu : Hostinger (mutualisé, `.htaccess` généré par le build : HTTPS, domaine unique `jmgaura.com`, en-têtes de sécurité, cache, fichiers de développement masqués). Netlify et Cloudflare Pages restent possibles avec `_headers`. Relancer `node tools/build-pages.mjs` avant chaque déploiement : il renouvelle la version du cache du service worker. Marche à suivre complète : `docs/DEPLOIEMENT.md`. Phase 2 (API sur VPS Hostinger, Debian 13, HTTPS, sauvegardes, e-mails authentifiés) : `docs/DEPLOIEMENT-VPS.md`.
 
 Étapes générales :
 
@@ -121,27 +123,50 @@ Le site (phase 1) est statique : publier le dossier `frontend/`. Hébergement pr
 
 ## Backend et pile Docker (phase 2)
 
-La phase 1 se publie sans backend. Le dossier `backend/` prépare la phase 2 (API de réservation Django REST Framework, tâches Celery, PostgreSQL). Il expose `GET /api/v1/services/`, `GET /api/v1/disponibilites/?month=YYYY-MM&services=id1,id2` (jours ayant au moins un créneau), `GET /api/v1/creneaux/?date=YYYY-MM-DD&services=id1,id2` et `POST /api/v1/reservations/` (demande toujours « à confirmer », créneau revérifié côté serveur, 5 demandes par heure et par IP). Les demandes se confirment dans l'admin Django (`/admin/`, action « Confirmer »). Chaque nouvelle demande déclenche un e-mail à la praticienne (`STUDIO_EMAIL`, tâche Celery) ; sans SMTP configuré, il s'affiche dans les logs du worker. Quand la praticienne confirme une demande (action « Confirmer » ou statut modifié dans le formulaire), la cliente reçoit un e-mail de confirmation avec une invitation `.ics` ; c'est le seul moment où le mot « confirmé » est employé. Un service `beat` rattrape automatiquement les notifications manquées (toutes les 10 min) et envoie chaque jour à 10 h un rappel aux clientes dont le rendez-vous est confirmé pour le lendemain. Ne lancer qu'un seul `beat` par pile. Le tunnel du site appelle l'API quand `"api": "/api/v1"` est renseigné dans `frontend/data/reservation.json` ; avec `null` (valeur par défaut), il garde le comportement de la phase 1 (créneaux calculés depuis les JSON, envoi via `endpoint`). L'API doit alors être servie sur la même origine que le site (c'est le cas de la pile Docker) ou sur une origine absolue autorisée par la CSP, que le build ajoute tout seul.
+La phase 1 se publie sans backend. Le dossier `backend/` porte l'API de réservation de la phase 2 (Django REST Framework, Celery, PostgreSQL). Elle expose `GET /api/v1/health/`, `GET /api/v1/services/`, `GET /api/v1/disponibilites/?month=YYYY-MM&services=…`, `GET /api/v1/creneaux/?date=YYYY-MM-DD&services=…` et `POST /api/v1/reservations/`. Détail des charges utiles, des erreurs et de l'API cible `booking` : `docs/GUIDE-API-FRONTEND.md`.
+
+Règles métier :
+- Toute demande est « à confirmer » ; le créneau est revérifié côté serveur (verrou par jour) ; 5 demandes par heure et par IP.
+- La praticienne confirme dans l'administration Django (`/admin/`, action « Confirmer »). Seule la confirmation emploie le mot « confirmé ».
+- E-mails Celery : notification de la praticienne, confirmation avec `.ics`, refus et annulation, rappel J-1, demande d'avis J+2 et relance de retouche J+18 (si `AVIS_URL` est renseigné). Un rattrapage toutes les 10 minutes reprend les e-mails perdus. Ne lancer qu'un seul `beat` par pile.
+- Données de santé minimales : seul un indicateur « réponse à risque » est conservé, jamais le détail du questionnaire.
+- Le métier cils et sourcils est isolé dans `backend/reservations/vertical.py`.
+
+Le tunnel du site appelle l'API quand `"api"` est renseigné dans `frontend/data/reservation.json` ; avec `null` (par défaut), il garde le comportement de la phase 1. `"api_format": "booking"` choisit l'API de `as_shoppy_frm_v2`. L'API doit être sur la même origine que le site (cas de la pile Docker) ou sur une origine autorisée par la CSP et par CORS.
+
+Pile de développement :
 
 ```bash
 cp backend/.env.example backend/.env       # renseigner DJANGO_SECRET_KEY (obligatoire si DJANGO_DEBUG=false)
 docker compose up --build                  # http://localhost:8080 (site) et /api/v1/health/
+docker compose exec backend python manage.py charger_donnees --data-dir /data   # prestations, horaires, fermetures
 ```
 
-Premier lancement : `docker compose exec backend python manage.py migrate` est automatique ; chargez les prestations, horaires et fermetures avec `docker compose exec backend python manage.py charger_donnees --data-dir /data` (à relancer seulement pour réimporter `frontend/data`, cela écrase les horaires et fermetures de la base).
+La pile lance nginx (site statique, proxy `/api/` et `/admin/`), gunicorn, PostgreSQL, Redis, un worker et un `beat` Celery. Tests : `cd backend && pip install -r requirements.txt && DJANGO_DEBUG=true python manage.py test`.
 
-La pile lance nginx (site statique, proxy `/api/` et `/admin/`), gunicorn, PostgreSQL, Redis et un worker Celery. Tests du backend : `cd backend && pip install -r requirements.txt && DJANGO_DEBUG=true python manage.py test`.
+## Démos Docker
 
-## Démo Docker
+**Pile complète avec fausses données** (recommandée pour tester la réservation) : site, API, Celery, PostgreSQL, Redis, administration et boîte e-mail de capture (Mailpit, aucun e-mail ne sort). Aucune configuration à faire.
 
-nginx sert le site avec de fausses données (services, indisponibilités, réservations « à confirmer »), régénérées à chaque démarrage à la date du jour. Les données de `data/` ne sont pas modifiées. Réservée à la démonstration, pas à la production.
+```bash
+bash scripts/demo.sh up        # puis http://localhost:8082/reservation.html
+bash scripts/demo.sh reset     # tout effacer et repartir de zéro
+```
+
+Administration : `http://localhost:8082/admin/` (compte `studio`, mot de passe `demo-studio`). E-mails capturés : `http://localhost:8026/`. Parcours à tester : `docs/DEMO-DOCKER.md`.
+
+**Démo statique** (sans API, les demandes ne partent pas) : nginx sert le site avec de fausses données régénérées à chaque démarrage. Réservée à la démonstration.
 
 ```bash
 docker build -f frontend/demo/Dockerfile -t lb-demo frontend   # depuis la racine du dépôt
 docker run --rm -p 8080:80 lb-demo              # http://localhost:8080
 ```
 
-Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
+Détails et tests : `docs/DEPLOIEMENT.md`. Aucune des deux n'est destinée à la production.
+
+## PWA
+
+Le site est une PWA Vue 3 sans bundler (manifeste, service worker généré, page hors ligne), servie par nginx dans Docker. `/api/` et `/data/` ne sont jamais mis en cache. État, vérifications restantes (installation sur appareil, Lighthouse) et prévision d'une application d'agenda pour la praticienne : `docs/PWA-DOCKER.md`.
 
 ## Conformité et contenus
 
@@ -152,10 +177,18 @@ Détails et tests : section « Démo Docker » de `docs/DEPLOIEMENT.md`.
 ## Documentation
 
 - `docs/GUIDE-MISE-A-JOUR.md`, `docs/DEPLOIEMENT.md`, `docs/GOOGLE-BUSINESS-PROFILE.md`, `docs/RECETTE.md`
+- `docs/GUIDE-API-FRONTEND.md` : endpoints DRF (API actuelle et API cible `booking`)
+- `docs/DEMO-DOCKER.md` : démonstration complète avec fausses données
+- `docs/DEPLOIEMENT-VPS.md` : VPS Hostinger (Debian 13), HTTPS, sauvegardes, e-mails
+- `docs/PWA-DOCKER.md` : PWA Vue dans Docker
+- `docs/adr/` : décisions d'architecture (0001 statique d'abord, 0002 API `booking` sur VPS Docker)
+- `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md`, `docs/DIAGNOSTIC-API-BOOKING.md` : lien avec le dépôt `as_shoppy_frm_v2`
+- `docs/QUESTIONNAIRE-CLIENT.md` : informations à obtenir du client avant la mise en ligne
 - `docs/CAHIER_DES_CHARGES.md` : besoins, architecture, marketing, planning, recette
 - `CLAUDE.md` : règles pour travailler avec Claude Code
 - `TODO.md` : suivi des tâches par phase
 - `ROADMAP.md` : vue d'ensemble des étapes (en cours, à venir)
+- `HANDOFF.md` : passation, état du projet et par où reprendre
 
 ## Licence
 
