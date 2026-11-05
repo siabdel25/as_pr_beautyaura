@@ -14,6 +14,118 @@ Site vitrine et prise de rendez-vous en ligne pour un studio de soins des cils e
 - **Application installable (PWA)** : manifeste, service worker (pages réseau d'abord, ressources en cache, page hors ligne), bouton « Installer l'application » dans le pied de page
 - **Démos Docker** : site statique avec fausses données, et pile complète (API, e-mails capturés, administration) pour tester la réservation de bout en bout (voir « Démos Docker »)
 
+## Couverture fonctionnelle
+
+État au 05/11/2026. Légende : ✅ fait et testé · 🟡 fait mais non activé, ou en attente d'une information du client · ⏳ prévu (phase 3) · ⛔ volontairement exclu. « Autre dépôt » désigne `as_shoppy_frm_v2`, dont l'API `booking` est la cible de production (ADR 0002).
+
+### 1. Site vitrine (phase 1, statique)
+
+| Fonction | État | Détail |
+|---|---|---|
+| Pages du site | 🟡 | Accueil, à propos, contact, 4 pages prestations (extensions, rehaussement, soins des sourcils, épilation) et leur index, tarifs, galerie, FAQ, conseils après-soin, mentions légales, CGV et annulation, politique de confidentialité, 404, page hors ligne. Les textes comportent des marqueurs `[À COMPLÉTER]` tant que le client n'a pas répondu (`docs/QUESTIONNAIRE-CLIENT.md`) |
+| Tarifs | 🟡 | Tableau en HTML statique (SEO), filtrable par catégorie. Prix absents : à fournir par le client |
+| Choix de la courbure des cils | ✅ | Outil interactif C, CC, D, L sur la page extensions, avec description de l'effet |
+| Galerie avant/après | 🟡 | Curseur natif accessible au clavier. Une réalisation de cliente ne s'affiche qu'avec `"consentement": true` (accord écrit). Aucune photo réelle fournie : illustrations étiquetées |
+| Avis des clientes | 🟡 | Emplacement prévu, **aucun avis publié** (jamais d'avis inventé) |
+| Blog | 🟡 | 4 articles rédigés (`docs/blog/`), **non publiés** : à faire valider par la praticienne |
+| Carte, flux Instagram | 🟡 | Contenu tiers chargé **seulement après consentement** ; carte sans adresse configurée = rien d'affiché ; Instagram non branché (compte à fournir) |
+| Bouton « Réserver » collant sur mobile | ✅ | |
+| Mentions légales, CGV, confidentialité | 🟡 | Gabarits à compléter, **à faire relire par un professionnel** avant publication |
+
+### 2. Réservation côté cliente
+
+| Fonction | État | Détail |
+|---|---|---|
+| Tunnel en 4 étapes | ✅ | Prestations (plusieurs possibles, durée = somme), date (V-Calendar), créneau, coordonnées |
+| Jours et créneaux | ✅ | Jours indisponibles grisés ; créneaux calculés selon horaires, fermetures, réservations, tampon 15 min, délai 12 h, horizon 60 jours, fuseau Europe/Paris, sûrs au changement d'heure |
+| Questionnaire de première visite | ✅ | Allergie à la colle, traitement oculaire, grossesse : une réponse « oui » affiche « contactez le studio avant de réserver » ; rien de médical n'est promis |
+| Consentement et anti-spam | ✅ | Case RGPD et CGV obligatoires, champ piège anti-robot, limitation de fréquence côté serveur |
+| Message d'après envoi | ✅ | « Demande transmise, **pas encore confirmée** » : jamais « confirmé » avant validation |
+| Fichier d'agenda `.ics` | ✅ | Téléchargeable après envoi, marqué « à confirmer » |
+| Créneau pris entre-temps | ✅ | Retour au choix de l'heure, créneaux rechargés, demande non envoyée |
+| Accessibilité du tunnel | ✅ | Clavier, messages annoncés aux lecteurs d'écran (`aria-live`), squelettes de chargement |
+| Mode sans serveur (phase 1) | 🟡 | Créneaux calculés depuis `frontend/data/*.json` ; l'envoi passe par `endpoint` (service tiers) **non renseigné** : tant qu'il n'est pas renseigné, rien n'est envoyé et l'erreur le dit |
+| Mode API | 🟡 | Activé par `"api"` dans `reservation.json` ; `"api_format": "booking"` pour l'API de l'autre dépôt (adaptateur prêt, vérifié sur la démo). **Non activé** |
+
+### 3. Côté studio (praticienne, opérateur)
+
+| Fonction | État | Backend d'ici (`/admin/`) | Autre dépôt (`/gestion/`, `/agenda/`) |
+|---|---|---|---|
+| Voir les demandes, confirmer, refuser, annuler | ✅ | Actions de l'administration | Actions + agenda graphique (glisser-déposer pour déplacer) |
+| Gérer prestations, durées, tarifs | ✅ | Services | Services réservables (prix en euros, acompte en pourcentage ou montant fixe) |
+| Gérer horaires et fermetures | ✅ | Horaires d'ouverture, indisponibilités | Règles et exceptions de disponibilité, ouvertures exceptionnelles |
+| Plusieurs praticiennes | ✅ là-bas seulement | Non géré : un seul agenda | Ressources multiples |
+| Réglages (délais, tampon, annulation, rappel) | 🟡 | Variables d'environnement | Écran « Réglages de réservation » |
+| Rôles, double authentification, journal d'audit | ✅ là-bas seulement | Compte administrateur Django | Propriétaire/assistante, TOTP obligatoire, journal en ajout seul |
+| Éditer les textes du site | 🟡 | Fichiers `frontend/data/` + build | Éditeur Wagtail `/cms/` |
+
+Mode d'emploi pas à pas : `docs/GUIDE-DASHBOARD.md`.
+
+### 4. E-mails automatiques
+
+| Message | État | Détail |
+|---|---|---|
+| Notification de la praticienne | ✅ | À chaque nouvelle demande |
+| Confirmation avec `.ics` | ✅ | Seul moment où le mot « confirmé » est employé ; statut revérifié à l'envoi |
+| Refus et annulation | ✅ | Par le studio |
+| Rappel la veille | ✅ | Rendez-vous confirmés seulement |
+| Demande d'avis J+2 | 🟡 | Envoyée seulement si `AVIS_URL` est renseigné ; textes à valider |
+| Relance de retouche J+18 | 🟡 | Catégorie extensions, ignorée si un prochain rendez-vous existe ; délai à confirmer (J+18 ou J+21) |
+| Rattrapage des e-mails perdus | ✅ | Toutes les 10 minutes et par commande ; un doublon est possible lors d'une longue panne, préféré à un message perdu |
+| Envoi réel (SMTP, Brevo) | 🟡 | Jamais testé avec un vrai serveur d'envoi : `docs/EMAIL-BREVO-BOITE.md` |
+| SMS de confirmation et de rappel | ⏳ | Service à choisir |
+| Gestion par la cliente (voir, déplacer, annuler par lien) | 🟡 | Absent d'ici ; **disponible dans l'autre dépôt**, activé avec l'API cible |
+
+### 5. Fiabilité des réservations
+
+| Garantie | État |
+|---|---|
+| Aucune double réservation d'un même créneau | ✅ Verrou par jour (testé en séquence, pas encore sous vraie concurrence) ; contrainte PostgreSQL dans l'autre dépôt |
+| Un créneau ne chevauche ni réservation, ni fermeture, ni horaire | ✅ |
+| Toute demande « à confirmer », jamais confirmée seule | ✅ |
+| Le client ne peut imposer ni statut, ni durée, ni prix | ✅ |
+| Parité des créneaux entre navigateur et serveur | ✅ Vérifiée sur 2 450 cas |
+| Un courrier envoyé deux fois, ou perdu sans trace | ✅ Garde horodatée par courrier, rattrapage, journal |
+
+### 6. Données personnelles et conformité
+
+| Point | État |
+|---|---|
+| Données de santé minimales | ✅ Seul un indicateur « réponse à risque » (oui/non) est conservé, jamais le détail ; aucun champ libre médical |
+| Consentement explicite dans le formulaire | ✅ |
+| Le site ne dépose aucun cookie | ✅ Choix de consentement mémorisé en local ; contenus tiers après consentement |
+| Mesure d'audience sans cookie (Plausible) | 🟡 Désactivée tant que `data/site.json` ne renseigne pas le domaine |
+| Effacement, anonymisation, durée de conservation | 🟡 Absent d'ici ; disponible dans l'autre dépôt (action d'effacement, conservation en mois) |
+| Aucune promesse médicale, aucun avis ni chiffre inventé, aucune photo sans consentement | ⛔ Interdits (voir « Conformité et contenus ») |
+| Microblading et micropigmentation | ⛔ Non proposés tant que le client ne confirme pas être formé et déclaré |
+
+### 7. Référencement, performance, installation
+
+| Fonction | État | Détail |
+|---|---|---|
+| SEO local | ✅ | Une page par prestation, données structurées schema.org (entreprise, service, FAQ), `sitemap.xml`, `robots.txt`, balises canoniques |
+| Sécurité du site | ✅ | En-têtes (CSP, Referrer-Policy…) générés par le build |
+| PWA installable | 🟡 | Manifeste, service worker, page hors ligne, bouton « Installer » ; `/api/` et `/data/` jamais mis en cache. **Installation sur appareil réel et audit Lighthouse à faire** après mise en ligne en HTTPS |
+| Objectifs Lighthouse (mobile) | 🟡 | Performance ≥ 90, Accessibilité ≥ 95, SEO ≥ 95 : cibles, pas encore mesurées sur le site publié |
+| Fiche Google Business Profile | 🟡 | Guide prêt (`docs/GOOGLE-BUSINESS-PROFILE.md`), fiche à créer |
+
+### 8. Paiement et fonctions avancées
+
+| Fonction | État | Détail |
+|---|---|---|
+| Acompte en ligne (Stripe, PayPal) | ⏳ ici / 🟡 là-bas | Codé dans l'autre dépôt, **sans recette en bac à sable** ; acompte à 0 par défaut |
+| Espace praticienne avec Vue Cal | ⏳ | Décision attendue : réutiliser l'agenda de l'autre dépôt, Vite ici, ou sans bundler (`docs/PWA-DOCKER.md`) |
+| Liste d'attente, cartes cadeaux, parrainage | ⏳ | Phase 3 |
+| Version anglaise | ⏳ | Phase 3 |
+
+### 9. Ce qui reste avant la mise en ligne
+
+Réponses du client au questionnaire, remplacement des 136 marqueurs, relecture des textes par la praticienne et des pages légales par un professionnel, choix du fournisseur d'e-mail et de la boîte du studio, activation du mode API sur le VPS, puis recette de bout en bout. Détail et blocages : `TODO.md`, `HANDOFF.md`.
+
+### Écart à corriger
+
+La page de confirmation du tunnel affiche « Annulation gratuite jusqu'à 24 h avant le rendez-vous » en dur (`frontend/assets/js/app/components/Confirmation.js`). Cette condition n'a pas été confirmée par le client (question H2 du questionnaire) : à aligner sur sa réponse.
+
 ## Stack
 
 | Couche | Technologie |
@@ -73,7 +185,6 @@ Tout se modifie dans `frontend/data`, sans toucher au code.
 | `services.json` | Prestations, durées, prix « à partir de » |
 | `horaires.json` | Horaires d'ouverture par jour |
 | `indisponibilites.json` | Congés, fermetures exceptionnelles |
-| `avis.json` | Avis clientes publiés avec accord |
 | `galerie.json` | Comparaisons avant/après. Une réalisation de cliente s'affiche seulement avec `"consentement": true` (accord écrit) |
 | `site.json` | URL publique du site (sitemap, balises canoniques), domaine de mesure d'audience, URL d'intégration de la carte |
 
