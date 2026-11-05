@@ -121,6 +121,8 @@ Questionnaire prêt à envoyer au client, qui regroupe les 136 marqueurs en une 
 
 ## Questions ouvertes
 
+- [x] **Guides e-mail et tableau de bord écrits** (`docs/EMAIL-BREVO-BOITE.md`, `docs/GUIDE-DASHBOARD.md`) : rien n'est exécuté. À décider : fournisseur de la boîte mail du studio (coût), correctif `Reply-To` du backend d'ici (seule la confirmation en porte un ; la relance de retouche invite pourtant à répondre)
+
 - [x] **Guide des endpoints** (`docs/GUIDE-API-FRONTEND.md`) et **PWA dans Docker** (`docs/PWA-DOCKER.md`) écrits ; correctif nginx du type MIME du manifeste et du cache de `sw.js`. Reste : audit PWA sur appareil réel après mise en ligne ; **décision sur l'agenda de la praticienne** (option A réutiliser celui de l'autre dépôt, B Vite ici, C sans bundler)
 
 - [x] **Procédure de déploiement VPS Hostinger / Debian 13 / `dimatlas.com` écrite** (`docs/DEPLOIEMENT-VPS.md`) : rien n'est exécuté. Reste à choisir : stockage de sauvegardes UE, moniteur externe, hébergement du site statique, domaine définitif du studio

@@ -181,6 +181,8 @@ Le site est une PWA Vue 3 sans bundler (manifeste, service worker généré, pag
 - `docs/DEMO-DOCKER.md` : démonstration complète avec fausses données
 - `docs/DEPLOIEMENT-VPS.md` : VPS Hostinger (Debian 13), HTTPS, sauvegardes, e-mails
 - `docs/PWA-DOCKER.md` : PWA Vue dans Docker
+- `docs/GUIDE-DASHBOARD.md` : configurer la plateforme (agenda, prestations, tarifs, horaires, réglages)
+- `docs/EMAIL-BREVO-BOITE.md` : Brevo pour envoyer, vraie boîte mail pour recevoir les réponses (Reply-To)
 - `docs/adr/` : décisions d'architecture (0001 statique d'abord, 0002 API `booking` sur VPS Docker)
 - `docs/COMPARAISON-AS-SHOPPY-FRM-V2.md`, `docs/DIAGNOSTIC-API-BOOKING.md` : lien avec le dépôt `as_shoppy_frm_v2`
 - `docs/QUESTIONNAIRE-CLIENT.md` : informations à obtenir du client avant la mise en ligne
